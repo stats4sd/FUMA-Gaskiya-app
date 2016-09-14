@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {NavController} from 'ionic-angular';
+import {NavController, NavParams, ViewController} from 'ionic-angular';
 
 
 
@@ -8,9 +8,16 @@ import {NavController} from 'ionic-angular';
 })
 
 export class FormsPage {
+  form:any;
 
-  constructor() {
-
+  constructor(private params:NavParams, public viewCtrl:ViewController) {
+    this.form=params.data.form;
+    console.log(this.form);
+  }
+  close(){
+    let pending=document.getElementsByClassName('offline-enabled__queue-length');
+    console.log(pending);
+    this.viewCtrl.dismiss('data')
   }
 
 

@@ -16,5 +16,16 @@
 
 <ion-content padding>
   <p>Formulaires publiés pour FUMA Gaskiya:</p>
+  <ion-list>
+    <ion-item *ngFor="let result of results">
+      <ion-icon name="clipboard" item-left></ion-icon>
+      <h2>{{result.title}}</h2>
+      <p>{{result.date_modified | date:'medium'}}</p>
+      <button clear item-right (click)="openForm(result)">
+        <ion-icon name="open"></ion-icon>
+        Ouvert
+      </button>
+    </ion-item>
+  </ion-list>
 
 </ion-content>
