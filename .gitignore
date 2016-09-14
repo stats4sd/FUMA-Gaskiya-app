@@ -9,3 +9,6 @@ plugins/
 .DS_Store
 Thumbs.db
 .idea/
+
+#hide changes to username/password files
+app/providers/kobo-api/kobo-api.ts

@@ -1,0 +1,20 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Formulaires</ion-title>
+    <ion-buttons end>
+      <button (click)="refresh()">
+        <span *ngIf="!finished">Formes de chargement...</span>
+        <span *ngIf="finished">Recharger</span>
+        <ion-icon name="refresh" *ngIf="finished"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <p>Formulaires publiés pour FUMA Gaskiya:</p>
+
+</ion-content>
