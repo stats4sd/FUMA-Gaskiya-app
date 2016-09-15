@@ -1,7 +1,7 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-
+      {{form.title}}
     </ion-title>
     <ion-buttons end>
       <button (click)="close()">
@@ -13,5 +13,5 @@
 </ion-header>
 
 <ion-content class="forms">
-  <iframe class="enketo-iframe" src="https://ee.kobotoolbox.org/x/#Yyw6"></iframe>
+  <iframe id="form-iframe" class="enketo-iframe" [src]="enketoLink"></iframe>
 </ion-content>
