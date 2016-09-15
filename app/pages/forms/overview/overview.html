@@ -20,7 +20,7 @@
   <ion-list>
     <ion-item *ngFor="let form of forms">
       <ion-icon name="clipboard" item-left *ngIf="form.downloadable"></ion-icon>
-      <ion-icon name="close-circle" danger item-left *ngIf="!form.downloadable"></ion-icon>
+      <ion-icon name="clipboard" light-grey item-left *ngIf="!form.downloadable"></ion-icon>
       <h2>{{form.title}}</h2>
       <p>{{form.date_modified | date:'medium'}}</p>
       <button clear item-right (click)="openForm(form)" *ngIf="form.enketoLink && form.downloadable">
