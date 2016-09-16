@@ -17,18 +17,20 @@ export class KoboApi {
 
   koboRequest(url):Observable<any> {
     var headers = new Headers();
-    let auth = ('Basic ' + btoa('chrismclarke:nra4ever'));
+    //username and pass
+    let auth = ('Basic ' + btoa('fumagaskiya1:fumagaskiya1'));
     headers.append('Authorization', auth);
     let options = new RequestOptions({headers: headers});
     let body = {url: url};
     return this.http.post('http://kobo-api.stats4sd.org', body, options)
       .map(function(res){
         let result = JSON.parse(res['_body']);
-        console.log(result)
+        console.log(result);
         return result
       })
       .catch((error:any) => Observable.throw(error.json().error || 'Server error'))
   }
+  //need to add something to catch response of incorrect username/pass
 
 }
 
