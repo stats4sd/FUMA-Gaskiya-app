@@ -14,5 +14,6 @@
 
 
 <ion-content class="results-map">
+  <p class="zoom-warning" *ngIf="zoomWarning==true">Zooming further will require internet access</p>
   <div id="map"></div>
 </ion-content>
