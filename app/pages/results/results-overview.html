@@ -9,6 +9,21 @@
 
 
 <ion-content padding>
+  <div id="noForms" *ngIf="!forms">No Forms</div>
+  <h3>Summary</h3>
+  <div id="formSummaries">
+    <ion-grid>
+      <ion-row>
+        <ion-col width-75>Form</ion-col>
+        <ion-col width-25>Total Submissions</ion-col>
+      </ion-row>
+      <ion-row *ngFor="let form of forms">
+        <ion-col width-75>{{form.title}}</ion-col>
+        <ion-col width-25>{{results[form.formid].length}}</ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  <h3>Detailed</h3>
   <button (click)="showResult('map')">Map</button>
   <button (click)="showResult('r')">R</button>
   <button (click)="showResult('vega')">Vega</button>
