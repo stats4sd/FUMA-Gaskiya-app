@@ -39,37 +39,42 @@ export class ResultsOverviewPage {
 
   getResults(){
     console.log('getting results');
+    this.anyErrors=false;
     this.storage.get('forms').then((forms)=>{
       this.forms=JSON.parse(forms);
-      for (let form of this.forms){
-        if(!this.results[form.formid]){
-          this.results[form.formid]=[];
-          this.koboApi.koboRequest('https://kc.kobotoolbox.org/api/v1/data/'+form.formid).subscribe(
-              result =>{
-                this.results[form.formid] = result
-              },
-              error =>{console.log(error)},
-              () => {
-                this.storage.set('results',JSON.stringify(this.results));
-              })
-        }
-      }
+      this.updateResults();
     })
   }
 
-  /*cacheFormResults(form,index){
-    this.koboApi.koboRequest('https://kc.kobotoolbox.org/api/v1/data/'+form.formid).subscribe(
-        //!**need to also save link to cache
-        result =>{
-          this.results[form.url] = result
-        },
-        error =>{console.log(error)},
-        () => {
-          this.cachedResults[index]=true;
-          console.log(this.results);
-          //this.storage.set('forms',JSON.stringify(this.results));
-        })
-  }*/
+  updateResults(){
+    //***need to only mark finished if all forms complete, possibly give progress update - x of y received...possibly also for get forms****
+    for (let form of this.forms){
+      if(!this.results[form.formid]) {
+        this.results[form.formid] = [];
+      }
+      console.log('getting result data from server');
+        this.koboApi.koboRequest('https://kc.kobotoolbox.org/api/v1/data/'+form.formid).subscribe(
+            result =>{
+              this.results[form.formid] = result
+            },
+            error =>{
+              console.log(error);
+              this.anyErrors = true;
+              this.finished = true;
+            },
+            () => {
+              console.log('data received for form #'+form.formid+' - '+form.title);
+              this.finished = true;
+              this.storage.set('results',JSON.stringify(this.results));
+            })
+      }
+  }
+
+  refresh(){
+    console.log('refreshing');
+    this.finished=false;
+    this.updateResults();
+  }
 
   showResult(pageName){
     let pages={map:ResultsMapPage,r:ResultsRPage,vega:ResultsVegaPage};
@@ -81,7 +86,6 @@ export class ResultsOverviewPage {
       console.log(data)
     });
     modal.present();
-
   }
 
 }
