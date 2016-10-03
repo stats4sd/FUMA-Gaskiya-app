@@ -10,27 +10,33 @@ import 'rxjs/add/operator/catch';
 export class KoboApi {
   data:any;
   forms:any;
+  apiToken:string='47e0d30543d119584093262840011ec93f90ba01';
 
   constructor(private http:Http) {
-    console.log('kobo api pipe loaded')
+    console.log('kobo api provider loaded')
   }
 
   koboRequest(url):Observable<any> {
     var headers = new Headers();
-    //username and pass
-    let auth = ('Basic ' + btoa('fumagaskiya1:fumagaskiya1'));
+    //use username/password auth. Useful if user inputs username/password in the app
+    /*let auth = ('Basic ' + btoa('username:password'));*/
+
+    //use token authentication
+    let auth = ('Token ' + this.apiToken);
+
+    //send request
     headers.append('Authorization', auth);
     let options = new RequestOptions({headers: headers});
     let body = {url: url};
+    //if using browser preview request will need to be sent via proxy site
     return this.http.post('http://kobo-api.stats4sd.org', body, options)
-      .map(function(res){
-        let result = JSON.parse(res['_body']);
-        console.log(result);
-        return result
-      })
-      .catch((error:any) => Observable.throw(error.json().error || 'Server error'))
+        .map(function(res){
+          let result = JSON.parse(res['_body']);
+          console.log(result);
+          return result
+        })
+        .catch((error:any) => Observable.throw(error.json().error || 'Server error'))
   }
-  //need to add something to catch response of incorrect username/pass
 
 }
 
