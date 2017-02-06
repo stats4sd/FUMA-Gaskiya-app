@@ -1,0 +1,5 @@
+{
+    "remote-couch-url":"https://mysite.com",
+   "username": "TestUser",
+    "password": "Pass1234"
+}

@@ -1,0 +1,13 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>FUMA Gaskiya</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <button ion-button block outline *ngFor="let view of viewSets" [navPush]="view.page">{{view.displayName}}</button>
+
+</ion-content>
