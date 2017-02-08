@@ -2,21 +2,21 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 
 /*
-  Generated class for the FUMAGaskiya page.
+  Generated class for the FumaAdmin page.
 
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
 @Component({
-  selector: 'page-fuma-gaskiya',
-  templateUrl: 'fuma-gaskiya.html'
+  selector: 'page-fuma-admin',
+  templateUrl: 'fuma-admin.html'
 })
-export class FUMAGaskiyaPage {
+export class FumaAdminPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {}
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad FUMAGaskiyaPage');
+    console.log('ionViewDidLoad FumaAdminPage');
   }
 
 }

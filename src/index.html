@@ -9,6 +9,12 @@
 
   <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">
   <link rel="manifest" href="manifest.json">
+
+  <!--leaflet and font-awesome markers-->
+  <link href="assets/external-packages/Leaflet/leaflet.css" rel="stylesheet">
+  <link href="assets/external-packages/Leaflet/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <link href="assets/external-packages/Leaflet/leaflet-awesome-markers/leaflet.awesome-markers.css" rel="stylesheet">
+
   <meta name="theme-color" content="#4e8ef7">
   
   <!-- cordova.js required for cordova apps -->
@@ -36,6 +42,15 @@
 
   <!-- The bundle js is generated during the build process -->
   <script src="build/main.js"></script>
+
+  <!--Scripts for leaflet, vega vis, simple statistics-->
+  <script src="assets/external-packages/Leaflet/leaflet-awesome-markers/leaflet.awesome-markers.min.js"></script>
+  <script src="assets/external-packages/Vega/d3.v3.min.js"></script>
+  <script src="assets/external-packages/Vega/vega-lite.js"></script>
+  <script src="assets/external-packages/Vega/vega.js"></script>
+  <!--important to make sure embed called after vega to add on top-->
+  <script src="assets/external-packages/Vega/vega-embed.js"></script>
+  <script src="assets/external-packages/simple-statistics.min.js"></script>
 
 </body>
 </html>

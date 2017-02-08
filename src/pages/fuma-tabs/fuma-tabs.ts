@@ -1,22 +1,23 @@
 import { Component, NgZone } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
-import { FarmersHomePage } from './farmers-home/farmers-home';
-import { FarmersResearchPage } from './farmers-research/farmers-research';
-import { FarmersProfilePage } from './farmers-profile/farmers-profile';
+import { FumaHomePage } from './fuma-home/fuma-home';
+import { FumaResearchPage } from './fuma-research/fuma-research';
+import { FumaAdminPage } from './fuma-admin/fuma-admin';
 import {PouchdbProvider} from '../../providers/pouchdb-provider'
 
 @Component({
-  selector: 'page-farmers-tabs',
-  templateUrl: 'farmers-tabs.html'
+  selector: 'page-fuma-tabs',
+  templateUrl: 'fuma-tabs.html'
 })
-export class FarmersTabsPage {
+export class FumaTabsPage {
 
   // this tells the tabs component which Pages
   // should be each tab's root Page
-  tab1Root: any = FarmersHomePage;
-  tab2Root: any = FarmersResearchPage;
-  tab3Root: any = FarmersProfilePage;
+  tab1Root: any = FumaHomePage;
+  tab2Root: any = FumaResearchPage;
+  tab3Root: any = FumaAdminPage;  
+  
 
   constructor(private database:PouchdbProvider, private zone:NgZone) {
 

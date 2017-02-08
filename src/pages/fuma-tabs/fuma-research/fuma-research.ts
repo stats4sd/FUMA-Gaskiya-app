@@ -4,10 +4,10 @@ import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ResearchViewPage } from '../../research-view/research-view'
 
 @Component({
-  selector: 'page-farmers-research',
-  templateUrl: 'farmers-research.html'
+  selector: 'page-fuma-research',
+  templateUrl: 'fuma-research.html'
 })
-export class FarmersResearchPage {
+export class FumaResearchPage {
   researchData: any;
   private update = false;
   
@@ -50,7 +50,7 @@ var testData =
     "farmerIDs": [],
     "live": false,
     "summaries": [
-      { field: 'Nom_productrice', metric: 'unique', display: "Total farmers:" },
+      { field: 'Nom_productrice', metric: 'unique', display: "Total fuma:" },
       { field: 'Nom_productrice', metric: 'count', display: "Total datapoints:" },
       { field: 'PDE_kg_ha', metric: 'mean', display: "mean PDE_Kg_ha" },
     ],
