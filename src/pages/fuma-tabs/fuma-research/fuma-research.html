@@ -14,7 +14,7 @@
 
 
 <ion-content padding>
-  <p>Below you can see the research information publically available</p>
+  <p>Below you can see all generated research information</p>
   <ion-card *ngFor="let res of researchData" (click)="viewResearch(res)"> 
   <ion-card-header>
     {{res.doc.displayName}}

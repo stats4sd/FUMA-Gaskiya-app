@@ -55,6 +55,20 @@ export class PouchdbProvider {
         });
     }
 
+    public checkExists(id: string) {
+        return this.get(id).then(result => {
+            return true
+        }, error => {
+            //not found error message
+            if (error.status == "404") {
+                return false
+            } else {
+                //other errors
+                return false
+            }
+        });
+    }
+
     public sync(remote?: string, options: any = {}) {
         //default connection
         if (!remote) {

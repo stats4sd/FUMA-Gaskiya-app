@@ -1,0 +1,21 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Research</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <p>Available Research</p>
+  <ion-card *ngFor="let res of researchData" (click)="viewResearch(res)">
+    <ion-card-header>
+      {{res.doc.displayName}}
+    </ion-card-header>
+    <ion-card-content>
+      {{res.doc.description}}
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

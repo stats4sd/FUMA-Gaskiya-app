@@ -16,6 +16,7 @@ import { ResearchViewPage } from '../pages/research-view/research-view';
 import { VegaLitePage } from '../pages/visualisations/vega-lite/vega-lite';
 import { LeafletPage } from '../pages/visualisations/leaflet/leaflet';
 import { PouchdbProvider } from '../providers/pouchdb-provider';
+import { KoboProvider } from '../providers/kobo-provider';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,6 @@ import { PouchdbProvider } from '../providers/pouchdb-provider';
     VegaLitePage,
     LeafletPage,
   ],
-  providers: [{provide: ErrorHandler, useClass: IonicErrorHandler}, PouchdbProvider]
+  providers: [{provide: ErrorHandler, useClass: IonicErrorHandler}, PouchdbProvider, KoboProvider]
 })
 export class AppModule {}
