@@ -27,12 +27,14 @@ export class KoboProvider {
     console.log('Hello KoboProvider Provider');
   }
   koboTest1(url) {
+    console.log('running kobo test 1')
     this.http.get(url).map(res => res.json()).subscribe(data => {
-      console.log(data)
+      console.log('test 1 data',data)
     });
   }
 
   koboTest2(url) {
+    console.log('running kobo test 2')
     let koboHeaders = new Headers([
       { "Authorization": "Token 47e0d30543d119584093262840011ec93f90ba01" },
       { 'Content-type': 'application/json' }
@@ -82,7 +84,7 @@ export class KoboProvider {
   // let options = new RequestOptions({ headers: headers });
   // let body = { url: url };
     
-  //   return this.http.post('http://kobo-api.stats4sd.org', body, options)
+  //   return this.http.post('https://kobo-api.stats4sd.org', body, options)
   //     .map(function (res) {
   //       let result = JSON.parse(res['_body']);
   //       console.log(result);

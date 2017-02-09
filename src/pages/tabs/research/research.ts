@@ -9,33 +9,48 @@ import { ResearchViewPage } from '../../research-view/research-view'
 })
 export class ResearchPage {
   researchData: any;
+  public forms: any;
   private update = false;
+  public devMode = false;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider) {
-
+    if(this.devMode==true){this.devScripts()}
   }
 
+  ionViewDidEnter() {
+    console.log('view entered, getting research and forms')
+    this.getResearch()
+    this.getForms()
+  }
   ionViewDidLoad() {
-    this.init()
+    
   }
-  init() {
+  getResearch() {
     this.database.getAll({
+      startkey: 'research',
+      endkey: 'research\uffff',
       include_docs: true
     }).then(result => {
       this.researchData = result.rows;
-    })
-    //extra script to push manual updates during testing
-    if (this.update == false) {
-      this.database.put(testData, "research_ogatrials_2016_combine2016").then(res => {
-        console.log(res)
-        this.update = true
-        this.init()
-      })
-    }
+    }) 
+  }
+  getForms() {
+    this.database.getAll({
+      startkey: 'koboForms',
+      endkey: 'koboForms\uffff',
+      include_docs: true
+    }).then(result => {
+      this.forms = result.rows;
+    }) 
   }
 
   viewResearch(res) {
     this.navCtrl.push(ResearchViewPage, res)
+  }
+  devScripts() {
+    // this.database.put(testData, "research_ogatrials_2016_combine2016").then(res => {
+    //   console.log(res)
+    //})
   }
 }
 

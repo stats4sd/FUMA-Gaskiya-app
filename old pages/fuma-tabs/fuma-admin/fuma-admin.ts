@@ -19,12 +19,26 @@ export class FumaAdminPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams, private koboApi: KoboProvider, private database: PouchdbProvider) {
     //check db for forms, if not there pull from server or use prepopulate 
-    this.database.checkExists('allKoboForms').then(res => {
-      console.log(res)
-      if (res == true) { this.results = res.rows }
-      else{database.put(initialForms,'allKoboForms')}
-  })
+    this.initialiseForms()
+
   }
+  initialiseForms() {
+  //temp to populate database
+    for (let form of initialForms) {
+      console.log('form',form)
+      //define what would be form id
+      let id = 'koboForms_' + form.formid + '_' + form.date_modified
+    //check exists, if does do nothing, if doesn't add to database
+    //will later need version numbers from db docs? no as won't overwrite without  
+      this.database.checkExists(id).then(res => {
+        console.log(res)
+        if (res == false) {
+          console.log('db write form',form,id)
+          this.database.put(form, id)
+        }
+      })
+  }  
+}  
 
   ionViewDidLoad() {
     //get not working

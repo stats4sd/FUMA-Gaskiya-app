@@ -64,6 +64,7 @@ export class LeafletPage {
     }.bind(this));
 
     // //add markers
+    //****note - awesome markers currently commented out of index script due to conflict */
     // // var redMarker = L.AwesomeMarkers.icon({
     // //   icon: 'shopping-cart',
     // //   markerColor: 'red',

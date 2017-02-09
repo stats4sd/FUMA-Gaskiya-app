@@ -1,18 +1,8 @@
-<!--
-  Generated template for the Tabs page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
--->
-<ion-header>
-
-  <ion-navbar>
-    <ion-title>tabs</ion-title>
-  </ion-navbar>
-
-</ion-header>
-
-
-<ion-content padding>
-
-</ion-content>
+<ion-tabs>
+  <ion-tab id="homeTab" [root]="tab1Root" tabTitle="Home" tabIcon="home"></ion-tab>
+  <ion-tab [root]="tab2Root" tabTitle="Collect" tabIcon="add"></ion-tab>
+  <ion-tab [root]="tab3Root" tabTitle="Research" tabIcon="flask"></ion-tab>
+  <ion-tab [root]="tab4Root" tabTitle="Profile" tabIcon="person"></ion-tab>
+  <ion-tab id="adminTab" [root]="tab5Root" tabTitle="Admin" tabIcon="settings"></ion-tab>
+  <ion-tab *ngIf="showFormTab" id="formTab" class="hidden" [root]="tab6Root" tabTitle="Form" tabIcon="clipboard"></ion-tab>
+</ion-tabs>

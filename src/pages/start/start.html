@@ -8,7 +8,7 @@
 
 
 <ion-content padding>
-  <button ion-button block outline *ngFor="let view of viewSets" [navPush]="view.page">{{view.displayName}}</button>
+  <button ion-button block outline *ngFor="let view of viewSets" (click)="viewSelect(view)">{{view.displayName}}</button>
   <ion-input></ion-input>
 
 </ion-content>

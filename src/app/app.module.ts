@@ -2,39 +2,39 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { StartPage } from '../pages/start/start';
-import {FarmersTabsPage} from '../pages/farmers-tabs/farmers-tabs';
-import {FarmersHomePage} from '../pages/farmers-tabs/farmers-home/farmers-home';
-import {FarmersResearchPage} from '../pages/farmers-tabs/farmers-research/farmers-research';
-import { FarmersProfilePage } from '../pages/farmers-tabs/farmers-profile/farmers-profile';
-import { FumaTabsPage } from '../pages/fuma-tabs/fuma-tabs';
-import { FumaResearchPage } from '../pages/fuma-tabs/fuma-research/fuma-research';
-import { FumaHomePage } from '../pages/fuma-tabs/fuma-home/fuma-home';
-import { FumaAdminPage } from '../pages/fuma-tabs/fuma-admin/fuma-admin';
-import {OrganisationsPage} from '../pages/organisations/organisations';
-import {UnionsPage} from '../pages/unions/unions';
+import { TabsPage } from '../pages/tabs/tabs';
+import { AdminPage } from '../pages/tabs/admin/admin';
+import { CollectPage } from '../pages/tabs/collect/collect';
+import { HomePage } from '../pages/tabs/home/home';
+import { ProfilePage } from '../pages/tabs/profile/profile';
+import { ResearchPage } from '../pages/tabs/research/research';
+
+
 import { ResearchViewPage } from '../pages/research-view/research-view';
+import { FormViewPage } from '../pages/form-view/form-view';
 import { VegaLitePage } from '../pages/visualisations/vega-lite/vega-lite';
 import { LeafletPage } from '../pages/visualisations/leaflet/leaflet';
+import { PhotosPage } from '../pages/photos/photos';
 import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
 
 @NgModule({
   declarations: [
     MyApp,
+
     StartPage,
-    FarmersTabsPage,
-    FarmersHomePage,
-    FarmersResearchPage,
-    FarmersProfilePage,
-    FumaTabsPage,
-    FumaHomePage,
-    FumaResearchPage,
-    FumaAdminPage,
-    OrganisationsPage,
-    UnionsPage,
+    TabsPage,
+    AdminPage,
+    CollectPage,
+    HomePage,   
+    ProfilePage,
+    ResearchPage,
+
     ResearchViewPage,
+    FormViewPage,
     VegaLitePage,
     LeafletPage,
+    PhotosPage
   ],
   imports: [
     IonicModule.forRoot(MyApp) 
@@ -42,20 +42,20 @@ import { KoboProvider } from '../providers/kobo-provider';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
+
     StartPage,
-    FarmersTabsPage,
-    FarmersHomePage,
-    FarmersResearchPage,
-    FarmersProfilePage,
-    FumaTabsPage,
-    FumaHomePage,
-    FumaResearchPage,
-    FumaAdminPage,
-    OrganisationsPage,
-    UnionsPage,
+    TabsPage,
+    AdminPage,
+    CollectPage,
+    HomePage, 
+    ProfilePage,
+    ResearchPage,
+
     ResearchViewPage,
+    FormViewPage,
     VegaLitePage,
     LeafletPage,
+    PhotosPage
   ],
   providers: [{provide: ErrorHandler, useClass: IonicErrorHandler}, PouchdbProvider, KoboProvider]
 })

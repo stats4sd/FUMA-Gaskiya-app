@@ -15,18 +15,19 @@ export class PouchdbProvider {
     private remoteDetails: any;
 
     constructor(public http: Http) {
-        this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
-        console.log('Hello Pouchdb Provider');
+        //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
         if (!this.isInstantiated) {
             this.database = new PouchDB("app-database");
             this.database.changes({
                 live: true,
-                include_docs: false
+                include_docs: true
             }).on('change', change => {
+                console.log('db changed')
                 this.listener.emit(change);
             });
             this.isInstantiated = true;
+            //this.database.sync()
         }
     }
     public get(id: string) {
@@ -34,9 +35,11 @@ export class PouchdbProvider {
     }
 
     public getAll(options?: any) {
-        console.log('options', options)
-        console.log('getting all docs')
         return this.database.allDocs(options);
+    }
+
+    public bulkDocs(docs) {
+        return this.database.bulkDocs(docs);
     }
 
     public put(document: any, id: string) {
@@ -70,20 +73,39 @@ export class PouchdbProvider {
     }
 
     public sync(remote?: string, options: any = {}) {
+        console.log('setting up db sync')
         //default connection
-        if (!remote) {
-            remote = this.remoteDetails['remote-couch-url']
-            options = {
-                "auth.username": this.remoteDetails.username,
-                "auth.password": this.remoteDetails.password
+        // if (!remote) {
+        //     remote = this.remoteDetails['remote-couch-url']
+        //     options = {
+        //         "auth.username": this.remoteDetails.username,
+        //         "auth.password": this.remoteDetails.password
+        //     }
+        // }
+        var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
+        var optionsSaved = {
+            "auth.username": "fumagaskiya-app",
+            "auth.password": "AA61E1481D12534A9CABE87465474"
             }
-        }
-        console.log('remote', remote)
-        console.log('options', options)
-        let remoteDatabase = new PouchDB(remote, options);
+        let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+        console.log('remoteDB',remoteDatabase)
         this.database.sync(remoteDatabase, {
             live: true,
-            retry: true
+            retry: true,
+            continuous: true
+        }).on('change', function (info) {
+            //alert(info)
+           console.log('change',info)
+        }).on('paused', function (err) {
+            console.log('paused',err)
+        }).on('active', function () {
+            // replicate resumed (e.g. new changes replicating, user went back online)
+        }).on('denied', function (err) {
+            console.log('denied',err)
+        }).on('complete', function (info) {
+            console.log('complete',info)
+        }).on('error', function (err) {
+            console.log('error',err)
         });
     }
 

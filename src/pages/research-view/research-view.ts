@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, ModalController } from 'ionic-angular';
 import { VegaLitePage } from '../visualisations/vega-lite/vega-lite';
 import { LeafletPage } from '../visualisations/leaflet/leaflet';
+import { PouchdbProvider } from '../../providers/pouchdb-provider'
 //simple statistics imported in index.html
 declare var ss;
 
@@ -11,16 +12,53 @@ declare var ss;
 })
 export class ResearchViewPage {
   public res: any;
+  private submissions: any;
+  private id: any;
+  private count: any;
   summaries:any=[]
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public modalCtrl: ModalController) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public modalCtrl: ModalController, private database:PouchdbProvider) {
     this.res = this.navParams.data.doc;
-    this.calculateSummaries(this.res.summaries, this.res.data)
-    console.log(this.summaries)
+    this.id = this.navParams.data.id
+    this.refresh()
+    this.count=1
+  }
+  refresh() {
+    if (this.id.split('_')[0] == "koboForms") {
+      this.prepareKoboFormSummaries(this.res)
+    }
+    else { this.calculateSummaries(this.res.summaries, this.res.data) }
   }
 
-  ionViewDidLoad() {
-    console.log('res',this.res)
+  ionViewDidEnter() {
+    if(this.count>0){this.refresh()}
+  }
+  prepareKoboFormSummaries(doc) {
+    if (!doc.summaries) { doc.summaries = [] }
+    if (!doc.visualisations) { doc.visualisations = [] }
+    this.res = doc
+    //get data points
+    var key = 'koboSubmission_' + doc.id_string
+    this.database.getAll(
+      {
+        startkey: key,
+        endkey: key + '\uffff',
+        include_docs: true
+      },
+    ).then(
+      res => {
+        var data = []
+        for (let row of res.rows) {
+          data.push(row.doc.data)
+        }
+        this.res.data = data
+        console.log('current res', this.res)
+        let i = 0
+        for (let vis of doc.visualisations) {
+          this.res.visualisations[i].spec.data = this.res.data
+        }
+        this.calculateSummaries(this.res.summaries, this.res.data)
+      })  
   }
 
   openVis(vis) {
@@ -42,7 +80,9 @@ export class ResearchViewPage {
       let modal = this.modalCtrl.create(LeafletPage, vis);
       modal.present();}  
   }
-  calculateSummaries(summaries,data) {
+  calculateSummaries(summaries, data) {
+    console.log('summaries', summaries);
+    console.log('data', data);
     for (let summary of summaries) {
       summary.dataArray=this._getDataArray(summary,data)
       console.log(summary)

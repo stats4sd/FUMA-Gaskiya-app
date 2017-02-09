@@ -17,5 +17,14 @@
       {{res.doc.description}}
     </ion-card-content>
   </ion-card>
+  <p>Live Forms</p>
+<ion-card *ngFor="let form of forms" (click)="viewResearch(form)">
+  <ion-card-header>
+  {{form.doc.title}}
+</ion-card-header>
+<ion-card-content>
+  {{form.doc.description}}
+</ion-card-content>
+</ion-card>
 
 </ion-content>
