@@ -11,7 +11,7 @@ import { FormViewPage } from '../../form-view/form-view'
 export class CollectPage {
   public forms: any;
   public empty = true;
-  public devMode = true;
+  public devMode = false;
   private app: App;
   public show;
 

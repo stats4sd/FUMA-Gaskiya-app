@@ -82,7 +82,7 @@ var testData =
           data: {
             values: []
           },
-          "encoding": {
+          encoding: {
             "x": { "field": "Nom_productrice", "type": "nominal" },
             "y": { "field": "PDE_kg_ha", "type": "quantitative" },
             "color": { "field": "Nom_d_entree", "type": "nominal" },

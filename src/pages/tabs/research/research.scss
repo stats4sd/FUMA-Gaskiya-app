@@ -1,3 +1,32 @@
 page-research {
 
+    ion-grid{
+        padding:0;
+        height:100%;
+    }
+    .scroll-content{
+        display: flex;
+    }
+    ion-row{
+        flex:1;
+    }
+    h3{
+        width:100%;
+        text-align: center;
+        font-size: small;
+        background-color: map-get($colors,fuma-yellow-background);
+        color: map-get($colors,fuma-yellow);
+        margin:0
+    }
+    ion-col{
+        padding:0
+    }
+    .forms-container{
+        overflow:auto;
+        white-space: nowrap;
+    }
+    p{
+        padding:5px
+    }
+    
 }
