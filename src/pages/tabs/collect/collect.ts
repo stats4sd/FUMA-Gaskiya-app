@@ -64,7 +64,6 @@ export class CollectPage {
       console.log('dismissed data',data)
     });
     formModal.present();
-    console.log('form', form)
   }
   devScripts() {
     console.log('running dev script')
