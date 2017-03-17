@@ -7,6 +7,29 @@
 </ion-header>
 
 
-<ion-content padding>
+<ion-content>
+  <p>Available Profiles</p>
+  <div *ngIf='empty'>Profiles will update when there is internet access</div>
+  <ion-list>
+    <ion-item *ngFor="let profile of profiles">
+      <ion-thumbnail item-left>
+        <!--<img [src]="getPhoto(profile)">-->
+      </ion-thumbnail>
+      <h2>Profile</h2>
+      <p>Profile text</p>
+      <button ion-button clear item-right>View</button>
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+  <!--<ion-item *ngFor="let photo of photoArray">
+    <ion-thumbnail item-left>
+      <img [src]="photo.image">
+    </ion-thumbnail>
+    <h2>{{photo.id}}</h2>
+    <p>Profile text</p>
+    <button ion-button clear item-right>View</button>
+  </ion-item>-->
+</ion-list>
 
 </ion-content>

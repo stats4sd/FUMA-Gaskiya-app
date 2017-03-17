@@ -30,7 +30,7 @@ export class PouchdbProvider {
             //this.database.sync()
         }
     }
-    public get(id: string) {
+    public get(id: string, options?:any) {
         return this.database.get(id);
     }
 
@@ -58,59 +58,70 @@ export class PouchdbProvider {
         });
     }
 
-    public checkExists(id: string) {
-        return this.get(id).then(result => {
-            return true
-        }, error => {
-            //not found error message
-            if (error.status == "404") {
-                return false
-            } else {
-                //other errors
-                return false
-            }
-        });
-    }
+    public getAttachment(id,filename) {
+        return this.database.getAttachment(id, filename)
+    .then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        return url
+    }).catch(function (err) {
+        console.log(err);
+        
+    });
+}
 
-    public sync(remote?: string, options: any = {}) {
-        console.log('setting up db sync')
-        //default connection
-        // if (!remote) {
-        //     remote = this.remoteDetails['remote-couch-url']
-        //     options = {
-        //         "auth.username": this.remoteDetails.username,
-        //         "auth.password": this.remoteDetails.password
-        //     }
-        // }
-        var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
-        var optionsSaved = {
-            "auth.username": "fumagaskiya-app",
-            "auth.password": "AA61E1481D12534A9CABE87465474"
-            }
-        let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
-        console.log('remoteDB',remoteDatabase)
-        this.database.sync(remoteDatabase, {
-            live: true,
-            retry: true,
-            continuous: true
-        }).on('change', function (info) {
-            //alert(info)
-           console.log('change',info)
-        }).on('paused', function (err) {
-            console.log('paused',err)
-        }).on('active', function () {
-            // replicate resumed (e.g. new changes replicating, user went back online)
-        }).on('denied', function (err) {
-            console.log('denied',err)
-        }).on('complete', function (info) {
-            console.log('complete',info)
-        }).on('error', function (err) {
-            console.log('error',err)
-        });
+    public checkExists(id: string) {
+    return this.get(id).then(result => {
+        return true
+    }, error => {
+        //not found error message
+        if (error.status == "404") {
+            return false
+        } else {
+            //other errors
+            return false
+        }
+    });
+}
+
+    public sync(remote ?: string, options: any = {}) {
+    console.log('setting up db sync')
+    //default connection
+    // if (!remote) {
+    //     remote = this.remoteDetails['remote-couch-url']
+    //     options = {
+    //         "auth.username": this.remoteDetails.username,
+    //         "auth.password": this.remoteDetails.password
+    //     }
+    // }
+    var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
+    var optionsSaved = {
+        "auth.username": "fumagaskiya-app",
+        "auth.password": "AA61E1481D12534A9CABE87465474"
     }
+    let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+    console.log('remoteDB', remoteDatabase)
+    this.database.sync(remoteDatabase, {
+        live: true,
+        retry: true,
+        continuous: true
+    }).on('change', function (info) {
+        //alert(info)
+        console.log('change', info)
+    }).on('paused', function (err) {
+        console.log('paused', err)
+    }).on('active', function () {
+        // replicate resumed (e.g. new changes replicating, user went back online)
+    }).on('denied', function (err) {
+        console.log('denied', err)
+    }).on('complete', function (info) {
+        console.log('complete', info)
+    }).on('error', function (err) {
+        console.log('error', err)
+    });
+}
 
     public getChangeListener() {
-        return this.listener;
-    }
+    return this.listener;
+}
 
 }
