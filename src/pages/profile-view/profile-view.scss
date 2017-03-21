@@ -1,0 +1,25 @@
+page-profile-view {
+    img{
+         max-height: 80vh;
+         object-fit: contain;
+    }
+    ion-row{
+        align-items:center;
+    }
+    h2{
+        text-align: center;
+    }
+    .info-card{
+        background:rgba(255,255,255,0.5); 
+        margin:12px 0 0 0;
+        width:100%;
+        // height:100%;
+        h2{
+            font-weight:700
+            }
+    
+    }
+    .delete-button{
+        margin-top:12px
+    }
+}

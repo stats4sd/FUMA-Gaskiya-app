@@ -12,6 +12,7 @@ import { ResearchPage } from '../pages/tabs/research/research';
 
 import { ResearchViewPage } from '../pages/research-view/research-view';
 import { FormViewPage } from '../pages/form-view/form-view';
+import { ProfileViewPage } from '../pages/profile-view/profile-view';
 import { VegaLitePage } from '../pages/visualisations/vega-lite/vega-lite';
 import { LeafletPage } from '../pages/visualisations/leaflet/leaflet';
 import { PhotosPage } from '../pages/photos/photos';
@@ -32,6 +33,7 @@ import { KoboProvider } from '../providers/kobo-provider';
 
     ResearchViewPage,
     FormViewPage,
+    ProfileViewPage,
     VegaLitePage,
     LeafletPage,
     PhotosPage
@@ -52,6 +54,7 @@ import { KoboProvider } from '../providers/kobo-provider';
     ResearchPage,
 
     ResearchViewPage,
+    ProfileViewPage,
     FormViewPage,
     VegaLitePage,
     LeafletPage,

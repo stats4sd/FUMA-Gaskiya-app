@@ -41,6 +41,12 @@ export class PouchdbProvider {
     public bulkDocs(docs) {
         return this.database.bulkDocs(docs);
     }
+    public remove(id) {
+        console.log('removing',id)
+        this.database.get(id).then(function (doc) {
+            return this.database.remove(doc);
+        }.bind(this));
+    }
 
     public put(document: any, id: string) {
         document._id = id;
@@ -64,7 +70,8 @@ export class PouchdbProvider {
         var url = URL.createObjectURL(blob);
         return url
     }).catch(function (err) {
-        console.log(err);
+        console.log('err',err);
+        return ('assets/images/no-photo.png')
         
     });
 }

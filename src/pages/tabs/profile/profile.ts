@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
+import { ProfileViewPage } from '../../profile-view/profile-view';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 /*
@@ -15,15 +16,37 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class ProfilePage {
   profiles: any;
+  allProfiles: any;
   empty: boolean;
   photos: any;
   photoArray: any[] = [];
+  deletedMessage: boolean = false
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, private sanitizer: DomSanitizer) { }
+  constructor(public navCtrl: NavController, public navParams: NavParams, public modalCtrl: ModalController, private database: PouchdbProvider, private sanitizer: DomSanitizer) { }
 
   ionViewDidEnter() {
     this.getProfiles();
+    this.deletedMessage = false;
     //this.getPhotos();
+  }
+  viewProfile(profile) {
+    console.log('viewing profile', profile)
+    let formModal = this.modalCtrl.create(ProfileViewPage, profile, {
+      showBackdrop: false,
+      enableBackdropDismiss: false
+    });
+    // add functions to delete doc and linked photos if prompted from modal
+    formModal.onDidDismiss(data => {
+      console.log('dismissed data', data)
+      if (data && data.deleteDoc) {
+        this.database.remove(profile.id)
+        this.deletedMessage = true;
+        if (profile.photoDocId) {
+          this.database.remove(profile.photoDocId)
+        }
+      }
+    });
+    formModal.present();
   }
   getProfiles() {
     this.database.getAll(
@@ -34,85 +57,53 @@ export class ProfilePage {
       },
     ).then(
       res => {
-        var profiles=res.rows
-        var promises = profiles.map(function(profile){
+        var profiles = res.rows
+        var promises = profiles.map(function (profile) {
           return this.getPhoto(profile)
         }.bind(this))
         return Promise.all(promises).then(
-          res=>{
-            console.log('all promised resolved',res)
-            this.profiles=res
+          res => {
+            this.profiles = res
+            this.allProfiles=res
           }
         )
       }
       )
   }
-  getPhotos() {
-    // this.database.getAll(
-    //   {
-    //     startkey: 'photos_fuma-op-membre',
-    //     endkey: 'photos_fuma-op-membre\uffff',
-    //     include_docs: true,
-    //     attachments: true
-    //   },
-    // ).then(
-    //   res => {
-    //     let photos = res.rows
-    //     this.photos = {}
-    // console.log('photos', photos)
-    // if (res.rows.length > 0) {
-    //   this.empty = false
-    // }
-
-    // for (let profile of this.profiles) {
-    //   console.log('index',index)
-    // var profilePhotoId = profile.doc.data["meta/deprecatedID"]
-    // console.log('profile photo id',profilePhotoId)
-    // var photoDocId = 'photos_fuma-op-membre_' + profilePhotoId
-    // console.log('photo doc id',photoDocId)
-    // var filename= profilePhotoId+'.jpeg'
-    // console.log('filename', filename)
-    // //return 'assets/images/no photo.jpg'
-    // this.database.getAttachment(photoDocId, filename).then(url => {
-    //   return this.sanitizer.bypassSecurityTrustUrl(url)
-    // }).catch(err => {
-    //   console.log('err', err)
-    //   return 'assets/image/no photo.jpeg'
-    // })
-
-
-    // var filename = id + '.jpeg'
-    // this.database.getAttachment(photo.id, filename).then(url => {
-    //   this.profiles[id] = url
-    // })
-    // }
-
-  }
 
   getPhoto(profile) {
-    return new Promise((resolve,reject)=>{
-      console.log('getting profile', profile)
-    var profilePhotoId = profile.doc.data["meta/deprecatedID"]
-    console.log('profile photo id', profilePhotoId)
-    var photoDocId = 'photos_fuma-op-membre/' + profilePhotoId
-    console.log('photo doc id', photoDocId)
-    var filename = profilePhotoId + '.jpeg'
-    console.log('filename', filename)
-    // return 'assets/images/no photo.jpg'
-    this.database.getAttachment('photos_fuma-op-membre/-KfQPQrljR0C-xkp6DKE', '-KfQPQrljR0C-xkp6DKE.jpeg').then(url => {
-      // this.database.getAttachment(photoDocId, filename).then(url => {
-      console.log('photo retrieved', url)
-      profile.photo = this.sanitizer.bypassSecurityTrustUrl(url)
-      //profile.photo = url
-      //console.log('profile', profile)
-      resolve(profile)
-    }).catch(err => {
-      console.log('err', err)
-      profile.photo='assets/image/no photo.jpeg'
-      resolve(profile)
+    return new Promise((resolve, reject) => {
+      var profilePhotoId = profile.doc.data["meta/deprecatedID"]
+      var photoDocId = 'photos_fuma-op-membre/' + profilePhotoId
+      var filename = profilePhotoId + '.jpeg'
+      // return 'assets/images/no photo.jpg'
+      this.database.getAttachment('photos_fuma-op-membre/' + profilePhotoId, filename).then(url => {
+        profile.photo = this.sanitizer.bypassSecurityTrustUrl(url)
+        profile.photoDocId = photoDocId;
+        resolve(profile)
+      }).catch(err => {
+        console.log('err', err)
+        // profile.photo = 
+        // resolve(profile)
+      })
     })
-  })
-    
-}
+  }
+  initializeItems() {
+    this.profiles = this.allProfiles;
+  }
+  getItems(ev: any) {
+    // Reset items back to all of the items
+    this.initializeItems();
+
+    // set val to the value of the searchbar
+    let val = ev.target.value;
+
+    // if the value is an empty string don't filter the items
+    if (val && val.trim() != '') {
+      this.profiles = this.profiles.filter((item) => {
+        return (item.doc.data.nom_Membre.toLowerCase().indexOf(val.toLowerCase()) > -1);
+      })
+    }
+  }
 }
 
