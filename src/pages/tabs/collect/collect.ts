@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NavController, NavParams, ModalController, App } from 'ionic-angular';
+import { NavController, NavParams, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { FormViewPage } from '../../form-view/form-view'
 
@@ -12,7 +12,6 @@ export class CollectPage {
   public forms: any;
   public empty = true;
   public devMode = false;
-  private app: App;
   public show;
 
   @Input() name: string;

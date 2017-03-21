@@ -1,15 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ModalController } from 'ionic-angular';
+import { NavController, NavParams, ModalController, ToastController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ProfileViewPage } from '../../profile-view/profile-view';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-/*
-  Generated class for the Profile page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
-*/
 @Component({
   selector: 'page-profile',
   templateUrl: 'profile.html'
@@ -22,7 +16,7 @@ export class ProfilePage {
   photoArray: any[] = [];
   deletedMessage: boolean = false
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public modalCtrl: ModalController, private database: PouchdbProvider, private sanitizer: DomSanitizer) { }
+  constructor(public navCtrl: NavController, public navParams: NavParams, public toastCtrl:ToastController, public modalCtrl: ModalController, private database: PouchdbProvider, private sanitizer: DomSanitizer) { }
 
   ionViewDidEnter() {
     this.getProfiles();
@@ -41,9 +35,11 @@ export class ProfilePage {
       if (data && data.deleteDoc) {
         this.database.remove(profile.id)
         this.deletedMessage = true;
-        if (profile.photoDocId) {
+        if (profile.photoDocId && profile.photoDocId!="") {
           this.database.remove(profile.photoDocId)
         }
+        this.showToast('user deleted')
+
       }
     });
     formModal.present();
@@ -79,7 +75,9 @@ export class ProfilePage {
       // return 'assets/images/no photo.jpg'
       this.database.getAttachment('photos_fuma-op-membre/' + profilePhotoId, filename).then(url => {
         profile.photo = this.sanitizer.bypassSecurityTrustUrl(url)
-        profile.photoDocId = photoDocId;
+        if (url != "assets/images/no-photo.png") {
+          profile.photoDocId = photoDocId;
+        }  
         resolve(profile)
       }).catch(err => {
         console.log('err', err)
@@ -104,6 +102,17 @@ export class ProfilePage {
         return (item.doc.data.nom_Membre.toLowerCase().indexOf(val.toLowerCase()) > -1);
       })
     }
+  }
+  showFilters() {
+    this.showToast('filters not yet implemented')
+  }
+  showToast(message, position='top') {
+    let toast = this.toastCtrl.create({
+      message: message,
+      duration: 3000,
+      position: position
+    });
+    toast.present();
   }
 }
 

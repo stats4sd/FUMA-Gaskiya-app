@@ -12,7 +12,7 @@ export class PouchdbProvider {
     private isInstantiated: boolean;
     private database: any;
     private listener: EventEmitter<any> = new EventEmitter();
-    private remoteDetails: any;
+    // private remoteDetails: any;
 
     constructor(public http: Http) {
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))

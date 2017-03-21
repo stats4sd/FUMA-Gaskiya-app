@@ -1,11 +1,8 @@
 <ion-header>
-
   <ion-navbar color="primary">
     <ion-title>profiles</ion-title>
-    <!--<ion-item class="badger-counter-item">      
-    </ion-item>-->
     <ion-buttons end>
-      <button ion-button icon-only>
+      <button ion-button icon-only (click)="showFilters()">
         <ion-icon name="funnel"></ion-icon>
       </button>
       <button ion-button icon-only>
@@ -13,9 +10,7 @@
       </button>
     </ion-buttons>
   </ion-navbar>
-
 </ion-header>
-
 
 <ion-content>
   <div class="message" *ngIf='empty'>Profiles will update when there is internet access</div>
@@ -32,7 +27,4 @@
     </ion-item>
   </ion-list>
   <div class="message" *ngIf='profiles && profiles.length==0'>There are no matching profiles</div>
-
-
-
 </ion-content>

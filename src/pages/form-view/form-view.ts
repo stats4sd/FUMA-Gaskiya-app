@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavParams, ViewController } from 'ionic-angular';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Camera } from 'ionic-native';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
