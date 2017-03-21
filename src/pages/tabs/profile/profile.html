@@ -13,9 +13,9 @@
   <ion-list>
     <ion-item *ngFor="let profile of profiles">
       <ion-thumbnail item-left>
-        <!--<img [src]="getPhoto(profile)">-->
+        <img [src]="profile.photo">
       </ion-thumbnail>
-      <h2>Profile</h2>
+      <!--<h2>{{profile.photo | async}}</h2>-->
       <p>Profile text</p>
       <button ion-button clear item-right>View</button>
     </ion-item>

@@ -34,14 +34,18 @@ export class ProfilePage {
       },
     ).then(
       res => {
-        this.profiles = res.rows
-        this.profiles=this.profiles.map(profile=>this.getPhoto(profile))
-        
-        console.log('profiles', this.profiles)
-        if (res.rows.length > 0) {
-          this.empty = false
-        }
-      })
+        var profiles=res.rows
+        var promises = profiles.map(function(profile){
+          return this.getPhoto(profile)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res=>{
+            console.log('all promised resolved',res)
+            this.profiles=res
+          }
+        )
+      }
+      )
   }
   getPhotos() {
     // this.database.getAll(
@@ -55,11 +59,11 @@ export class ProfilePage {
     //   res => {
     //     let photos = res.rows
     //     this.photos = {}
-        // console.log('photos', photos)
-        // if (res.rows.length > 0) {
-        //   this.empty = false
-        // }
-    
+    // console.log('photos', photos)
+    // if (res.rows.length > 0) {
+    //   this.empty = false
+    // }
+
     // for (let profile of this.profiles) {
     //   console.log('index',index)
     // var profilePhotoId = profile.doc.data["meta/deprecatedID"]
@@ -75,36 +79,40 @@ export class ProfilePage {
     //   console.log('err', err)
     //   return 'assets/image/no photo.jpeg'
     // })
-          
 
-          // var filename = id + '.jpeg'
-          // this.database.getAttachment(photo.id, filename).then(url => {
-          //   this.profiles[id] = url
-          // })
-        // }
-    
+
+    // var filename = id + '.jpeg'
+    // this.database.getAttachment(photo.id, filename).then(url => {
+    //   this.profiles[id] = url
+    // })
+    // }
+
   }
-  sanitize(url: string) {
-    return this.sanitizer.bypassSecurityTrustUrl(url)
-  }
+
   getPhoto(profile) {
-    console.log('getting profile',profile)
+    return new Promise((resolve,reject)=>{
+      console.log('getting profile', profile)
     var profilePhotoId = profile.doc.data["meta/deprecatedID"]
-    console.log('profile photo id',profilePhotoId)
+    console.log('profile photo id', profilePhotoId)
     var photoDocId = 'photos_fuma-op-membre/' + profilePhotoId
-    console.log('photo doc id',photoDocId)
-    var filename= profilePhotoId+'.jpeg'
+    console.log('photo doc id', photoDocId)
+    var filename = profilePhotoId + '.jpeg'
     console.log('filename', filename)
     // return 'assets/images/no photo.jpg'
     this.database.getAttachment('photos_fuma-op-membre/-KfQPQrljR0C-xkp6DKE', '-KfQPQrljR0C-xkp6DKE.jpeg').then(url => {
-    // this.database.getAttachment(photoDocId, filename).then(url => {
+      // this.database.getAttachment(photoDocId, filename).then(url => {
+      console.log('photo retrieved', url)
       profile.photo = this.sanitizer.bypassSecurityTrustUrl(url)
-      return profile
+      //profile.photo = url
+      //console.log('profile', profile)
+      resolve(profile)
     }).catch(err => {
       console.log('err', err)
-      profile.photo = 'assets/image/no photo.jpeg'
-      return profile
+      profile.photo='assets/image/no photo.jpeg'
+      resolve(profile)
     })
-  }
+  })
+    
+}
 }
 
