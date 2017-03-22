@@ -8,5 +8,7 @@
 
 
 <ion-content padding>
-
+    <p>Total Profiles: {{profiles.length}}</p>
+    <p>Pending approval: {{pendingProfiles.length}}</p>
+    <button ion-button color="fuma-green-dark" (click)="approveProfiles()">Approve all</button>
 </ion-content>

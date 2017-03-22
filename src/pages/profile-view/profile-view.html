@@ -14,45 +14,31 @@
 
 
 <ion-content>
-  <ion-card>
-    <ion-grid>
-      <ion-row>
-        <ion-col col-4>
+  <div class="id-card">
+        <div class="photo-holder">
           <img [src]="profile.photo">
-        </ion-col>
-        <ion-col>
+        </div>
+        <div class="id-info">
           <h2>{{profile.doc.data.nom_Membre}}</h2>
-          <svg #barcode id="barcode"></svg>
+          <img #barcode id="barcode">
+        </div>
+
+  </div>
+
+  <ion-card class="info-card">
+    <h2>Info</h2>
+    <ion-grid>
+      <ion-row *ngFor="let datum of profileData">
+        <ion-col class='meta-key'>
+          <div>{{datum.$key}}: </div>
+        </ion-col>
+        <ion-col class='meta-value'>
+          <div>{{datum.$val}}</div>
         </ion-col>
       </ion-row>
-      <!--<ion-row>
-        <ion-col>
-          1 of 3
-        </ion-col>
-        <ion-col>
-          2 of 3
-        </ion-col>
-        <ion-col>
-          3 of 3
-        </ion-col>
-      </ion-row>-->
     </ion-grid>
-    </ion-card>
-
-    <ion-card class="info-card">
-      <h2>Info</h2>
-  <ion-grid>
-    <ion-row *ngFor="let datum of profileData">
-      <ion-col class='meta-key'>
-        <div>{{datum.$key}}: </div>
-      </ion-col>
-      <ion-col class='meta-value'>
-        <div>{{datum.$val}}</div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-card>
-<button class="delete-button" ion-button icon-left small color="delete" (click)=delete()>
+  </ion-card>
+  <button class="delete-button" ion-button icon-left small color="delete" (click)=delete()>
   <ion-icon name="trash"></ion-icon>
   Delete Entry
 </button>

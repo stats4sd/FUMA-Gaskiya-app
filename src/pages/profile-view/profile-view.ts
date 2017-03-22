@@ -18,7 +18,13 @@ export class ProfileViewPage {
   }
 
   ionViewDidLoad() {
-    JsBarcode(this.barcode.nativeElement, '12345');
+    // var fumaID=this.profile.doc.fumaID.split(' ')[1] || 'pending'
+    var fumaID=this.profile.doc.fumaID || 'pending'
+    JsBarcode(this.barcode.nativeElement, fumaID,{
+      width:1,
+      height:40
+    }
+    );
   }
   prepareMeta() {
     // save all profile data fields in array for repeat. omit doc meta '_' and specific keys
