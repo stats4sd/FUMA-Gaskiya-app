@@ -1,6 +1,12 @@
 import { NgModule, ErrorHandler } from '@angular/core';
+// translation module
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { Http } from '@angular/http';
+
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
+// app tabs
 import { StartPage } from '../pages/start/start';
 import { TabsPage } from '../pages/tabs/tabs';
 import { AdminPage } from '../pages/tabs/admin/admin';
@@ -8,8 +14,7 @@ import { CollectPage } from '../pages/tabs/collect/collect';
 import { HomePage } from '../pages/tabs/home/home';
 import { ProfilePage } from '../pages/tabs/profile/profile';
 import { ResearchPage } from '../pages/tabs/research/research';
-
-
+// app pages
 import { ResearchViewPage } from '../pages/research-view/research-view';
 import { FormViewPage } from '../pages/form-view/form-view';
 import { ProfileViewPage } from '../pages/profile-view/profile-view';
@@ -19,6 +24,12 @@ import { PhotosPage } from '../pages/photos/photos';
 import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
 
+// needed to load translation from assets folder
+export function createTranslateLoader(http: Http) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+
 @NgModule({
   declarations: [
     MyApp,
@@ -27,7 +38,7 @@ import { KoboProvider } from '../providers/kobo-provider';
     TabsPage,
     AdminPage,
     CollectPage,
-    HomePage,   
+    HomePage,
     ProfilePage,
     ResearchPage,
 
@@ -39,7 +50,14 @@ import { KoboProvider } from '../providers/kobo-provider';
     PhotosPage
   ],
   imports: [
-    IonicModule.forRoot(MyApp) 
+    IonicModule.forRoot(MyApp),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [Http]
+      }
+    })
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -49,7 +67,7 @@ import { KoboProvider } from '../providers/kobo-provider';
     TabsPage,
     AdminPage,
     CollectPage,
-    HomePage, 
+    HomePage,
     ProfilePage,
     ResearchPage,
 
@@ -60,6 +78,6 @@ import { KoboProvider } from '../providers/kobo-provider';
     LeafletPage,
     PhotosPage
   ],
-  providers: [{provide: ErrorHandler, useClass: IonicErrorHandler}, PouchdbProvider, KoboProvider]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, PouchdbProvider, KoboProvider]
 })
-export class AppModule {}
+export class AppModule { }
