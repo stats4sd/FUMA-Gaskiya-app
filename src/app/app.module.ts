@@ -1,8 +1,15 @@
 import { NgModule, ErrorHandler } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { IonicStorageModule } from '@ionic/storage';
+//native components
+import { Camera } from '@ionic-native/camera';
+import { SplashScreen } from '@ionic-native/splash-screen';
+import { StatusBar } from '@ionic-native/status-bar';
 // translation module
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { Http } from '@angular/http';
+import { HttpModule } from '@angular/http';
 
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
@@ -51,6 +58,9 @@ export function createTranslateLoader(http: Http) {
   ],
   imports: [
     IonicModule.forRoot(MyApp),
+    BrowserModule,
+    HttpModule,
+    IonicStorageModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -78,6 +88,6 @@ export function createTranslateLoader(http: Http) {
     LeafletPage,
     PhotosPage
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, PouchdbProvider, KoboProvider]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, PouchdbProvider, KoboProvider, Camera, StatusBar, SplashScreen]
 })
 export class AppModule { }

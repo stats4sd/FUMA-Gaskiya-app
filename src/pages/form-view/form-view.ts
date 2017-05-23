@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavParams, ViewController } from 'ionic-angular';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Camera } from 'ionic-native';
+import { Camera } from '@ionic-native/camera';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { Storage } from '@ionic/storage';
 
@@ -19,7 +19,7 @@ export class FormViewPage {
   public showCamera = true;
   local: Storage;
 
-  constructor(private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider) {
+  constructor(private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider, private camera:Camera) {
     console.log('params', params.data)
     this.form = params.data.doc;
     this.instanceID = this.setInstanceID();
@@ -60,8 +60,8 @@ export class FormViewPage {
     // this.local = new Storage(['indexeddb', 'websql', 'localstorage'], { name: 'enketo', storeName: 'keyvaluepairs' });
     // this.local.get('properties').then(res => console.log('get request', res))
     // this.local.set('test','hii')
-    Camera.getPicture({
-      destinationType: Camera.DestinationType.DATA_URL,
+    this.camera.getPicture({
+      destinationType: this.camera.DestinationType.DATA_URL,
       quality: 50,
       targetWidth: 1000,
       targetHeight: 1500,
