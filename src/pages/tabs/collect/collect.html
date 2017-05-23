@@ -21,5 +21,9 @@
     </div>
   </div>
   <button ion-button *ngIf='devMode' (click)="devScripts()">Run Dev Scripts</button>
+  <!--<iframe id="form-iframe" class="enketo-iframe" [src]="enketoLink" 
+  sandbox="allow-forms allow-modals allow-same-origin allow-scripts allow-top-navigation"></iframe>
+  <p>form view component below</p>-->
+  <form-view [src]="enketoLink" [form]="enketoForm"></form-view>
 
 </ion-content>

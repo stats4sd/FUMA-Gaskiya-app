@@ -28,6 +28,9 @@ import { ProfileViewPage } from '../pages/profile-view/profile-view';
 import { VegaLitePage } from '../pages/visualisations/vega-lite/vega-lite';
 import { LeafletPage } from '../pages/visualisations/leaflet/leaflet';
 import { PhotosPage } from '../pages/photos/photos';
+//components
+import { FormViewComponent } from '../components/form-view/form-view';
+//providers
 import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
 
@@ -54,7 +57,8 @@ export function createTranslateLoader(http: Http) {
     ProfileViewPage,
     VegaLitePage,
     LeafletPage,
-    PhotosPage
+    PhotosPage,
+    FormViewComponent
   ],
   imports: [
     IonicModule.forRoot(MyApp),
