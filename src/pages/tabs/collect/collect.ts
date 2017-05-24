@@ -17,16 +17,16 @@ export class CollectPage {
   public enketoLink:String;
   public enketoForm:Object;
 
-  @Input() name: string;
-  @Output() onShowForm = new EventEmitter<boolean>();
-  //voted = false;
 
-  vote(show: boolean) {
-    this.onShowForm.emit(show);
-    this.show = true;
+  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl: ModalController) { }
+  
+  onFormClosed(e) {
+    //reset form on close so can later retrigger
+    if (e == 'closed') {
+      this.enketoForm = {}
+    }
+    
   }
-
-  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl:ModalController) {}
 
   ionViewDidEnter() {
     //query all koboForms, load

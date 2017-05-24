@@ -11,9 +11,10 @@ form-view {
     height: 98%
   }
   .iframe{
-    position: absolute;
+    position: fixed;
     top:54px;
     width:100vw;
+    height: 100vh;
     
     background-color: #F0F0F0;
   }

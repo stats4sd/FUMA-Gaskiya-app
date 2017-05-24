@@ -13,41 +13,33 @@ import { Storage } from '@ionic/storage';
 export class FormViewComponent {
   form: any;
   enketoLink: SafeResourceUrl;
-  instanceID: string;
-  public base64Image: string;
+  instanceID: String;
+  public base64Image: String;
   public showCamera = true;
   local: Storage;
   opened: Boolean = false;
   opacity: Number = 0;
   pointerEvents: String = 'none';
-  iframeHeight:Number;
+  tabBarElement: any;
+  iframeHeight: any;
 
   // define input properties. assign variable iframSrc from src property
   @Input('src') iframeSrc;
   @Input('form') iframeForm;
+  @Output() onFormClosed = new EventEmitter<any>();
 
   constructor(private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider, private camera: Camera) {
-
+    this.tabBarElement = document.querySelector('.tabbar');
+    this.iframeHeight=(window.innerHeight-54)+"px"
   }
   ngOnChanges(changes) {
-    console.log('changes', changes)
-    if (changes.iframeForm && !changes.iframeForm.firstChange) {
+    if (changes.iframeForm && !changes.iframeForm.firstChange && changes.iframeForm.currentValue.doc) {
       this.form = changes.iframeForm.currentValue.doc
-      console.log('new form', this.form)
-      //new form loaded
-      this.instanceID = this.setInstanceID();
-      var link = this.setIframeLink(this.form.enketoLink);
-      console.log('iframe link', link)
-      console.log('instanceID', this.instanceID)
-      this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(link);
-      this.opacity = 1;
-      this.pointerEvents = 'auto';
-      this.opened=true;
+      this.open();
     }
   }
   ngAfterViewInit() {
-    console.log('inner height',window.innerHeight)
-    this.iframeHeight=window.innerHeight-54
+
 
     // console.log('setting iframe source',this.iframeSrc);
     // this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(this.iframeSrc);
@@ -62,17 +54,24 @@ export class FormViewComponent {
     }
 
   }
-  ionViewDidLoad() {  }
+  ionViewDidLoad() { }
+  
+  open() {
+    this.instanceID = this.setInstanceID();
+    var link = this.setIframeLink(this.form.enketoLink);
+    this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(link);
+    this.opacity = 1;
+    this.pointerEvents = 'auto';
+    this.opened = true;
+    this.tabBarElement.style.display = 'none';
+    this.onFormClosed.emit('opened');
+  };
 
   close() {
-    console.log('closing')
-    //ideally want to minimise/make transparent so forms keep attempting upload
-    //will need to move code onto new form tab or combine into collect tab
-    // var iframe = window.frames['form-iframe']
-    // console.log('iframe doc', iframe.document)
-    // console.log('content window', iframe.contentWindow)
     this.opacity = 0;
-    this.pointerEvents = 'none'
+    this.pointerEvents = 'none';
+    this.tabBarElement.style.display = 'flex';
+    this.onFormClosed.emit('closed');
   }
   takePhoto() {
     // console.log('hacking into enketo storage');
