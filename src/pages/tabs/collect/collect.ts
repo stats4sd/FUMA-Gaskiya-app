@@ -26,9 +26,7 @@ export class CollectPage {
     this.show = true;
   }
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl:ModalController) {
-    this.enketoLink="https://ee.kobotoolbox.org/_/?d[/fuma-op-membre/meta/instanceID]=-Kkp65IjqM93l49XpUgf&parentWindowOrigin=http://localhost:8100#YPfh"
-  }
+  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl:ModalController) {}
 
   ionViewDidEnter() {
     //query all koboForms, load

@@ -13,51 +13,45 @@ import { Storage } from '@ionic/storage';
 export class FormViewComponent {
   form: any;
   enketoLink: SafeResourceUrl;
-  iframeHeight: any;
   instanceID: string;
   public base64Image: string;
   public showCamera = true;
   local: Storage;
+  opened: Boolean = false;
+  opacity: Number = 0;
+  pointerEvents: String = 'none';
+  iframeHeight:Number;
 
   // define input properties. assign variable iframSrc from src property
   @Input('src') iframeSrc;
   @Input('form') iframeForm;
 
-  constructor(private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider, private camera:Camera) {
-    // console.log('params', params.data)
-    // this.form = params.data.doc;
-    // this.instanceID = this.setInstanceID();
-    // var iframeLink = this.setIframeLink(this.form.enketoLink);
-    // console.log('iframe link', iframeLink)
-    // console.log('instanceID', this.instanceID)
-    // this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(iframeLink);
-    // this.iframeHeight = "100%"
-   
-    this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl("https://ee.kobotoolbox.org/_/?d[/fuma-op-membre/meta/instanceID]=-Kkp65IjqM93l49XpUgf&parentWindowOrigin=http://localhost:8100#YPfh");
+  constructor(private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider, private camera: Camera) {
 
   }
   ngOnChanges(changes) {
-    console.log('changes',changes)
-    if(changes.iframeForm && changes.iframeForm.currentValue){
+    console.log('changes', changes)
+    if (changes.iframeForm && !changes.iframeForm.firstChange) {
       this.form = changes.iframeForm.currentValue.doc
-      console.log('new form',this.form)
+      console.log('new form', this.form)
       //new form loaded
-    this.instanceID = this.setInstanceID();
-    var link = this.setIframeLink(this.form.enketoLink);
-    console.log('iframe link', link)
-    console.log('instanceID', this.instanceID)
-    this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(link);
-    this.iframeHeight = "100%"
+      this.instanceID = this.setInstanceID();
+      var link = this.setIframeLink(this.form.enketoLink);
+      console.log('iframe link', link)
+      console.log('instanceID', this.instanceID)
+      this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(link);
+      this.opacity = 1;
+      this.pointerEvents = 'auto';
+      this.opened=true;
     }
   }
-  ngAfterViewInit(){
+  ngAfterViewInit() {
+    console.log('inner height',window.innerHeight)
+    this.iframeHeight=window.innerHeight-54
 
-    console.log('setting iframe source',this.iframeSrc);
-    this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(this.iframeSrc);
+    // console.log('setting iframe source',this.iframeSrc);
+    // this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(this.iframeSrc);
 
-  }
-  ionViewDidLoad() {
-    
     //add event listener for messages sent from enketo iframe
     //note - currently not useful as enketo only correctly firing message on edit start but not submission success
     //https://github.com/kobotoolbox/enketo-express/issues/670
@@ -66,20 +60,19 @@ export class FormViewComponent {
       // TODO in real life, check origin! if (event.origin !== "http://enk.to:8080") return;
       console.log('data received from iframe', event);
     }
-  }
-  //generate an instance id when entering form to link 
-  ionViewDidEnter() {
 
   }
+  ionViewDidLoad() {  }
+
   close() {
+    console.log('closing')
     //ideally want to minimise/make transparent so forms keep attempting upload
     //will need to move code onto new form tab or combine into collect tab
-
     // var iframe = window.frames['form-iframe']
     // console.log('iframe doc', iframe.document)
     // console.log('content window', iframe.contentWindow)
-
-    //this.iframeHeight="100px"
+    this.opacity = 0;
+    this.pointerEvents = 'none'
   }
   takePhoto() {
     // console.log('hacking into enketo storage');
@@ -92,11 +85,11 @@ export class FormViewComponent {
       targetWidth: 1000,
       targetHeight: 1500,
       saveToPhotoAlbum: false,
-      correctOrientation:true
+      correctOrientation: true
     }).then((imageData) => {
       // imageData is a base64 encoded string
       this.base64Image = "data:image/jpeg;base64," + imageData;
-      let fileName=this.instanceID+'.jpeg'
+      let fileName = this.instanceID + '.jpeg'
       var doc = {
         _attachments: {},
         photoID: this.instanceID,
@@ -104,15 +97,15 @@ export class FormViewComponent {
       }
       doc._attachments[fileName] = {
         content_type: 'image/jpeg',
-        data:imageData
-      }  
-      this.database.put(doc, 'photos_'+this.form.id_string+'/'+this.instanceID)
+        data: imageData
+      }
+      this.database.put(doc, 'photos_' + this.form.id_string + '/' + this.instanceID)
     }, (err) => {
       console.log(err);
     });
   }
   setIframeLink(link) {
-    console.log('setting iframe link',link)
+    console.log('setting iframe link', link)
     //create autopopulate query parameters (currently only a deprecated instanceID, later could pull multiple)
     //need to make sure field isn't removed in future update. Query logged on other ways to populate a non interactive element (so user can't change it)
     var fillField = "meta/instanceID";

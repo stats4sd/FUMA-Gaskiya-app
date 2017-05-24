@@ -1,6 +1,5 @@
 form-view {
   //  position: absolute;
-  
    top:0;
    width:100vw;
    height:100vh;
@@ -10,5 +9,12 @@ form-view {
     .enketo-iframe{
     width:100%;
     height: 98%
+  }
+  .iframe{
+    position: absolute;
+    top:54px;
+    width:100vw;
+    
+    background-color: #F0F0F0;
   }
 }
