@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Camera } from 'ionic-native';
+import { Camera } from '@ionic-native/camera';
 
 /*
   Generated class for the Photos page.
@@ -15,7 +15,7 @@ import { Camera } from 'ionic-native';
 export class PhotosPage {
   cameraOptions: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, private camera:Camera) {
     this.cameraOptions = {
       
     }
@@ -23,7 +23,7 @@ export class PhotosPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad PhotosPage');
-    Camera.getPicture(this.cameraOptions).then((imageData) => {
+    this.camera.getPicture(this.cameraOptions).then((imageData) => {
       // imageData is either a base64 encoded string or a file URI
       // If it's base64:
       let base64Image = 'data:image/jpeg;base64,' + imageData;

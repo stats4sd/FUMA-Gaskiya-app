@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NavController, NavParams, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { FormViewPage } from '../../form-view/form-view';
+import { FormViewComponent } from '../../../components/form-view/form-view';
 
 
 @Component({
@@ -13,18 +14,18 @@ export class CollectPage {
   public empty = true;
   public devMode = false;
   public show;
+  public enketoLink:String;
+  public enketoForm:Object;
 
-  @Input() name: string;
-  @Output() onShowForm = new EventEmitter<boolean>();
-  //voted = false;
 
-  vote(show: boolean) {
-    this.onShowForm.emit(show);
-    this.show = true;
-  }
-
-  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl:ModalController) {
-
+  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl: ModalController) { }
+  
+  onFormClosed(e) {
+    //reset form on close so can later retrigger
+    if (e == 'closed') {
+      this.enketoForm = {}
+    }
+    
   }
 
   ionViewDidEnter() {
@@ -54,15 +55,18 @@ export class CollectPage {
 
 
   loadForm(form) {
+    console.log('loading form',form)
+    this.enketoForm=form;
     //this.navCtrl.push(FormViewPage,form)
-    let formModal = this.modalCtrl.create(FormViewPage, form, {
-      showBackdrop: false,
-      enableBackdropDismiss: false
-    });
-    formModal.onDidDismiss(data => {
-      console.log('dismissed data',data)
-    });
-    formModal.present();
+
+    // let formModal = this.modalCtrl.create(FormViewPage, form, {
+    //   showBackdrop: false,
+    //   enableBackdropDismiss: false
+    // });
+    // formModal.onDidDismiss(data => {
+    //   console.log('dismissed data',data)
+    // });
+    // formModal.present();
   }
   devScripts() {
     console.log('running dev script')

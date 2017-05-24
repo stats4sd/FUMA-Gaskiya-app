@@ -1,11 +1,10 @@
-<ion-header>
 
+<ion-header>
+  <form-view [src]="enketoLink" [form]="enketoForm" (onFormClosed)="onFormClosed($event)"></form-view>
   <ion-navbar color="primary">
     <ion-title>{{'COLLECT' | translate }}</ion-title>
   </ion-navbar>
-
 </ion-header>
-
 
 <ion-content>
   <p>Choose a survey to collect data</p>
@@ -21,5 +20,6 @@
     </div>
   </div>
   <button ion-button *ngIf='devMode' (click)="devScripts()">Run Dev Scripts</button>
-
+  
 </ion-content>
+
