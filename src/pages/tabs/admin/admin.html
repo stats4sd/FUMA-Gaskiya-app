@@ -11,4 +11,14 @@
     <p>Total Profiles: {{profiles.length}}</p>
     <p>Pending approval: {{pendingProfiles.length}}</p>
     <button ion-button color="fuma-green-dark" (click)="approveProfiles()">Approve all</button>
+
+  <ion-card (click)="confLocaliteEnquetee()">
+    <ion-item style="text-align: center">Configuration de la localité enquêtée
+    </ion-item>
+  </ion-card>
+
+  <ion-card (click)="gestionUnion()">
+    <ion-item style="text-align: center">Gestion unions
+    </ion-item>
+  </ion-card>
 </ion-content>

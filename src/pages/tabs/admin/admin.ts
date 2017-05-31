@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
+import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enquete/conf-localite-enquete';
+import { UnionsPage } from '../../unions/unions';
 
 /*
   Generated class for the Admin page.
@@ -22,6 +24,14 @@ export class AdminPage {
     this.getProfiles();
   }
 
+  confLocaliteEnquetee(){
+    this.navCtrl.push(ConfLocaliteEnquetePage);
+  }
+
+  gestionUnion(){
+    this.navCtrl.push(UnionsPage);
+  }
+
    getProfiles() {
     this.database.getAll(
       {
@@ -38,6 +48,8 @@ export class AdminPage {
       }
       )
   }
+
+  
   //assign semi-random id, check unique, add photo(?)
   approveProfiles(){
     var docs=this.pendingProfiles.map(function(profile){

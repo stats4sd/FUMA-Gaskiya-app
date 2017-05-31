@@ -1,0 +1,61 @@
+<!--
+  Generated template for the DetailUnion page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>detail-union</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content padding>
+   <!--h4 style="text-align: center; color: seagreen">
+    Détail union: {{union._id}}
+  </h4-->
+  <ion-card>
+    <ion-card-header>
+      <strong>Information union: {{union.data.num_aggrement}}</strong>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item-sliding>
+          <ion-item>
+            <h2><strong>Nom:</strong> {{union.data.nom_union}} </h2>
+            <h2><strong>Numéro aggrément:</strong> {{union.data.num_aggrement}}</h2>
+            <h2><strong>Date enregistrement:</strong> {{union.data.today | date: 'dd-MM-yyyy'}}</h2>
+            <h2><strong>Pays:</strong> {{union.data.pays}} </h2>
+            <h2><strong>Région:</strong> {{union.data.region}} </h2>
+            <h2><strong>Departement:</strong> {{union.data.departement}} </h2>
+            <h2><strong>Commune:</strong> {{union.data.commune}}</h2>
+            <h2><strong>Village:</strong> {{union.data.village}}</h2>
+            <h2><strong>Nombre d'OP:</strong> {{union.data.num_OP}}</h2>
+            <h2><strong>Nombre de membres:</strong> {{union.data.num_membre}}</h2>
+          </ion-item>
+          <ion-item-options side="left">
+            <button ion-button color="my_secondary" (click)="editer(union)">
+              <ion-icon name="create"></ion-icon>
+              Editer
+            </button>
+          </ion-item-options>
+
+          <ion-item-options side="right">
+            <button ion-button color="delete" (click)="supprimer(union)">
+              <ion-icon name="trash"></ion-icon>
+              Supprimer
+            </button>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="editer(union)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+  </ion-fab>
+
+</ion-content>
