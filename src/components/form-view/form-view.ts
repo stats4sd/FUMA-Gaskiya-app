@@ -112,6 +112,8 @@ export class FormViewComponent {
     var fillQueryParam = "[/" + this.form.id_string + '/' + fillField + "]=" + fillValue;
     //add callback window parameter to receive postmessage from enketo iframe
     var origin = window.location.origin
+    console.log('location?',window.location)
+    console.log('location?',document.location)
     var originQueryParam = "parentWindowOrigin=" + encodeURI(origin)
     //rewrite url to put query params before id for offline form 
     //more info see https://help.ona.io/faq/prefilling-form-fields-using-enketo and https://github.com/kobotoolbox/enketo-express/issues/386
@@ -119,10 +121,20 @@ export class FormViewComponent {
     var stringLength = link.length
     var linkPrefix = link.slice(0, stringLength - 7)
     var linkSuffix = link.slice(stringLength - 5)
-    return linkPrefix + '_/?d' + fillQueryParam + '&' + originQueryParam + linkSuffix
-    // var testLink1= 'https://ee.kobotoolbox.org/_/?d[/fuma-op-membre/nom_Membre]=chris#YPfh'
-    // var testLink2= 'https://ee.kobotoolbox.org/_/?parentWindowOrigin=http%3A%2F%2Flocalhost:8100#YPfh'
-    //var testLink3= 'https://ee.kobotoolbox.org/::YPfh?parentWindowOrigin=http%3A%2F%2Flocalhost:8100#YPfh'
+
+        var testLink1= 'https://ee.kobotoolbox.org/_/?d[/fuma-op-membre/nom_Membre]=chris#YPfh'
+    var testLink2= 'https://ee.kobotoolbox.org/_/?parentWindowOrigin=http%3A%2F%2Flocalhost:8100#YPfh'
+    var testLink3= 'https://ee.kobotoolbox.org/x/?parentWindowOrigin=http%3A%2F%2Flocalhost:8100#YPfh'
+    // var testLink3= 'https://ee.kobotoolbox.org/::YPfh'
+    // var testLink4= 'https://ee.kobotoolbox.org/::YPfh?parentWindowOrigin=http%3A%2F%2Flocalhost:8100#YPfh'
+    // var iframeLink= linkPrefix + 'x/?d' + fillQueryParam + '&' + originQueryParam + linkSuffix
+    var iframeLink= linkPrefix + 'x/?d' + fillQueryParam + '&' + originQueryParam + linkSuffix
+    console.log('full iframe link:',iframeLink)
+    
+    return iframeLink
+
+
+
   }
   setInstanceID() {
     //code used by polymer to create pushid. As not exposed to api (?) running manually
