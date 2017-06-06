@@ -2,6 +2,9 @@
 
   <ion-navbar>
     <ion-title>{{res.displayName}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
@@ -9,16 +12,16 @@
 
 <ion-content padding>
   <p>{{res.description}}</p>
-  <h2>Summaries</h2>
-  <div *ngIf="res.summaries.length==0">There are no Summaries</div>
+  <h2>{{'SUMMARIES' | translate}}</h2>
+  <div *ngIf="res.summaries.length==0">{{'NOSUMMARIES' [ translate]}}</div>
   <div *ngFor="let summary of res.summaries">
     <!--decimal number pipe used to round, defines min int:1, min frac:0, max frac:1-->
     <div>{{summary.display}} : {{summary.value | number:'1.0-1'}}</div>
   </div>
   
-  <h2>Visualisations</h2>
-  <div *ngIf="res.visualisations.length>0">The following graphs have been produced</div>
-  <div *ngIf="res.visualisations.length==0">There are no Summaries</div>
+  <h2>{{'VISUALISATIONS' | translate}}</h2>
+  <div *ngIf="res.visualisations.length>0">{{'GRAPHSPROD' | translate}}</div>
+  <div *ngIf="res.visualisations.length==0">{{'NOSUMMARIES' | translate}}</div>
   <ion-card *ngFor="let vis of res.visualisations" (click)="openVis(vis)">
     
   <ion-card-content>

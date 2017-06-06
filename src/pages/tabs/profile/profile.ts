@@ -3,6 +3,8 @@ import { NavController, NavParams, ModalController, ToastController } from 'ioni
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ProfileViewPage } from '../../profile-view/profile-view';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../../global-variables/variable'
 
 @Component({
   selector: 'page-profile',
@@ -16,9 +18,12 @@ export class ProfilePage {
   photoArray: any[] = [];
   deletedMessage: boolean = false
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public toastCtrl:ToastController, public modalCtrl: ModalController, private database: PouchdbProvider, private sanitizer: DomSanitizer) { }
+  constructor(public trnaslate: TranslateService, public navCtrl: NavController, public navParams: NavParams, public toastCtrl:ToastController, public modalCtrl: ModalController, private database: PouchdbProvider, private sanitizer: DomSanitizer) { 
+    this.trnaslate.setDefaultLang(global.langue)
+  }
 
   ionViewDidEnter() {
+    this.trnaslate.use(global.langue)
     this.getProfiles();
     this.deletedMessage = false;
     //this.getPhotos();

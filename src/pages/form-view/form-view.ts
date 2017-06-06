@@ -4,6 +4,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Camera } from '@ionic-native/camera';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { Storage } from '@ionic/storage';
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../global-variables/variable'
 
 @Component({
   selector: 'page-form-view',
@@ -19,7 +21,7 @@ export class FormViewPage {
   public showCamera = true;
   local: Storage;
 
-  constructor(private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider, private camera:Camera) {
+  constructor(public translate: TranslateService, private params: NavParams, public viewCtrl: ViewController, private sanitizer: DomSanitizer, private database: PouchdbProvider, private camera:Camera) {
     console.log('params', params.data)
     this.form = params.data.doc;
     this.instanceID = this.setInstanceID();
@@ -27,11 +29,13 @@ export class FormViewPage {
     console.log('iframe link', iframeLink)
     console.log('instanceID', this.instanceID)
     this.enketoLink = this.sanitizer.bypassSecurityTrustResourceUrl(iframeLink);
-    this.iframeHeight = "100%"
+    this.iframeHeight = "100%";
+    this.translate.setDefaultLang(global.langue)
 
 
   }
   ionViewDidLoad() {
+    this.translate.use(global.langue)
     //add event listener for messages sent from enketo iframe
     //note - currently not useful as enketo only correctly firing message on edit start but not submission success
     //https://github.com/kobotoolbox/enketo-express/issues/670

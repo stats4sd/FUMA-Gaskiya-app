@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar color="primary">
-    <ion-title>profiles</ion-title>
+    <ion-title>{{'PROFILES' | translate}}</ion-title>
     <ion-buttons end>
       <button ion-button icon-only (click)="showFilters()">
         <ion-icon name="funnel"></ion-icon>
@@ -13,8 +13,8 @@
 </ion-header>
 
 <ion-content>
-  <div class="message" *ngIf='empty'>Profiles will update when there is internet access</div>
-  <div class="message" *ngIf='deletedMessage'>Deleted profiles will update when reloaded</div>
+  <div class="message" *ngIf='empty'>{{'PROFILESWILLUPDATE' | translate}}</div>
+  <div class="message" *ngIf='deletedMessage'>{{'DELETEDPROFILES' [ translate]}}</div>
   <ion-searchbar (ionInput)="getItems($event)"></ion-searchbar>
   <ion-list>
     <ion-item *ngFor="let profile of profiles" (click)="viewProfile(profile)">
@@ -23,8 +23,8 @@
       </ion-thumbnail>
       <!--<h2>{{profile.photo | async}}</h2>-->
       <p>{{profile.doc.data.nom_Membre}}</p>
-      <button ion-button clear item-right>View</button>
+      <button ion-button clear item-right>{{'VIEW' | translate}}</button>
     </ion-item>
   </ion-list>
-  <div class="message" *ngIf='profiles && profiles.length==0'>There are no matching profiles</div>
+  <div class="message" *ngIf='profiles && profiles.length==0'>{{'NOMATCHINGPROFILES' | translate}}</div>
 </ion-content>

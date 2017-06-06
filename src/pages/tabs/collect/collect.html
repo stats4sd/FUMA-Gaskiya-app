@@ -3,12 +3,15 @@
   <form-view [src]="enketoLink" [form]="enketoForm" (onFormClosed)="onFormClosed($event)"></form-view>
   <ion-navbar color="primary">
     <ion-title>{{'COLLECT' | translate }}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
-  <p>Choose a survey to collect data</p>
-  <div *ngIf='empty'>Forms will update when there is internet access</div>
+  <p>{{'CHOOSESURVEY' | translate}}</p>
+  <div *ngIf='empty'>{{'FORMSWILLUPDATE' | translate}}</div>
   <div class="form-container-long">
     <div class="form" *ngFor="let form of forms" (click)="loadForm(form)">
       <div class="form-title">
@@ -19,7 +22,7 @@
       </div>
     </div>
   </div>
-  <button ion-button *ngIf='devMode' (click)="devScripts()">Run Dev Scripts</button>
+  <button ion-button *ngIf='devMode' (click)="devScripts()">{{'RUNDEVSCRIPTS' | translate}}</button>
   
 </ion-content>
 

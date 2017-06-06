@@ -21,14 +21,24 @@ export class ModifierConfLocaliteEnquetePage {
   confLocaliteEnquete: any;
   pays: any = [];
   selectedPays: any = {};
-  public regions: any = [];
-  public selectedRegion: any;
+  regions: any = [];
+  selectedRegion: any;
   departements: any = [];
   selectedDepartement: any;
   communes: any = [];
   selectedCommune: any;
-  local : any; 
+  local : any;
 
+  autrePays: any = {'id': 'AUTRE', 'nom':'Autre'};
+  autreRegion: any = {'id':'AUTRE', 'nom':'Autre'};
+  autreDepartement: any = {'id':'AUTRE', 'nom':'Autre'};
+  autreCommune: any = {'id':'AUTRE', 'nom':'Autre'};
+  nom_autre_pays: any = '';
+  nom_autre_region: any = '';
+  nom_autre_departement: any = '';
+  nom_autre_commune: any = '';
+ 
+ 
   constructor(public pouchdbService: PouchdbProvider,  public navCtrl: NavController, public navParams: NavParams , public formBuilder: FormBuilder, public storage: Storage, public translate: TranslateService) {
 
    this.local  = this.navParams.get('local');
@@ -37,16 +47,33 @@ export class ModifierConfLocaliteEnquetePage {
     this.selectedRegion = this.local.region;
     this.selectedDepartement = this.local.departement;
     this.selectedCommune = this.local.commune;
-    this.chargerPays();
-    this.chargerRegions(this.local.pays.id);
-    this.chargerDepartements(this.local.region.id);
-    this.chargerCommunes(this.local.departement.id);
+    this.nom_autre_pays = this.local.pays_autre;
+    this.nom_autre_region = this.local.region_autre;
+    this.nom_autre_departement = this.local.departement_autre;
+    this.nom_autre_commune = this.local.commune_autre;
+
+    this.chargerPaysFirst();
+    this.chargerRegionsFirst(this.local.pays.id);
+    this.chargerDepartementsFirst(this.local.region.id);
+    this.chargerCommunesFirst(this.local.departement.id);
     
+    /*
+      this.selectedPays = this.local.pays; 
+      this.selectedRegion = this.local.region;
+      this.selectedDepartement = this.local.departement;
+      this.selectedCommune = this.local.commune;
+     */
+
     this.confLocaliteEnquete = this.formBuilder.group({
       pays: [this.selectedPays, Validators.required],
       region: [this.local.region, Validators.required],
       departement: [this.local.departement, Validators.required],
-      commune: [this.local.commune, Validators.required]
+      commune: [this.local.commune, Validators.required],
+      
+      pays_autre: [this.nom_autre_pays, Validators.required],
+      region_autre: [this.nom_autre_region, Validators.required],
+      departement_autre: [this.nom_autre_departement, Validators.required],
+      commune_autre: [this.nom_autre_commune, Validators.required] 
     });
      
   }
@@ -72,7 +99,178 @@ export class ModifierConfLocaliteEnquetePage {
     //console.log('ionViewDidLoad ModifierConfLocaliteEnquetePage');
   }
 
+
+  chargerPaysFirst(){
+    this.pays = [];
+    this.pouchdbService.getDocById('pays').then((pays) => {
+      if(pays){
+        this.pays = pays.data;
+        this.pays.push(this.autrePays);
+        //this.selectedPays = '';
+        //this.selectedRegion = '';
+        //this.selectedDepartement = '';
+        //this.selectedCommune = ''
+      }
+    },err => console.log(err));
+  }
+
+  chargerRegionsFirst(p){
+    this.regions = [];
+    if(p !== 'AUTRE')
+      {this.pouchdbService.getDocById('region').then((regions) => {
+        regions.data.forEach((region, index) => {
+          if(region.id_pays === p){
+            this.regions.push(region);
+            
+          }
+        });
+
+        this.regions.push(this.autreRegion);
+        //this.nom_autre_pays = 'NA';
+      });
+    }else{
+      this.regions.push(this.autreRegion);
+      //this.nom_autre_pays = '';
+    }
+
+    //this.selectedRegion = '';
+    //this.selectedDepartement = '';
+    //this.selectedCommune = ''
+  }
+
+  chargerDepartementsFirst(r){
+    this.departements= [];
+    if(r !== 'AUTRE')
+      {this.pouchdbService.getDocById('departement').then((departements) => {
+        departements.data.forEach((departement, index) => {
+          if(departement.id_region === r){
+            this.departements.push(departement);
+          }
+        });
+        this.departements.push(this.autreDepartement);
+        //this.nom_autre_region = 'NA';
+      });
+    }else{
+      this.departements.push(this.autreDepartement);
+      //this.nom_autre_region = '';
+    }
+    //this.selectedDepartement = '';
+    //this.selectedCommune = ''
+  }
+
+  chargerCommunesFirst(d){
+    this.communes = [];
+    if(d !== 'AUTRE')
+      {this.pouchdbService.getDocById('commune').then((communes) => {
+        communes.data.forEach((commune, index) => {
+          if(commune.id_departement === d){
+            this.communes.push(commune);
+            
+          }
+        });
+        this.communes.push(this.autreCommune);
+        //this.nom_autre_departement = 'NA';
+      });
+    }else{
+      this.communes.push(this.autreCommune);
+      //this.nom_autre_departement = '';
+    }
+
+    //this.selectedCommune = '';
+  } 
+
+
   chargerPays(){
+    this.pays = [];
+    this.pouchdbService.getDocById('pays').then((pays) => {
+      if(pays){
+        this.pays = pays.data;
+        this.pays.push(this.autrePays);
+        this.selectedPays = '';
+        this.selectedRegion = '';
+        this.selectedDepartement = '';
+        this.selectedCommune = ''
+      }
+    },err => console.log(err));
+  }
+
+  chargerRegions(p){
+    this.regions = [];
+    if(p !== 'AUTRE')
+      {this.pouchdbService.getDocById('region').then((regions) => {
+        regions.data.forEach((region, index) => {
+          if(region.id_pays === p){
+            this.regions.push(region);
+            
+          }
+        });
+
+        this.regions.push(this.autreRegion);
+        this.nom_autre_pays = 'NA';
+      });
+    }else{
+      this.regions.push(this.autreRegion);
+      this.nom_autre_pays = '';
+    }
+
+    this.selectedRegion = '';
+    this.selectedDepartement = '';
+    this.selectedCommune = ''
+  }
+
+  chargerDepartements(r){
+    this.departements= [];
+    if(r !== 'AUTRE')
+      {this.pouchdbService.getDocById('departement').then((departements) => {
+        departements.data.forEach((departement, index) => {
+          if(departement.id_region === r){
+            this.departements.push(departement);
+          }
+        });
+        this.departements.push(this.autreDepartement);
+        this.nom_autre_region = 'NA';
+      });
+    }else{
+      this.departements.push(this.autreDepartement);
+      this.nom_autre_region = '';
+    }
+    this.selectedDepartement = '';
+    this.selectedCommune = ''
+  }
+
+  chargerCommunes(d){
+    this.communes = [];
+    if(d !== 'AUTRE')
+      {this.pouchdbService.getDocById('commune').then((communes) => {
+        communes.data.forEach((commune, index) => {
+          if(commune.id_departement === d){
+            this.communes.push(commune);
+            
+          }
+        });
+        this.communes.push(this.autreCommune);
+        this.nom_autre_departement = 'NA';
+      });
+    }else{
+      this.communes.push(this.autreCommune);
+      this.nom_autre_departement = '';
+    }
+
+    this.selectedCommune = '';
+  } 
+
+
+  chargerAutreNomCommune(c){
+    if(c !== 'AUTRE'){
+      this.nom_autre_commune = 'NA';
+    }else{
+      this.nom_autre_commune = '';
+    }
+  }
+
+
+
+  /*chargerPays(){
     this.pays = [];
     this.pouchdbService.getDocById('pays').then((pays) => {
       pays.data.forEach((pay, index) => {
@@ -113,7 +311,7 @@ export class ModifierConfLocaliteEnquetePage {
       }); 
     });
   }  
-
+*/
   configurer(){
    /* let pays :any = {};
     let region :any = {};

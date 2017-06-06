@@ -21,7 +21,7 @@ export class DetailUnionPage {
   selectedSource: any;
   unionID: any;
 
-
+ 
   constructor(public servicePouchdb: PouchdbProvider, public toastCtl: ToastController, public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController) {
     this.union = this.navParams.data.union;
     this.selectedSource = this.navParams.data.selectedSource;
@@ -41,8 +41,8 @@ export class DetailUnionPage {
 
   supprimer(union){
     let alert = this.alertCtl.create({
-      title: 'Suppression operation',
-      message: 'Etes vous sûr de vouloir supprimer cette uion ?',
+      title: 'Suppression union',
+      message: 'Etes vous sûr de vouloir supprimer cette union ?',
       buttons:[
         {
           text: 'Annuler',

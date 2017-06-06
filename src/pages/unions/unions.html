@@ -8,6 +8,9 @@
 
   <ion-navbar color="fuma_primary">
     <ion-title>unions</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
@@ -34,8 +37,8 @@
     <ion-item *ngFor="let union of unions" (click)="detail(union, selectedSource)" >
       <!--ion-row>
         <ion-col-->
-           <h3><strong>Nom union:</strong> {{union.data.nom_union}}</h3>
-           <h3><strong>Numéro d'aggrément:</strong> {{union.data.num_aggrement}}</h3>
+           <h6><strong>Numéro d'aggrément:</strong> {{union.data.num_aggrement}}</h6>
+           <h6><strong>Nom union:</strong> {{union.data.nom_union}}</h6>
         <!--/ion-col>
         <ion-col class="aligneDate"-->
           <p><strong>Date:</strong> {{union.data.today | date: 'dd-MM-yyyy'}}</p>

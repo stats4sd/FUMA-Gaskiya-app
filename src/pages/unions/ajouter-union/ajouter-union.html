@@ -8,9 +8,12 @@
 
   <ion-navbar color="fuma_primary">
     <ion-title>ajouter-union</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 
-</ion-header>
+</ion-header> 
 
 
 <ion-content padding>
@@ -26,14 +29,17 @@
     <ion-col>
       <ion-item>
         <ion-label floating>Pays <span class="error-box">*</span></ion-label>
-        <ion-input type="text" formControlName="pays_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.pays_autre == 'NA'" type="text" formControlName="pays_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.pays_autre != 'NA'" type="text" formControlName="pays_autre" disabled></ion-input>
+
       </ion-item>
     </ion-col>
 
     <ion-col>
       <ion-item>
         <ion-label floating>Région<span class="error-box">*</span></ion-label>
-        <ion-input type="text" formControlName="region_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.region_autre == 'NA'" type="text" formControlName="region_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.region_autre != 'NA'" type="text" formControlName="region_autre" disabled></ion-input>
       </ion-item>
     </ion-col>
   </ion-row>
@@ -42,27 +48,36 @@
     <ion-col>
       <ion-item>
         <ion-label floating>Departement <span class="error-box">*</span></ion-label>
-        <ion-input type="text" formControlName="departement_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.departement_autre == 'NA'" type="text" formControlName="departement_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.departement_autre != 'NA'" type="text" formControlName="departement_autre" disabled></ion-input>
       </ion-item>
     </ion-col>
 
     <ion-col>
       <ion-item>
         <ion-label floating>Commune<span class="error-box">*</span></ion-label>
-        <ion-input type="text" formControlName="commune_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.commune_autre == 'NA'" type="text" formControlName="commune_nom" disabled></ion-input>
+        <ion-input *ngIf="confLocaliteEnquete.commune_autre != 'NA'" type="text" formControlName="commune_autre" disabled></ion-input>
       </ion-item>
     </ion-col>
   </ion-row>
 
   <ion-item>
     <ion-label floating>Selectionnez le village <span class="error-box">*</span></ion-label>
-    <ion-select formControlName="village" [(ngModel)]="selectedVillage" cancelText="Annuler" okText="Ok">
+    <ion-select formControlName="village" [(ngModel)]="selectedVillage" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(selectedVillage.id)" >
       <ion-option value="" selected disabled>Selectionnez le village</ion-option>
       <ion-option *ngFor="let villag of villages" [value]=villag >{{villag.nom}}</ion-option>
     </ion-select>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['village'].hasError('required') && unionForm.controls['village'].touched">* le village est obligatoir!</div>
   
+  <ion-item *ngIf="selectedVillage" [hidden]="selectedVillage.id != 'AUTRE'">
+    <ion-label floating>Nom village <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="village_autre" type="text"  [(ngModel)]="nom_autre_village" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['village_autre'].hasError('required') && unionForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
+
+
   <ion-item>
     <ion-label floating>Nom de l'union <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="nom_union"></ion-input>

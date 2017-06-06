@@ -156,7 +156,7 @@ export class UnionsPage {
     // if the value is an empty string don't filter the items
     if (val && val.trim() != '') {
       this.unions = this.unions.filter((item) => {
-        return (item.nom_union.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        return (item.data.nom_union.toLowerCase().indexOf(val.toLowerCase()) > -1);
       });
     }
   }

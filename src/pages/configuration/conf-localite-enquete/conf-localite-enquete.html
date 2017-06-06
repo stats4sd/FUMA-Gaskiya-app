@@ -23,13 +23,13 @@
       <ion-list>
         <ion-item-sliding>
           <ion-item>
-            <p><strong>Pays: </strong> {{confLocaliteEnquete.pays.nom}} </p>
-            <p><strong>Région: </strong> {{confLocaliteEnquete.region.nom}} </p>
-            <p><strong>Departement: </strong> {{confLocaliteEnquete.departement.nom}} </p>
-            <p><strong>Commune: </strong> {{confLocaliteEnquete.commune.nom}} </p>
+            <p><strong>Pays: </strong> <span *ngIf="confLocaliteEnquete.pays.id != 'AUTRE'">{{confLocaliteEnquete.pays.nom}}</span><span *ngIf="confLocaliteEnquete.pays.id == 'AUTRE'">{{confLocaliteEnquete.pays_autre}}</span> </p>
+            <p><strong>Région: </strong> <span *ngIf="confLocaliteEnquete.region.id != 'AUTRE'">{{confLocaliteEnquete.region.nom}}</span><span *ngIf="confLocaliteEnquete.region.id == 'AUTRE'">{{confLocaliteEnquete.region_autre}}</span> </p>
+            <p><strong>Departement: </strong> <span *ngIf="confLocaliteEnquete.departement.id != 'AUTRE'">{{confLocaliteEnquete.departement.nom}}</span><span *ngIf="confLocaliteEnquete.departement.id == 'AUTRE'">{{confLocaliteEnquete.departement_autre}}</span> </p>
+            <p><strong>Commune: </strong> <span *ngIf="confLocaliteEnquete.commune.id != 'AUTRE'">{{confLocaliteEnquete.commune.nom}}</span><span *ngIf="confLocaliteEnquete.commune.id == 'AUTRE'">{{confLocaliteEnquete.commune_autre}}</span> </p>
           </ion-item>
           <ion-item-options side="left">
-            <button ion-button color="primary" (click)="modifierConfigurer(confLocaliteEnquete)">
+            <button ion-button color="my_primary" (click)="modifierConfigurer(confLocaliteEnquete)">
               <ion-icon name="create"></ion-icon>
               Editer
             </button>
@@ -52,5 +52,10 @@
       <button ion-fab mini (click)="configurer()" *ngIf="!confLocaliteEnquete" color="my_primary"><ion-icon name="add"></ion-icon></button>
     </ion-fab>
   </div>
+
+  <ion-fab bottom right *ngIf="confLocaliteEnquete">
+    <button ion-fab mini (click)="modifierConfigurer(confLocaliteEnquete)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+  </ion-fab>
+
 
 </ion-content>

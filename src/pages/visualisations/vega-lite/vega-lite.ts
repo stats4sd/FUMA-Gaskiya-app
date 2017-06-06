@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../../global-variables/variable'
 //vega imported via script in index, so just declaring global var vg
 declare var vg;
 
@@ -9,7 +11,8 @@ declare var vg;
 })
 export class VegaLitePage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl:ViewController) {
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams, public viewCtrl:ViewController) {
+    this.translate.setDefaultLang(global.langue)
     let visSpec = navParams.data.visSpec;
     console.log('vis spec',visSpec)
     var embedSpec = {
@@ -22,7 +25,7 @@ export class VegaLitePage {
        });
     }
 
-  ionViewDidLoad() { }
+  ionViewDidEnter() { this.translate.use(global.langue)}
 
   close() {
     this.viewCtrl.dismiss()

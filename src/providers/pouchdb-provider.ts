@@ -321,4 +321,13 @@ export class PouchdbProvider {
     var Id= ':'+operation+':'+pays+'-'+region+'-'+department+'-'+commune +'-'+ village+ '-'+randomString 
     return Id
   }
+
+  reset(){
+ 
+      //this.data = null;
+  
+      this.database.destroy().then(() => {
+        console.log("database removed");
+      });
+    }
 }

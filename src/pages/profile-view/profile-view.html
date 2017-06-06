@@ -4,7 +4,7 @@
     <ion-title>{{profile.doc.data.nom_Membre}}</ion-title>
     <ion-buttons end>
       <button ion-button icon-right (click)="close()">
-        Fermer
+        {{'CLOSE' | translate}}
         <ion-icon name="close-circle"></ion-icon>
       </button>
     </ion-buttons>
@@ -26,7 +26,7 @@
   </div>
 
   <ion-card class="info-card">
-    <h2>Info</h2>
+    <h2>{{'INFO' | translate}}</h2>
     <ion-grid>
       <ion-row *ngFor="let datum of profileData">
         <ion-col class='meta-key'>
@@ -40,7 +40,7 @@
   </ion-card>
   <button class="delete-button" ion-button icon-left small color="delete" (click)=delete()>
   <ion-icon name="trash"></ion-icon>
-  Delete Entry
+  {{'DELETE-ENTRY' | translate}}
 </button>
 
 </ion-content>

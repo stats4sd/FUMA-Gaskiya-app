@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { TranslateService } from '@ngx-translate/core';
+import { global } from '../../../global-variables/variable'
+import { Storage } from '@ionic/storage'
+import { TabsPage } from '../../tabs/tabs'
 
 /*
   Generated class for the Home page.
@@ -19,16 +22,26 @@ export class HomePage {
   ];
   selectedLanguage = 'fr';
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public translate: TranslateService) {
-    translate.setDefaultLang('en');
+  constructor(public storage: Storage, public navCtrl: NavController, public navParams: NavParams, public translate: TranslateService) {
+    translate.setDefaultLang(global.langue);
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad HomePage');
+  ionViewDidEnter() {
+    //this.translate.use(global.langue)
+    //console.log('ionViewDidLoad HomePage');
   }
 
   applyLanguage() {
     this.translate.use(this.selectedLanguage);
+    global.langue = this.selectedLanguage;
+    this.storage.set('langue', this.selectedLanguage);
+
+  }
+
+  open(){
+    this.storage.set('langue', this.selectedLanguage);
+    global.langue = this.selectedLanguage;
+    this.navCtrl.setRoot(TabsPage)
   }
 
 }

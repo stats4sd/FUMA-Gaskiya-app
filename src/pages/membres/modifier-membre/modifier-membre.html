@@ -6,13 +6,145 @@
 -->
 <ion-header>
 
-  <ion-navbar>
+  <ion-navbar color="fuma_primary">
     <ion-title>modifier-membre</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
+    
+<form [formGroup]="membreForm" (ngSubmit) = "modifier()">
+
+  <ion-item>
+    <ion-label floating>Date <span class="error-box">*</span></ion-label>
+    <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider" disabled></ion-datetime>
+  </ion-item>
+
+  <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Pays <span class="error-box">*</span></ion-label>
+        <ion-input *ngIf="membre.pays_nom && membre.pays != 'AUTRE'" type="text" formControlName="pays_nom" disabled></ion-input>
+        <ion-input *ngIf="!membre.pays_nom && membre.pays != 'AUTRE'" type="text" formControlName="pays" disabled></ion-input>
+        <ion-input *ngIf="membre.pays == 'AUTRE'" type="text" formControlName="pays_autre" disabled></ion-input>
+      </ion-item>
+    </ion-col>
+
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Région<span class="error-box">*</span></ion-label>
+        <ion-input *ngIf="membre.region_nom && membre.region != 'AUTRE'" type="text" formControlName="region_nom" disabled></ion-input>
+        <ion-input *ngIf="!membre.region_nom && membre.region != 'AUTRE'" type="text" formControlName="region" disabled></ion-input>
+        <ion-input *ngIf="membre.region == 'AUTRE'" type="text" formControlName="region_autre" disabled></ion-input>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+   <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Departement <span class="error-box">*</span></ion-label>
+        <ion-input *ngIf="membre.departement_nom && membre.departement != 'AUTRE'" type="text" formControlName="departement_nom" disabled></ion-input>
+        <ion-input *ngIf="!membre.departement_nom && membre.departement != 'AUTRE'" type="text" formControlName="departement" disabled></ion-input>
+        <ion-input *ngIf="membre.departement == 'AUTRE'" type="text" formControlName="departement_autre" disabled></ion-input>
+      </ion-item>
+    </ion-col>
+
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Commune<span class="error-box">*</span></ion-label>
+        <ion-input *ngIf="membre.commune_nom && membre.commune != 'AUTRE'" type="text" formControlName="commune_nom" disabled></ion-input>
+        <ion-input *ngIf="!membre.commune_nom && membre.commune != 'AUTRE'" type="text" formControlName="commune" disabled></ion-input>
+        <ion-input *ngIf="membre.commune == 'AUTRE'" type="text" formControlName="commune_autre" disabled></ion-input>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+
+  <ion-item>
+    <ion-label floating>Selectionnez le village <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="village" [(ngModel)]="selectedVillageID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(selectedVillageID)" >
+      <ion-option value="" selected disabled>Selectionnez le village</ion-option>
+      <ion-option *ngFor="let villag of villages" [value]=villag.id >{{villag.nom}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['village'].hasError('required') && membreForm.controls['village'].touched">* le village est obligatoir!</div>
+  
+  <ion-item *ngIf="selectedVillageID" [hidden]="selectedVillageID != 'AUTRE'">
+    <ion-label floating>Nom village <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="village_autre" type="text"  [(ngModel)]="nom_autre_village" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['village_autre'].hasError('required') && membreForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
+
+   <ion-item> 
+    <ion-label floating>Selectionnez l'OP <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="op" [(ngModel)]="selectedOPID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomOP(selectedOPID)" >
+      <ion-option value="" selected disabled>Selectionnez l'OP</ion-option>
+      <span *ngFor="let o of ops">
+        <ion-option *ngIf="o.data.num_aggrement" [value]=o.data.num_aggrement >{{o.data.nom_OP}}</ion-option>
+      </span>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['op'].hasError('required') && membreForm.controls['op'].touched">* l'OP est obligatoir!</div>
+  
+  <ion-item *ngIf="selectedOPID" [hidden]="selectedOPID != 'AUTRE'">
+    <ion-label floating>Nom OP <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="op_autre" type="text"  [(ngModel)]="nom_autre_op" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['op_autre'].hasError('required') && membreForm.controls['op_autre'].touched">* Le nom de l'OP est obligatoire</div>
+
+
+  <ion-item *ngIf="!generate">
+    <ion-label floating>Nom membre <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_Membre"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['nom_Membre'].hasError('required') && membreForm.controls['nom_Membre'].touched">* le nom du membre des est obligatoir!</div>
+  
+  <ion-item *ngIf="generate" >
+    <ion-label floating>Nom membre <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_Membre" [(ngModel)]="nom" (keyup)="getMatricule()" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['nom_Membre'].hasError('required') && membreForm.controls['nom_Membre'].touched">* le nom du membre des est obligatoir!</div>
+
+  <ion-item *ngIf="matricule">
+    <ion-label floating>Matricule <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="matricule_Membre" [(ngModel)]="matricule" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['matricule_Membre'].hasError('required') && membreForm.controls['matricule_Membre'].touched">* le numéro d'aggrément est obligatoir!</div>
+   
+  <ion-item> 
+    <ion-label floating>Selectionnez le sex <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="genre" cancelText="Annuler" okText="Ok">
+      <ion-option value="" selected disabled>Selectionnez le sex</ion-option>
+      <ion-option value="male">Homme</ion-option>
+      <ion-option value="female">Femme</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['genre'].hasError('required') && membreForm.controls['genre'].touched">* le sex est obligatoir!</div>
+  
+  <ion-item> 
+    <ion-label floating>Selectionnez la classe <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="classe" [(ngModel)]="selectedClasseID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomClasse(selectedClasseID)" >
+      <ion-option value="" selected disabled>Selectionnez la classe</ion-option>
+      <ion-option *ngFor="let c of classes" [value]=c.data.id >{{c.data.nom}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['classe'].hasError('required') && membreForm.controls['classe'].touched">* la classe est obligatoir!</div>
+  
+  <ion-item *ngIf="selectedClasseID" [hidden]="selectedClasseID != 'AUTRE'">
+    <ion-label floating>Nom classe <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="classe_autre" type="text"  [(ngModel)]="nom_autre_classe" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['classe_autre'].hasError('required') && membreForm.controls['classe_autre'].touched">* Le nom de la classe est obligatoire</div>
+
+
+    <br>
+    <button ion-button type="submit" color="my_secondary" [disabled]="!membreForm.valid" block>Sauvegarder</button>
+  </form>
+  <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
 
 </ion-content>

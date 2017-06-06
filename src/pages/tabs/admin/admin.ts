@@ -3,6 +3,11 @@ import { NavController, NavParams } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enquete/conf-localite-enquete';
 import { UnionsPage } from '../../unions/unions';
+import { OpPage } from '../../op/op';
+import { MembresPage } from '../../membres/membres';
+import { TranslateService } from '@ngx-translate/core';
+import { global } from '../../../global-variables/variable';
+import { LanguePage } from '../../langue/langue'
 
 /*
   Generated class for the Admin page.
@@ -18,14 +23,29 @@ export class AdminPage {
   profiles:any=[];
   pendingProfiles:any=[];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams,  private database: PouchdbProvider) {}
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams,  private database: PouchdbProvider) {
+    this.translate.setDefaultLang(global.langue);
+  }
 
   ionViewDidEnter() {
+    this.translate.use(global.langue);
     this.getProfiles();
   }
 
   confLocaliteEnquetee(){
     this.navCtrl.push(ConfLocaliteEnquetePage);
+  }
+
+  changeLangue(){
+    this.navCtrl.push(LanguePage);
+  }
+
+  gestionOP(){
+    this.navCtrl.push(OpPage);
+  }
+
+  gestionMembre(){
+    this.navCtrl.push(MembresPage);
   }
 
   gestionUnion(){
