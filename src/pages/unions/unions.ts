@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterUnionPage } from './ajouter-union/ajouter-union';
 import { DetailUnionPage } from './detail-union/detail-union';
@@ -26,7 +26,7 @@ export class UnionsPage {
   confLocaliteEnquete: any;
 
 
-  constructor(public storage: Storage, public navCtrl: NavController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {}
+  constructor(public storage: Storage, public navCtrl: NavController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider, public modalCtrl:ModalController) {}
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
@@ -127,7 +127,8 @@ export class UnionsPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(confLocaliteEnquete);
+              let confModal=this.modalCtrl.create(ConfLocaliteEnquetePage)
+              confModal.present()
             }        
           },
           {

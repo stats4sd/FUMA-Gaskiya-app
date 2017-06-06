@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterMembrePage } from './ajouter-membre/ajouter-membre';
 import { DetailMembrePage } from './detail-membre/detail-membre';
@@ -26,7 +26,7 @@ export class MembresPage {
   allMembres: any = [];
   confLocaliteEnquete: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer, public modalCtrl:ModalController) {}
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
@@ -116,8 +116,9 @@ export class MembresPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(confLocaliteEnquete);
-            }        
+              let confModal=this.modalCtrl.create(ConfLocaliteEnquetePage)
+              confModal.present()
+            }         
           },
           {
             text: 'Annuler',

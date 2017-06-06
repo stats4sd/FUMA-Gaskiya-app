@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterOpPage } from './ajouter-op/ajouter-op';
 import { DetailOpPage } from './detail-op/detail-op';
@@ -26,7 +26,7 @@ export class OpPage {
   allOPs: any = [];
   confLocaliteEnquete: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, public modalCtrl:ModalController) {}
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
@@ -139,7 +139,8 @@ export class OpPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(confLocaliteEnquete);
+              let confModal=this.modalCtrl.create(ConfLocaliteEnquetePage)
+              confModal.present()
             }        
           },
           {
