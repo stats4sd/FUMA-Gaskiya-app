@@ -31,5 +31,9 @@
     "SUMMARIES": "Summaries",
     "FUMAGASKIYA": "FUMA Gaskiya",
     "RUNDEVSCRIPTS": "Run Dev Scripts",
-    "NOMATCHINGPROFILES": "There are no matching profiles"
+    "NOMATCHINGPROFILES": "There are no matching profiles",
+    "APPLY":"Apply",
+    "CHANGELANG":"Change Language",
+    "MEMBREOP":"Members"
+
 }
