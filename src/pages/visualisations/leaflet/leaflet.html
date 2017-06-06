@@ -1,13 +1,13 @@
 <ion-header>
 <ion-buttons end>
   <button icon-right ion-button (click)="close()">
-        Fermer
+        {{'CLOSE' | translate}}
         <ion-icon name="close-circle"></ion-icon>
       </button>
 </ion-buttons>
 </ion-header>
 
 <ion-content >
-  <p class="zoom-warning" *ngIf="zoomWarning==true">Zooming further will require internet access</p>
+  <p class="zoom-warning" *ngIf="zoomWarning==true">{{'ZOOMINGWILL' | translate}}</p>
 <div id="mapid"></div>
 </ion-content>

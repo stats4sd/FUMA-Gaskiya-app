@@ -1,0 +1,57 @@
+<!--
+  Generated template for the Op page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>op</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list>
+    <ion-item>
+      <ion-label floating>Choisir la source</ion-label>
+      <ion-select [(ngModel)]="selectedSource" (ionChange)="choixSource()" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez la source</ion-option>
+        <ion-option value="application">Application</ion-option>
+        <ion-option value="kobo">Kobo</ion-option>
+        <ion-option value="tous">Tous</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-searchbar placeholder="Rechercher par nom OP..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-item *ngFor="let op of ops" (click)="detail(op, selectedSource)" >
+      <!--ion-row>
+        <ion-col-->
+           <h6><strong>Numéro d'aggrément:</strong> {{op.data.num_aggrement}}</h6>
+           <h6><strong>Nom OP:</strong> {{op.data.nom_OP}}</h6>
+        <!--/ion-col>
+        <ion-col class="aligneDate"-->
+          <p><strong>Date:</strong> {{op.data.today | date: 'dd-MM-yyyy'}}</p>
+        <!--/ion-col>
+      </ion-row-->
+    </ion-item>
+
+    <ion-item *ngIf="!ops.length > 0">
+      <div class="message">La liste est vide!</div>
+    </ion-item>    
+  </ion-list>
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="ajouter(confLocaliteEnquete)" color="my_primary"><ion-icon name="add"></ion-icon></button>
+  </ion-fab>
+</ion-content>

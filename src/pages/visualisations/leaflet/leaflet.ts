@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { NavParams, ViewController } from 'ionic-angular';
 import 'leaflet';
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../../global-variables/variable'
 declare var L;
 
 @Component({
@@ -11,11 +13,15 @@ export class LeafletPage {
   private online = false
   private vis: any;
 
-  constructor(params: NavParams, private viewCtrl: ViewController) {
+  constructor(public translate: TranslateService, params: NavParams, private viewCtrl: ViewController) {
     console.log('params',params.data)
-    this.vis=params.data
+    this.vis=params.data;
+    this.translate.setDefaultLang(global.langue)
   }
   //after view loaded add the map
+  ionViewDidEnter(){
+    this.translate.use(global.langue)
+  }
   ionViewDidLoad() {
     var mapid = document.getElementById('mapid')
     var map = L.map(mapid, {

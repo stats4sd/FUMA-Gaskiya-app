@@ -1,8 +1,10 @@
 <ion-tabs color="primary">
-  <ion-tab id="homeTab" [root]="tab1Root" tabTitle="Home" tabIcon="home"></ion-tab>
-  <ion-tab [root]="tab2Root" tabTitle="Collect" tabIcon="add"></ion-tab>
-  <ion-tab [root]="tab3Root" tabTitle="Research" tabIcon="flask"></ion-tab>
-  <ion-tab [root]="tab4Root" tabTitle="Profile" tabIcon="person"></ion-tab>
-  <ion-tab id="adminTab" [root]="tab5Root" tabTitle="Admin" tabIcon="settings"></ion-tab>
-  <ion-tab *ngIf="showFormTab" id="formTab" class="hidden" [root]="tab6Root" tabTitle="Form" tabIcon="clipboard"></ion-tab>
+  <!--ion-tab id="homeTab" [root]="tab1Root" tabTitle=" {{'HOME' | translate}}" tabIcon="home"></ion-tab-->
+  <ion-tab id="homeTab" [root]="tab10Root" tabTitle="Unions" tabIcon="cube"></ion-tab>
+  <ion-tab id="homeTab" [root]="tab11Root" tabTitle="OP" tabIcon="people"></ion-tab>
+  <ion-tab [root]="tab4Root" tabTitle="Membre d'OP" tabIcon="person"></ion-tab>
+  <ion-tab [root]="tab2Root" tabTitle=" {{'COLLECT' | translate}}" tabIcon="add"></ion-tab>
+  <ion-tab [root]="tab3Root" tabTitle=" {{'RESEARCH' | translate}}" tabIcon="flask"></ion-tab>
+  <!--ion-tab id="adminTab" [root]="tab5Root" tabTitle=" {{'ADMIN' | translate}}" tabIcon="settings"></ion-tab-->
+  <ion-tab *ngIf="showFormTab" id="formTab" class="hidden" [root]="tab6Root" tabTitle=" {{'FORM' | translate}}" tabIcon="clipboard"></ion-tab>
 </ion-tabs>

@@ -3,6 +3,8 @@ import { NavController, NavParams, ModalController } from 'ionic-angular';
 import { VegaLitePage } from '../visualisations/vega-lite/vega-lite';
 import { LeafletPage } from '../visualisations/leaflet/leaflet';
 import { PouchdbProvider } from '../../providers/pouchdb-provider'
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../global-variables/variable'
 //simple statistics imported in index.html
 declare var ss;
 
@@ -17,7 +19,8 @@ export class ResearchViewPage {
   private count: any;
   summaries:any=[]
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public modalCtrl: ModalController, private database:PouchdbProvider) {
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams, public modalCtrl: ModalController, private database:PouchdbProvider) {
+    this.translate.setDefaultLang(global.langue)
     this.res = this.navParams.data.doc;
     this.id = this.navParams.data.id
     this.refresh()
@@ -31,6 +34,7 @@ export class ResearchViewPage {
   }
 
   ionViewDidEnter() {
+    this.translate.use(global.langue)
     if(this.count>0){this.refresh()}
   }
   prepareKoboFormSummaries(doc) {

@@ -2,14 +2,14 @@
   <ion-navbar>
     <ion-buttons start>
       <button ion-button item-left icon-right (click)="takePhoto()" *ngIf="showCamera">
-        Prenez Foto
+        {{'TAKEPHOTO' | translate}}
         <ion-icon name="camera"></ion-icon>
       </button>
     </ion-buttons>
 
     <ion-buttons end>
       <button ion-button icon-right (click)="close()">
-        Fermer
+        {{'CLOSE' | translate}}
         <ion-icon name="close-circle"></ion-icon>
       </button>
     </ion-buttons>

@@ -1,0 +1,92 @@
+<!--
+  Generated template for the AjouterConfLocaliteEnquete page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>ajouter-conf-localite-enquete</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+<form [formGroup]="confLocaliteEnquete" (ngSubmit) = "configurer()">
+
+
+  <ion-item>
+    <ion-label floating>Pays <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="pays" [(ngModel)]="selectedPays" cancelText="Annuler" okText="Ok" (ionChange)="chargerRegions(selectedPays.id)">
+      <ion-option value="" selected disabled>Selectionnez le pays</ion-option>
+      <ion-option *ngFor="let p of pays" [value]="p">{{p.nom}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['pays'].hasError('required') && confLocaliteEnquete.controls['pays'].touched">* Le pays est obligatoire</div>
+
+  <ion-item *ngIf="selectedPays" [hidden]="selectedPays.id != 'AUTRE'" >
+    <ion-label floating>Nom pays <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="pays_autre" type="text" [(ngModel)]="nom_autre_pays" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['pays_autre'].hasError('required') && confLocaliteEnquete.controls['pays_autre'].touched">* Le nom du pays est obligatoire</div>
+
+  <ion-item>
+    <ion-label floating>Région <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="region" [(ngModel)]="selectedRegion" cancelText="Annuler" okText="Ok" (ionChange)="chargerDepartements(selectedRegion.id)" [disabled]="!selectedPays">
+      <ion-option value="" selected disabled>Selectionnez la région</ion-option>
+      <ion-option *ngFor="let r of regions" [value]="r">{{r.nom}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['region'].hasError('required') && confLocaliteEnquete.controls['region'].touched">* La région est obligatoire</div>
+
+<ion-item *ngIf="selectedRegion" [hidden]="selectedRegion.id != 'AUTRE'">
+    <ion-label floating>Nom région <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="region_autre" type="text"  [(ngModel)]="nom_autre_region" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['region_autre'].hasError('required') && confLocaliteEnquete.controls['region_autre'].touched">* Le nom de la région est obligatoire</div>
+
+
+<ion-item>
+    <ion-label floating>Departement <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="departement" [(ngModel)]="selectedDepartement" cancelText="Annuler" okText="Ok" (ionChange)="chargerCommunes(selectedDepartement.id)" [disabled]="!selectedRegion">
+      <ion-option value="" selected disabled>Selectionnez le departement</ion-option>
+      <ion-option *ngFor="let d of departements" [value]="d">{{d.nom}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['departement'].hasError('required') && confLocaliteEnquete.controls['departement'].touched">* Le departement est obligatoire</div>
+
+<ion-item *ngIf="selectedDepartement" [hidden]="selectedDepartement.id != 'AUTRE'">
+    <ion-label floating>Nom departement <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="departement_autre" type="text"  [(ngModel)]="nom_autre_departement" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['departement_autre'].hasError('required') && confLocaliteEnquete.controls['departement_autre'].touched">* Le nom du departement est obligatoire</div>
+
+
+<ion-item>
+  <ion-label floating>Commune <span class="error-box">*</span></ion-label>
+  <ion-select formControlName="commune" [(ngModel)]="selectedCommune" cancelText="Annuler" okText="Ok" [disabled]="!selectedDepartement" (ionChange)="chargerAutreNomCommune(selectedCommune.id)" >
+    <ion-option value="" selected disabled>Selectionnez la commune</ion-option>
+    <ion-option *ngFor="let c of communes" [value]="c">{{c.nom}}</ion-option>
+  </ion-select>
+</ion-item>
+<div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['commune'].hasError('required') && confLocaliteEnquete.controls['commune'].touched">* La commune est obligatoire</div>
+
+  
+<ion-item *ngIf="selectedCommune" [hidden]="selectedCommune.id != 'AUTRE'">
+  <ion-label floating>Nom commune <span class="error-box">*</span></ion-label>
+  <ion-input formControlName="commune_autre" type="text"  [(ngModel)]="nom_autre_commune" ></ion-input>
+</ion-item>
+<div style="padding-left: 15px;" class="error-box" *ngIf="confLocaliteEnquete.controls['commune_autre'].hasError('required') && confLocaliteEnquete.controls['commune_autre'].touched">* Le nom de la commune est obligatoire</div>
+
+    <br>
+    <button ion-button type="submit" color="my_secondary" [disabled]="!confLocaliteEnquete.valid" block>Sauvegarder</button>
+  </form>
+  <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+</ion-content>

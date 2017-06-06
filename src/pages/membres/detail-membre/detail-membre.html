@@ -1,0 +1,307 @@
+<!--
+  Generated template for the DetailMembre page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>{{membre.doc.data.nom_Membre}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <ion-card>
+    <ion-row>
+      <ion-col class='meta-key'>
+        <img [src]="membre.photo">
+      </ion-col>
+      <ion-col class='meta-value'>
+        <h2>{{membre.doc.data.nom_Membre}}</h2>
+        <img #barcode id="barcode">
+      </ion-col>
+    </ion-row>
+  </ion-card>
+
+  <!--ion-card class="info-card">
+    <h2>Info</h2>
+    <ion-grid>
+      <ion-row *ngFor="let datum of membreData">
+        <ion-col class='meta-key'>
+          <div>{{datum.$key}}: </div>
+        </ion-col>
+        <ion-col class='meta-value'>
+          <div>{{datum.$val}}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card-->
+
+
+  <ion-card class="info-card">
+    <ion-card-header>
+      <strong>Informations</strong>
+    </ion-card-header>
+    <ion-card-content>          
+      <ion-grid>
+        <ion-row>
+          <ion-col class='meta-key'>
+              <strong>Nom:</strong> 
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.nom_Membre}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Matricule:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+            {{membre.doc.data.matricule_Membre}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Sex:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.genre}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Classe ID:</strong>
+            </ion-col>
+            <ion-col class='meta-value'>
+              {{membre.doc.data.classe}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Classe nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.classe_nom}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Classe autre:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.classe_autre}}
+          </ion-col>
+        </ion-row>
+          <ion-row>
+          <ion-col class='meta-key'>
+            <strong>OP ID:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.op}}
+          </ion-col>
+          </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+              <strong>OP nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.op_nom}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>OP autre:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.op_autre}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Date enregistrement:</strong>
+          </ion-col> 
+            <ion-col class='meta-value'>
+            {{membre.doc.data.today | date: 'dd-MM-yyyy'}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Pays ID:</strong> 
+          </ion-col>
+          <ion-col class='meta-value'>
+            {{membre.doc.data.pays}} 
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Pays nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.pays_nom}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Pays autre:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.pays_autre}} 
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Région ID:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.region}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Région nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'> 
+            {{membre.doc.data.region_nom}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Région autre:</strong> 
+          </ion-col>
+          <ion-col class='meta-value'>
+            {{membre.doc.data.region_autre}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Departement ID:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.departement}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Departement nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.departement_nom}} 
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Departement autre:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.departement_autre}} 
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Commune ID:</strong> 
+          </ion-col>
+          <ion-col class='meta-value'>
+            {{membre.doc.data.commune}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Commune nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.commune_nom}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+          <strong>Commune autre:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.commune_autre}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Village ID:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.village}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Village nom:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.village_nom}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>Village autre:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.village_autre}}
+          </ion-col>
+        </ion-row>
+        <!--ion-row>
+          <ion-col class='meta-key'>
+            <strong>deviceid:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.deviceid}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>imei:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.imei}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>phonenumber:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.phonenumber}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>start:</strong>
+          </ion-col>
+          <ion-col class='meta-value'>
+              {{membre.doc.data.start | date: 'dd-MM-yyyy'}} à {{membre.doc.data.start | date: 'HH:mm:ss'}}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
+            <strong>end:</strong> 
+          </ion-col>
+          <ion-col class='meta-value'>
+            {{membre.doc.data.end | date: 'dd-MM-yyyy'}} à {{membre.doc.data.end | date: 'HH:mm:ss'}}
+          </ion-col>
+        </ion-row-->
+      </ion-grid>
+    
+    </ion-card-content>
+  </ion-card>
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="editer(membre.doc)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+  </ion-fab>
+
+  <ion-fab bottom left>
+    <button ion-fab mini (click)="supprimer(membre.doc)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+  </ion-fab>
+
+</ion-content>

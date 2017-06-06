@@ -3,6 +3,8 @@ import { NavController, NavParams, ModalController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { FormViewPage } from '../../form-view/form-view';
 import { FormViewComponent } from '../../../components/form-view/form-view';
+import { TranslateService } from '@ngx-translate/core'
+import { global } from '../../../global-variables/variable'
 
 
 @Component({
@@ -18,7 +20,9 @@ export class CollectPage {
   public enketoForm:Object;
 
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl: ModalController) { }
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider, public modalCtrl: ModalController) { 
+    this.translate.setDefaultLang(global.langue);
+  }
   
   onFormClosed(e) {
     //reset form on close so can later retrigger
@@ -29,6 +33,7 @@ export class CollectPage {
   }
 
   ionViewDidEnter() {
+    this.translate.use(global.langue);
     //query all koboForms, load
     console.log('ionViewDidLoad CollectPage');
     this.database.getAll(

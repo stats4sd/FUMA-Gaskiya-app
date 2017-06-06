@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ResearchViewPage } from '../../research-view/research-view'
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../../global-variables/variable'
 
 @Component({
   selector: 'page-research',
@@ -13,11 +15,13 @@ export class ResearchPage {
   private update = false;
   public devMode = false;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider) {
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider) {
     if(this.devMode==true){this.devScripts()}
+    this.translate.setDefaultLang(global.langue)
   }
 
   ionViewDidEnter() {
+    this.translate.use(global.langue)
     console.log('view entered, getting research and forms')
     this.getResearch()
     this.getForms()

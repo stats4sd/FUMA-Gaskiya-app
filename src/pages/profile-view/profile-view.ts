@@ -1,6 +1,8 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController, NavParams, ViewController } from 'ionic-angular';
 import JsBarcode from 'jsbarcode';
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../global-variables/variable'
 
 @Component({
   selector: 'page-profile-view',
@@ -12,9 +14,14 @@ export class ProfileViewPage {
   profileData: any=[];
   @ViewChild('barcode') barcode: ElementRef;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController) {
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams, public viewCtrl: ViewController) {
     this.profile = navParams.data;
     this.prepareMeta()
+    this.translate.setDefaultLang(global.langue)
+  }
+
+  ionViewDidEnter(){
+    this.translate.use(global.langue)
   }
 
   ionViewDidLoad() {

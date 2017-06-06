@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import {TabsPage} from '../tabs/tabs';
+import { TranslateService  } from '@ngx-translate/core';
+import { global } from '../../global-variables/variable'
 
 
 @Component({
@@ -10,7 +12,8 @@ import {TabsPage} from '../tabs/tabs';
 export class StartPage {
   viewSets:any
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams) {
+    this.translate.setDefaultLang(global.langue)
     this.viewSets=[
       {name:'farmer',displayName:'Farmers',icon:false,img:false},
       {name:'organisation',displayName:'Organisations',icon:false,img:false},
@@ -19,7 +22,8 @@ export class StartPage {
     ]
   }
 
-  ionViewDidLoad() {
+  ionViewDidEnter() {
+    this.translate.use(global.langue)
     console.log('ionViewDidLoad StartPage');
   }
   viewSelect() {

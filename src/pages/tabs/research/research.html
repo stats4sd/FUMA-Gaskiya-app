@@ -1,7 +1,10 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>Research</ion-title>
+    <ion-title>{{'RESEARCH' | translate}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
@@ -11,7 +14,7 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <h3>Published Research</h3>
+        <h3>{{'PUBLISHEDRESEARCH' | translate}}</h3>
         <div class="forms-container">
         <div class="form" *ngFor="let res of researchData" (click)="viewResearch(res)">
           <div class="form-title">
@@ -26,7 +29,7 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <h3>Live Forms</h3>
+        <h3>{{'LIVEFORMS' | translate}}</h3>
         <div class="forms-container">
           <div class="form" *ngFor="let form of forms" (click)="viewResearch(form)">
             <div class="form-title">

@@ -1,0 +1,115 @@
+<!--
+  Generated template for the DetailOp page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>detail-op</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-card class="info-card">
+    <ion-card-header>
+      <strong>Information op: {{op.data.num_aggrement}}</strong>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Nom:</strong></ion-col>        
+              <ion-col class='meta-value'>{{op.data.nom_OP}} </ion-col>         
+            </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Numéro aggrément:</strong></ion-col>          
+              <ion-col class='meta-value'> {{op.data.num_aggrement}}</ion-col>          
+            </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Nombre membres:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.num_membre}}</ion-col>          
+            </ion-row>
+            <ion-row>          
+               <ion-col class='meta-key'><strong>Nombre hommes:</strong></ion-col>           
+               <ion-col class='meta-value'> {{op.data.num_hommes}}</ion-col>          
+               </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Nombre femmes:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.num_femmes}}</ion-col>          
+            </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Union ID:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.union}}</ion-col>          
+              </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Union nom:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.union_nom}}</ion-col>          
+            </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Union autre:</strong></ion-col>          
+              <ion-col class='meta-value'> {{op.data.union_autre}}</ion-col>          
+            </ion-row>
+            <ion-row>           
+              <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.today | date: 'dd-MM-yyyy'}}</ion-col>          
+            </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Pays ID:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.pays}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Pays nom:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.pays_nom}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Pays autre:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.pays_autre}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Région ID:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.region}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Région nom:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.region_nom}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Région autre:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.region_autre}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Departement ID:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.departement}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Departement nom:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.departement_nom}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Departement autre:</strong></ion-col>          
+             <ion-col class='meta-value'> {{op.data.departement_autre}} </ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Commune ID:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.commune}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Commune nom:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.commune_nom}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Commune autre:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.commune_autre}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Village ID:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.village}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Village nom:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.village_nom}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>Village autre:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.village_autre}}</ion-col>          </ion-row>
+            <!--ion-row>           <ion-col class='meta-key'><strong>deviceid:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.deviceid}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>imei:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.imei}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.phonenumber}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>start:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.start | date: 'dd-MM-yyyy'}} à {{op.data.start | date: 'HH:mm:ss'}}</ion-col>          </ion-row>
+            <ion-row>           <ion-col class='meta-key'><strong>end:</strong></ion-col>           
+            <ion-col class='meta-value'> {{op.data.end | date: 'dd-MM-yyyy'}} à {{op.data.end | date: 'HH:mm:ss'}}</ion-col>          </ion-row-->
+      </ion-grid>
+    </ion-card-content> 
+  </ion-card>
+
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+  </ion-fab>
+
+  <ion-fab bottom left>
+    <button ion-fab mini (click)="supprimer(op)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+  </ion-fab>
+
+</ion-content>

@@ -1,14 +1,40 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>admin</ion-title>
+    <ion-title>{{'ADMIN' | translate}}</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
-    <p>Total Profiles: {{profiles.length}}</p>
-    <p>Pending approval: {{pendingProfiles.length}}</p>
-    <button ion-button color="fuma-green-dark" (click)="approveProfiles()">Approve all</button>
+    <p>{{ 'TOTALPROFILES' | translate }}: {{profiles.length}}</p>
+    <p>{{'PENDINGAPPROVAL' | translate}}: {{pendingProfiles.length}}</p>
+    <button ion-button color="fuma-green-dark" (click)="approveProfiles()">{{'APPROVEALL' | translate}}</button>
+
+
+    <ion-card (click)="changeLangue()">
+      <ion-item style="text-align: center">Changer la langue
+      </ion-item>
+    </ion-card>
+
+  <ion-card (click)="confLocaliteEnquetee()">
+    <ion-item style="text-align: center">Configuration de la localité enquêtée
+    </ion-item>
+  </ion-card>
+
+  <!--ion-card (click)="gestionUnion()">
+    <ion-item style="text-align: center">Gestion unions
+    </ion-item>
+  </ion-card>
+
+  <ion-card (click)="gestionOP()">
+    <ion-item style="text-align: center">Gestion OP
+    </ion-item>
+  </ion-card-->
+
+  <!--ion-card (click)="gestionMembre()">
+    <ion-item style="text-align: center">Gestion Membres OP
+    </ion-item>
+  </ion-card-->
 </ion-content>

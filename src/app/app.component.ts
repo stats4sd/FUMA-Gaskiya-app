@@ -1,22 +1,61 @@
-import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { Platform, Nav, MenuController, ModalController} from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { TabsPage } from '../pages/tabs/tabs';
+import { HomePage  } from '../pages/tabs/home/home'
+import { Storage } from '@ionic/storage'
+import { AdminPage } from '../pages/tabs/admin/admin'
+import { ConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/conf-localite-enquete';
+import { LanguePage } from '../pages/langue/langue'
 
 
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage = TabsPage;
+  rootPage: any = '';
+  pages: Array<{title: string, component: any}>;
+  @ViewChild(Nav) nav: Nav;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public modalCtl: ModalController, public storage: Storage, public menuCtrl: MenuController) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       splashScreen.hide();
     });
+
+    this.setPage();
+
+    this.storage.get('langue').then((langue) => {
+      if(langue){
+        this.rootPage = TabsPage
+      }else{
+        this.rootPage = HomePage;
+      }
+    }, err => this.rootPage = HomePage)
   }
+
+
+  setPage(){
+
+    this.pages = [
+            { title: 'Changer la langue', component: LanguePage },
+            { title: 'Changer la langue', component: LanguePage },
+            { title: 'Admin', component: AdminPage },
+            { title: 'Config Localité Enquete', component: ConfLocaliteEnquetePage },
+     ]
+  } 
+
+  openPage(page) {
+    // Reset the content nav to have just this page
+    // we wouldn't want the back button to show in this scenario
+   //this.nav.push(page.component);
+   let modal = this.modalCtl.create(page.component);
+   modal.present();
+   this.menuCtrl.close();
+    
+  }
+
 }

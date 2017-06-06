@@ -1,6 +1,9 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicStorageModule } from '@ionic/storage';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Device } from '@ionic-native/device';
+import { Sim } from '@ionic-native/sim';
 //native components
 import { Camera } from '@ionic-native/camera';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -34,6 +37,35 @@ import { FormViewComponent } from '../components/form-view/form-view';
 import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
 
+//configuration locale
+import { ConfigurationPage } from '../pages/configuration/configuration';
+import { ConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/conf-localite-enquete';
+import { ModifierConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/modifier-conf-localite-enquete/modifier-conf-localite-enquete';
+import { AjouterConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/ajouter-conf-localite-enquete/ajouter-conf-localite-enquete';
+
+//uions
+import { UnionsPage } from '../pages/unions/unions';
+import { AjouterUnionPage } from '../pages/unions/ajouter-union/ajouter-union';
+import { DetailUnionPage } from '../pages/unions/detail-union/detail-union';
+import { ModifierUnionPage } from '../pages/unions/modifier-union/modifier-union';
+
+
+//OP
+import { OpPage } from '../pages/op/op';
+import { AjouterOpPage } from '../pages/op/ajouter-op/ajouter-op';
+import { DetailOpPage } from '../pages/op/detail-op/detail-op';
+import { ModifierOpPage } from '../pages/op/modifier-op/modifier-op';
+
+//membres
+import { MembresPage } from '../pages/membres/membres';
+import { AjouterMembrePage } from '../pages/membres/ajouter-membre/ajouter-membre';
+import { DetailMembrePage } from '../pages/membres/detail-membre/detail-membre';
+import { ModifierMembrePage } from '../pages/membres/modifier-membre/modifier-membre';
+
+//langue
+import { LanguePage } from '../pages/langue/langue'
+
+
 // needed to load translation from assets folder
 export function createTranslateLoader(http: Http) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -58,11 +90,40 @@ export function createTranslateLoader(http: Http) {
     VegaLitePage,
     LeafletPage,
     PhotosPage,
-    FormViewComponent
+    FormViewComponent,
+
+    //configuration localité
+    ConfigurationPage,
+    ConfLocaliteEnquetePage,
+    ModifierConfLocaliteEnquetePage,
+    AjouterConfLocaliteEnquetePage,
+
+    //unions
+    UnionsPage,
+    AjouterUnionPage,
+    DetailUnionPage,
+    ModifierUnionPage,
+
+    //op
+    OpPage,
+    AjouterOpPage,
+    DetailOpPage,
+    ModifierOpPage,
+
+    //membres
+    MembresPage,
+    AjouterMembrePage,
+    DetailMembrePage,
+    ModifierMembrePage,
+
+    //langue
+    LanguePage,
   ],
   imports: [
     IonicModule.forRoot(MyApp),
     BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     IonicStorageModule.forRoot(),
     TranslateModule.forRoot({
@@ -90,8 +151,35 @@ export function createTranslateLoader(http: Http) {
     FormViewPage,
     VegaLitePage,
     LeafletPage,
-    PhotosPage
+    PhotosPage,
+
+    //configuration localité
+    ConfigurationPage,
+    ConfLocaliteEnquetePage,
+    ModifierConfLocaliteEnquetePage,
+    AjouterConfLocaliteEnquetePage,
+
+    //unions
+    UnionsPage,
+    AjouterUnionPage,
+    DetailUnionPage,
+    ModifierUnionPage,
+
+    //op
+    OpPage,
+    AjouterOpPage,
+    DetailOpPage,
+    ModifierOpPage,
+
+    //membres
+    MembresPage,
+    AjouterMembrePage,
+    DetailMembrePage,
+    ModifierMembrePage,
+
+    //langue
+    LanguePage,
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, PouchdbProvider, KoboProvider, Camera, StatusBar, SplashScreen]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, PouchdbProvider, Device, Sim, KoboProvider, Camera, StatusBar, SplashScreen]
 })
 export class AppModule { }
