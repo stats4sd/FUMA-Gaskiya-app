@@ -162,7 +162,7 @@ export class ModifierUnionPage {
     //data.push(this.unionsApplication);
     //data.push(this.unionKobo);
     this.allUnions.forEach((u, index) => {
-      if((u._id !== this.grandeUnion._id) && ((union.nom_union === u.data.nom_union) || (union.num_aggrement === u.data.num_aggrement))){
+      if((u._id !== this.grandeUnion._id) && (/*(union.nom_union === u.data.nom_union) || */(union.num_aggrement === u.data.num_aggrement))){
         res = 0;
       }
     });

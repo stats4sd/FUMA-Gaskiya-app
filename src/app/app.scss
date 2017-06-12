@@ -1,4 +1,6 @@
 // http://ionicframework.com/docs/v2/theming/
+@import "../../node_modules/ionic2-auto-complete/src/auto-complete";
+
 ion-content{
     //background-color:#FCF6C7!important
     background-color:map-get($colors, fuma-yellow-light)!important;

@@ -1,4 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
+import { ToastController } from 'ionic-angular';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 //pouchDB made available to compiler through  @types/pouchdb (npm install @types/pouchdb --save --save-exact)
@@ -17,7 +18,7 @@ export class PouchdbProvider {
     //my array
     data: any;
 
-    constructor(public http: Http) {
+    constructor(public http: Http, public toastCtl: ToastController) {
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
         if (!this.isInstantiated) {
@@ -134,7 +135,63 @@ export class PouchdbProvider {
     }).on('error', function (err) {
         console.log('error', err)
     });
+
 }
+
+    affichierMsg(msg = 'Enregistrement mis à jour'){
+    let toast = this.toastCtl.create({
+      message: msg,
+      position: 'top',
+      duration: 3000
+        });
+
+        toast.present();
+    }
+
+    public syncAvecToast(remote ?: string, options: any = {}) {
+    console.log('setting up db sync')
+    this.affichierMsg('Synchronisation en cours...');
+    //default connection
+    // if (!remote) {
+    //     remote = this.remoteDetails['remote-couch-url']
+    //     options = {
+    //         "auth.username": this.remoteDetails.username,
+    //         "auth.password": this.remoteDetails.password
+    //     }
+    // }
+
+    
+    var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
+    //var remoteSaved = "http://127.0.0.1:5984/app_fuma"
+    var optionsSaved = {
+        "auth.username": "fumagaskiya-app",
+       "auth.password": "AA61E1481D12534A9CABE87465474"
+    }
+    let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+    console.log('remoteDB', remoteDatabase)
+    this.database.sync(remoteDatabase, {
+        //live: true,
+        //retry: true,
+        //continuous: true
+    }).on('change',  (info) => {
+        //alert(info)
+        console.log('change', info)
+    }).on('paused',  (err) => {
+        console.log('paused', err)
+    }).on('active',  ()  => {
+        // replicate resumed (e.g. new changes replicating, user went back online)
+    }).on('denied',  (err) => {
+        console.log('denied', err)
+        this.affichierMsg('Erreur lors de la synchronisation!')
+    }).on('complete',  (info) => {
+        console.log('complete', info)
+        this.affichierMsg('Synchronisation terminée avec succes')
+    }).on('error',  (err) => {
+        console.log('error', err)
+        this.affichierMsg('Erreur lors de la synchronisation!')
+    });
+}
+
 
     public getChangeListener() {
     return this.listener;
@@ -330,4 +387,23 @@ export class PouchdbProvider {
         console.log("database removed");
       });
     }
+
+    generateOderId(operation){
+    var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
+    var numbers='0123456789'
+    var randomArray=[]
+    for(let i=0;i<15;i++){
+      var rand = Math.floor(Math.random()*10)
+      var rand = Math.floor(Math.random()*24)
+      randomArray.push(numbers[rand])
+      randomArray.push(chars[rand])
+    }
+    //randomArray.push('-')
+    //var rand = Math.floor(Math.random()*24)
+    //randomArray.push(chars[rand])
+    var randomString=randomArray.join("");
+    var Id= ':'+operation+':'+randomString;
+    return Id
+  }
+
 }

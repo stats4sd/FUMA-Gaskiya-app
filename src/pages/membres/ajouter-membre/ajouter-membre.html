@@ -99,7 +99,7 @@
     <ion-label floating>Nom membre <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="nom_Membre" [(ngModel)]="nom" (keyup)="getMatricule()" ></ion-input>
   </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['nom_Membre'].hasError('required') && membreForm.controls['nom_Membre'].touched">* le nom du membre des est obligatoir!</div>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['nom_Membre'].hasError('required') && membreForm.controls['nom_Membre'].touched">* le nom du membre est obligatoir!</div>
   
   <ion-item>
     <ion-label floating>Matricule <span class="error-box">*</span></ion-label>

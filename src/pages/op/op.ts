@@ -30,41 +30,57 @@ export class OpPage {
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
-     
-      this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((ops) => {
+      let opss: any = [];
+      this.servicePouchdb.getPlageDocs('fuma:op:','fuma:op:\uffff').then((ops) => {
         if(ops){
-          this.ops = ops;
-          this.allOPs = ops;
+          //opss = ops;
+          ops.forEach((o, index) => {
+            if(!o.data.op/* || o.data.op !== ''*/){
+              opss.push(o)
+            }
+          })
+          this.ops = opss;
+          this.allOPs = opss;
         }
       });
     }else if(this.selectedSource === 'kobo'){
-      
+      let opss: any = [];
       this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((ops) => {
         if(ops){
           ops.forEach((o, i) => {
-            if(o.data.num_aggrement){
-             this.ops.push(o) ;
-             this.allOPs.push(o);
+            if(!o.data.op){
+             opss.push(o) ;
+             //this.allOPs.push(o);
             }
           })
+          this.ops = opss ;
+          this.allOPs = opss;
           //this.ops = ops;
           //this.allOPs = ops;
         }
       });
     }else{
-      
+      let A = [];
       this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((opsA) => {
+        if(opsA){
+          //opss = ops;
+          opsA.forEach((o, index) => {
+            if(!o.data.op/* || o.data.op !== ''*/){
+              A.push(o)
+            }
+          })
+        }
         let k = [];
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opsK) => {
            
           opsK.forEach((o, i) => {
-            if(o.data.num_aggrement){
+            if(!o.data.op){
              k.push(o) ;
              //this.allOPs.push(o);
             }
           })
 
-          this.ops = opsA.concat(k);
+          this.ops = A.concat(k);
           this.allOPs = this.ops
 
        
@@ -86,10 +102,17 @@ export class OpPage {
 
      if(this.selectedSource === 'application'){
     
-      this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((ops) => {
+      let opss: any = [];
+      this.servicePouchdb.getPlageDocs('fuma:op:','fuma:op:\uffff').then((ops) => {
         if(ops){
-          this.ops = ops;
-          this.allOPs = ops;
+          //opss = ops;
+          ops.forEach((o, index) => {
+            if(!o.data.op/* || o.data.op !== ''*/){
+              opss.push(o)
+            }
+          })
+          this.ops = opss;
+          this.allOPs = opss;
         }
       });
     }else if(this.selectedSource === 'kobo'){
@@ -98,7 +121,7 @@ export class OpPage {
       this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((ops) => {
         if(ops){
           ops.forEach((o, i) => {
-            if(o.data.num_aggrement){
+            if(!o.data.op){
              this.ops.push(o) ;
              this.allOPs.push(o);
             }
@@ -106,17 +129,25 @@ export class OpPage {
         }
       });
     }else{
-      
+      let A = [];
       this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((opsA) => {
+        if(opsA){
+          //opss = ops;
+          opsA.forEach((o, index) => {
+            if(!o.data.op/* || o.data.op !== ''*/){
+              A.push(o)
+            }
+          })
+        }
         let k = [];
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opsK) => {
            opsK.forEach((o, i) => {
-            if(o.data.num_aggrement){
+            if(!o.data.op){
              k.push(o) ;
              //this.allOPs.push(o);
             }
           })
-          this.ops = opsA.concat(k);
+          this.ops = A.concat(k);
           this.allOPs = this.ops
 
       }, err => console.log(err));
@@ -138,8 +169,8 @@ export class OpPage {
         buttons: [
           {
             text: 'Définir localité',
-            handler:  () => {
-              this.navCtrl.push(confLocaliteEnquete);
+            handler: () => {
+              this.navCtrl.push(ConfLocaliteEnquetePage);
             }        
           },
           {

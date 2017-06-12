@@ -116,7 +116,7 @@ export class MembresPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(confLocaliteEnquete);
+              this.navCtrl.push(ConfLocaliteEnquetePage);
             }        
           },
           {

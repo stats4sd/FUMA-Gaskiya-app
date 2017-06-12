@@ -53,7 +53,8 @@ export class AjouterOpPage {
     //});
 
     this.opForm = this.formBuilder.group({
-      _id:[''],
+     // _id:[''],
+      type:['op'],
       nom_OP: ['', Validators.required],
       num_aggrement: ['', Validators.required],
       pays: [this.confLocaliteEnquete.pays.id, Validators.required],
@@ -166,7 +167,7 @@ export class AjouterOpPage {
   verifierUniqueNon(op){
     let res = 1;
     this.allOP.forEach((o, index) => {
-      if((op.nom_OP === o.data.nom_OP) || (op.num_aggrement === o.data.num_aggrement)){
+      if(/*(op.nom_OP === o.data.nom_OP) ||*/ (op.num_aggrement === o.data.num_aggrement)){
         res = 0;
       }
     });
@@ -195,10 +196,10 @@ export class AjouterOpPage {
       opFinal._id = 'fuma'+ id;
       opFinal.data = op
       this.servicePouchdb.createDoc(opFinal);
-      if(this.selectedUnion.data.num_aggrement !== 'AUTRE'){
+      /*if(this.selectedUnion.data.num_aggrement !== 'AUTRE'){
         this.selectedUnion.data.num_OP++;
         this.servicePouchdb.updateDoc(this.selectedUnion);
-      }
+      }*/
       let toast = this.toastCtl.create({
         message: 'OP bien enregistré!',
         position: 'top',

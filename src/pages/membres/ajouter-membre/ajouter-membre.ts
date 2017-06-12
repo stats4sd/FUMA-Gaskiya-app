@@ -68,7 +68,8 @@ export class AjouterMembrePage {
     //});
 
     this.membreForm = this.formBuilder.group({
-      _id:[''],
+      //_id:[''],
+      type:['membre_op'],
       nom_Membre: ['', Validators.required],
       matricule_Membre: ['', Validators.required],
       genre: ['', Validators.required],
@@ -123,22 +124,22 @@ export class AjouterMembrePage {
   getMatricule(){
     let membre = this.membreForm.value;
    
-    if(this.nom.length >= 2){
-      this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2), membre.pays.toUpperCase().substr(0, 2), membre.region.toUpperCase().substr(0, 2), membre.departement.toUpperCase().substr(0, 2), membre.commune.toUpperCase().substr(0, 2), this.selectedVillage.nom.toUpperCase().substr(0, 2));
+    if(this.nom.length === 2){
+      this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2),/* membre.pays.toUpperCase().substr(0, 2), membre.region.toUpperCase().substr(0, 2), membre.departement.toUpperCase().substr(0, 2), membre.commune.toUpperCase().substr(0, 2), this.selectedVillage.nom.toUpperCase().substr(0, 2)*/);
     } 
  }
 
-  generateId(operation, pays, region, departement, commune, village){
-    var pays = pays||'XX'
+  generateId(operation, /*pays, region, departement, commune, village*/){
+    /*var pays = pays||'XX'
     var region = region||'XX'
     var department = departement || 'XX'
-    var commune = commune || 'XX'
-    var village = village || 'XX'
+    var commune = commune || 'XX'*/
+    //var village = village || 'XX'
     //select 3 random numbers and random letter for up to 25,000 unique per department
     var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
     var numbers='0123456789'
     var randomArray=[]
-    for(let i=0;i<3;i++){
+    for(let i=0;i<6;i++){
       var rand = Math.floor(Math.random()*10)
       randomArray.push(numbers[rand])
     }
@@ -146,7 +147,7 @@ export class AjouterMembrePage {
     var rand = Math.floor(Math.random()*24)
     randomArray.push(chars[rand])
     var randomString=randomArray.join("");
-    var Id= ''+operation+' '+pays+'-'+region+'-'+department+'-'+commune +'-'+ village+ ' '+randomString 
+    var Id= operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     return Id
   }
 
@@ -258,7 +259,8 @@ export class AjouterMembrePage {
       membreFinal._id = 'fuma'+ id;
       membreFinal.data = membre
       this.servicePouchdb.createDoc(membreFinal);
-      if(this.selectedOP.data.num_aggrement !== 'AUTRE'){
+
+      /*if(this.selectedOP.data.num_aggrement !== 'AUTRE'){
         this.selectedOP.data.num_membre++;
         if(membre.genre === 'male'){
           this.selectedOP.data.num_hommes++;
@@ -269,8 +271,8 @@ export class AjouterMembrePage {
       }
 
       this.allUnion.forEach((u, i) => {
-        if(u.data.num_aggrement === this.selectedOP.data.num_aggrement){
-          u.data.num_membre++;
+        if(u.data.num_aggrement === this.selectedOP.data.union){
+          u.data.num_membre++; 
           if(membre.genre === 'male'){
             u.data.num_hommes++;
           }else{
@@ -278,7 +280,7 @@ export class AjouterMembrePage {
           }
         this.servicePouchdb.updateDoc(u);
         }
-      });
+      });*/
 
       let toast = this.toastCtl.create({
         message: 'Membre OP bien enregistré!',

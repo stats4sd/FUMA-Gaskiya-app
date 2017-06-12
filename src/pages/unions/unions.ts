@@ -4,7 +4,8 @@ import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterUnionPage } from './ajouter-union/ajouter-union';
 import { DetailUnionPage } from './detail-union/detail-union';
 import { Storage } from '@ionic/storage';
-import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete'
+import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete';
+import { ChoixSourceAjoutUnionPage } from './choix-source-ajout-union/choix-source-ajout-union';
 
 /*
   Generated class for the Unions page.
@@ -27,6 +28,10 @@ export class UnionsPage {
 
 
   constructor(public storage: Storage, public navCtrl: NavController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {}
+
+  sync(){
+    this.servicePouchdb.syncAvecToast();
+  }
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
@@ -127,7 +132,7 @@ export class UnionsPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(confLocaliteEnquete);
+              this.navCtrl.push(ConfLocaliteEnquetePage);
             }        
           },
           {
