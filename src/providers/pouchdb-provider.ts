@@ -173,6 +173,7 @@ export class PouchdbProvider {
         //live: true,
         //retry: true,
         //continuous: true
+        timeout: 60000
     }).on('change',  (info) => {
         //alert(info)
         console.log('change', info)
@@ -182,13 +183,13 @@ export class PouchdbProvider {
         // replicate resumed (e.g. new changes replicating, user went back online)
     }).on('denied',  (err) => {
         console.log('denied', err)
-        this.affichierMsg('Erreur lors de la synchronisation!')
+        this.affichierMsg('Erreur synchronisation, accès réfusé par le serveur!')
     }).on('complete',  (info) => {
         console.log('complete', info)
         this.affichierMsg('Synchronisation terminée avec succes')
     }).on('error',  (err) => {
         console.log('error', err)
-        this.affichierMsg('Erreur lors de la synchronisation!')
+        this.affichierMsg('Erreur synchronisation, problème réseau!')
     });
 }
 

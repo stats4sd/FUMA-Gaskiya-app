@@ -6,6 +6,7 @@ import { DetailUnionPage } from './detail-union/detail-union';
 import { Storage } from '@ionic/storage';
 import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete';
 import { ChoixSourceAjoutUnionPage } from './choix-source-ajout-union/choix-source-ajout-union';
+import { CollectPage } from '../tabs/collect/collect';
 
 /*
   Generated class for the Unions page.
@@ -119,6 +120,10 @@ export class UnionsPage {
       
     }
 
+  }
+
+  collect(){
+    this.navCtrl.push(CollectPage)
   }
 
   ajouter(confLocaliteEnquete){

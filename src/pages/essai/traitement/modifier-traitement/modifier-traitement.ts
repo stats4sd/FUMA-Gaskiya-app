@@ -10,7 +10,7 @@ import { PouchdbProvider } from '../../../../providers/pouchdb-provider';
 
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
-*/
+*/ 
 @Component({
   selector: 'page-modifier-traitement',
   templateUrl: 'modifier-traitement.html'

@@ -15,6 +15,7 @@ import { global } from '../../global-variables/variable'
 import { UnionsPage } from '../unions/unions'
 import { OpPage } from '../op/op'
 import { MembresPage } from '../membres/membres'
+import { EssaiPage } from '../essai/essai';
 
 @Component({
   selector: 'page-tabs',
@@ -30,7 +31,7 @@ export class TabsPage {
 
   // include formview as unselectable tab to keep window open after form filled
   tab1Root: any = HomePage;
-  tab2Root: any = CollectPage;
+  tab2Root: any = EssaiPage;
   tab3Root: any = ResearchPage;
   //tab4Root: any = ProfilePage;
   tab4Root: any = MembresPage;
