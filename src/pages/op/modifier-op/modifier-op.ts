@@ -167,7 +167,7 @@ export class ModifierOpPage {
    verifierUniqueNon(op){
     let res = 1;
     this.allOP.forEach((o, index) => {
-      if((o._id !== this.grandeOP._id) && ((op.nom_OP === o.data.nom_OP) || (op.num_aggrement === o.data.num_aggrement))){
+      if((o._id !== this.grandeOP._id) && (/*(op.nom_OP === o.data.nom_OP) || */(op.num_aggrement === o.data.num_aggrement))){
         res = 0;
       }
     });
@@ -222,7 +222,7 @@ export class ModifierOpPage {
       this.grandeOP.data = this.op
       this.servicePouchdb.updateDoc(this.grandeOP);
       
-      if(this.ancienSelectedUnionID !== this.selectedUnionID){
+      /*if(this.ancienSelectedUnionID !== this.selectedUnionID){
         if(this.selectedUnionID !== 'AUTRE' && this.ancienSelectedUnionID === 'AUTRE'){
           this.unions.forEach((u, i) => {
             if(u.data.num_aggrement === this.selectedUnionID){
@@ -249,7 +249,7 @@ export class ModifierOpPage {
             }
           });
         }
-      }
+      }*/
 
       let toast = this.toastCtl.create({
         message: 'OP bien sauvegardée!',

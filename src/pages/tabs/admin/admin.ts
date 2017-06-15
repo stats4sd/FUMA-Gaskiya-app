@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, ToastController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enquete/conf-localite-enquete';
 import { UnionsPage } from '../../unions/unions';
@@ -8,6 +8,10 @@ import { MembresPage } from '../../membres/membres';
 import { TranslateService } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable';
 import { LanguePage } from '../../langue/langue'
+import { TypeSolePage } from '../../type-sole/type-sole'
+import { ChampsPage } from '../../champs/champs'
+import { EssaiPage } from '../../essai/essai'
+import { TraitementPage } from '../../essai/traitement/traitement'
 
 /*
   Generated class for the Admin page.
@@ -22,8 +26,12 @@ import { LanguePage } from '../../langue/langue'
 export class AdminPage {
   profiles:any=[];
   pendingProfiles:any=[];
+  unions:any = [];
+  ops:any = [];
+  membres:any = [];
+  //toast: any;
 
-  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams,  private database: PouchdbProvider) {
+  constructor(public translate: TranslateService, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
   }
 
@@ -32,12 +40,166 @@ export class AdminPage {
     this.getProfiles();
   }
 
+  affichierMsg(msg = 'Enregistrement mis à jour'){
+    let toast = this.toastCtl.create({
+      message: msg,
+      position: 'top',
+      duration: 3000
+    });
+
+    toast.present();
+  }
+
   confLocaliteEnquetee(){
     this.navCtrl.push(ConfLocaliteEnquetePage);
   }
 
   changeLangue(){
     this.navCtrl.push(LanguePage);
+  }
+
+  gestionTypeSole(){
+    this.navCtrl.push(TypeSolePage);
+  }
+
+  gestionChamps(){
+    this.navCtrl.push(ChampsPage);
+  }
+
+  gestionEssai(){
+    this.navCtrl.push(EssaiPage);
+  }
+
+  gestionTraitement(){
+    this.navCtrl.push(TraitementPage);
+  }
+
+  calculNbOPUnion(){
+
+    //on recupere toutes les unions
+    this.affichierMsg('Calcul du nombre d\'OPs par union encours...');
+    this.database.getPlageDocs('fuma:union','fuma:union:\uffff').then((unionsA) => {
+         this.database.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unionsK) => {
+          this.unions = unionsA.concat(unionsK);
+
+          //on recupere toutes les ops
+          this.database.getPlageDocs('fuma:op','fuma:op:\uffff').then((opsA) => {
+            let k = [];
+            this.database.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opsK) => {
+              opsK.forEach((o, i) => {
+                if(o.data.num_aggrement || o.data.type === 'op'){
+                k.push(o) ;
+                }
+              })
+              this.ops = opsA.concat(k);
+
+              //Pour chaque union
+              this.unions.forEach((union, indexU) => {
+                //reinitialiser le nombre d'OP de l'union
+                union.data.num_OP = 0;
+                //parcourir les op a la recherche des ops qui appartiennent a l'union
+                this.ops.forEach((op, indexO) => {
+                  //compter les OP
+                  if(union.data.num_aggrement === op.data.union){
+                    union.data.num_OP++
+                  }
+
+                });
+
+                //mettre a jour l'union
+                this.database.updateDoc(union);
+              });
+
+              this.affichierMsg('Calcul du nombre d\'OPs par union terminé avec succes!');
+            }, err => console.log(err));
+          }, err => console.log(err));
+         }, err => console.log(err));  
+    }, err => console.log(err));   
+  }
+
+  calculNbMembreOP(){
+
+    this.affichierMsg('Calcul du nombre de membre par OPs et par union encours...');
+    this.database.getPlageDocs('fuma:union','fuma:union:\uffff').then((unionsA) => {
+         this.database.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unionsK) => {
+          this.unions = unionsA.concat(unionsK);
+
+          //on recupere toutes les ops
+          this.database.getPlageDocs('fuma:op','fuma:op:\uffff').then((opsA) => {
+            let k = [];
+            this.database.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opsK) => {
+              opsK.forEach((o, i) => {
+                if(o.data.num_aggrement || o.data.type === 'op'){
+                k.push(o) ;
+                }
+              })
+              this.ops = opsA.concat(k);
+
+              //on recupere tous les membres d'OP
+              this.database.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrA) => {
+       
+                this.database.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrK) => {
+                  this.membres = mbrA.concat(mbrK);
+                  
+                  //on parcour les uion
+                  this.unions.forEach((union, indexU) =>{
+
+                      union.data.num_membre = 0;
+                      union.data.num_hommes = 0;
+                      union.data.num_femmes = 0;
+                      //parcourir toutes les OPs
+                      this.ops.forEach((op, indexO) => {
+
+                        //prendre uniquement les ops de l'union
+                        if(union.data.num_aggrement === op.data.union){
+                          //reinitialiser les champs a calculer
+                          op.data.num_membre = 0;
+                          op.data.num_hommes = 0;
+                          op.data.num_femmes = 0;
+
+                          //parcourir tous les membres a la recherche des membres qui appartennenent à l'OP
+                          this.membres.forEach((membre, indexM) => {
+                            //si le membre appartient a l'OP
+                            if(membre.data.op === op.data.num_aggrement){
+                              op.data.num_membre++;
+                              if(membre.data.genre === 'male'){
+                                op.data.num_hommes++;
+                              }else{
+                                op.data.num_femmes++;
+                              }
+                            }
+                          });
+                          //fin membre
+                          
+                          //calculer les champs de l'union
+                          union.data.num_membre += op.data.num_membre;
+                          union.data.num_hommes += op.data.num_hommes;
+                          union.data.num_femmes += op.data.num_femmes;
+
+                           //mettre a jour m'OP
+                          this.database.updateDoc(op);
+                        }
+
+                      });
+                      //fin op
+
+                      //mettre ajour l'union
+                      this.database.updateDoc(union);
+                    
+                  });
+                  //fin union
+                  this.affichierMsg('Calcul du nombre de membre apr OPs et par union terminé avec succes!');
+              }, err => console.log(err));
+
+              }, err => console.log(err));
+              //fin membre
+              
+            }, err => console.log(err));
+          }, err => console.log(err));
+          //fin op
+         }, err => console.log(err));  
+    }, err => console.log(err));   
+ //fin union
   }
 
   gestionOP(){

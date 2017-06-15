@@ -4,6 +4,8 @@ import { IonicStorageModule } from '@ionic/storage';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import { AutoCompleteModule } from 'ionic2-auto-complete';
+
 //native components
 import { Camera } from '@ionic-native/camera';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -36,6 +38,8 @@ import { FormViewComponent } from '../components/form-view/form-view';
 //providers
 import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
+import { AutoCompletion } from '../providers/auto-completion';
+
 
 //configuration locale
 import { ConfigurationPage } from '../pages/configuration/configuration';
@@ -43,11 +47,12 @@ import { ConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-en
 import { ModifierConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/modifier-conf-localite-enquete/modifier-conf-localite-enquete';
 import { AjouterConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/ajouter-conf-localite-enquete/ajouter-conf-localite-enquete';
 
-//uions
+//unions
 import { UnionsPage } from '../pages/unions/unions';
 import { AjouterUnionPage } from '../pages/unions/ajouter-union/ajouter-union';
 import { DetailUnionPage } from '../pages/unions/detail-union/detail-union';
 import { ModifierUnionPage } from '../pages/unions/modifier-union/modifier-union';
+import { ChoixSourceAjoutUnionPage } from '../pages/unions/choix-source-ajout-union/choix-source-ajout-union';
 
 
 //OP
@@ -64,6 +69,30 @@ import { ModifierMembrePage } from '../pages/membres/modifier-membre/modifier-me
 
 //langue
 import { LanguePage } from '../pages/langue/langue'
+
+//type de sole
+import { TypeSolePage } from '../pages/type-sole/type-sole';
+import { AjouterTypeSolePage } from '../pages/type-sole/ajouter-type-sole/ajouter-type-sole';
+import { ModifierTypeSolePage } from '../pages/type-sole/modifier-type-sole/modifier-type-sole';
+import { DetailTypeSolePage } from '../pages/type-sole/detail-type-sole/detail-type-sole';
+
+//champs
+import { ChampsPage } from '../pages/champs/champs';
+import { AjouterChampsPage } from '../pages/champs/ajouter-champs/ajouter-champs';
+import { ModifierChampsPage } from '../pages/champs/modifier-champs/modifier-champs';
+import { DetailChampsPage } from '../pages/champs/detail-champs/detail-champs';
+
+//essai
+import { EssaiPage } from '../pages/essai/essai';
+import { AjouterEssaiPage } from '../pages/essai/ajouter-essai/ajouter-essai';
+import { ModifierEssaiPage } from '../pages/essai/modifier-essai/modifier-essai';
+import { DetailEssaiPage } from '../pages/essai/detail-essai/detail-essai';
+
+//traitement
+import { TraitementPage } from '../pages/essai/traitement/traitement';
+import { AjouterTraitementPage } from '../pages/essai/traitement/ajouter-traitement/ajouter-traitement';
+import { ModifierTraitementPage } from '../pages/essai/traitement/modifier-traitement/modifier-traitement';
+import { DetailTraitementPage } from '../pages/essai/traitement/detail-traitement/detail-traitement';
 
 
 // needed to load translation from assets folder
@@ -103,6 +132,7 @@ export function createTranslateLoader(http: Http) {
     AjouterUnionPage,
     DetailUnionPage,
     ModifierUnionPage,
+    ChoixSourceAjoutUnionPage,
 
     //op
     OpPage,
@@ -118,10 +148,35 @@ export function createTranslateLoader(http: Http) {
 
     //langue
     LanguePage,
+
+    //type de sole
+    TypeSolePage,
+    AjouterTypeSolePage,
+    ModifierTypeSolePage,
+    DetailTypeSolePage,
+
+    //champs
+    ChampsPage,
+    AjouterChampsPage,
+    ModifierChampsPage,
+    DetailChampsPage,
+
+    //essai
+    EssaiPage,
+    AjouterEssaiPage,
+    ModifierEssaiPage,
+    DetailEssaiPage,
+
+    //traitement
+    TraitementPage,
+    AjouterTraitementPage,
+    ModifierTraitementPage,
+    DetailTraitementPage,
   ],
   imports: [
     IonicModule.forRoot(MyApp),
     BrowserModule,
+    AutoCompleteModule,
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
@@ -164,6 +219,7 @@ export function createTranslateLoader(http: Http) {
     AjouterUnionPage,
     DetailUnionPage,
     ModifierUnionPage,
+    ChoixSourceAjoutUnionPage,
 
     //op
     OpPage,
@@ -179,7 +235,31 @@ export function createTranslateLoader(http: Http) {
 
     //langue
     LanguePage,
+
+    //type de sole
+    TypeSolePage,
+    AjouterTypeSolePage,
+    ModifierTypeSolePage,
+    DetailTypeSolePage,
+
+    //champs
+    ChampsPage,
+    AjouterChampsPage,
+    ModifierChampsPage,
+    DetailChampsPage,
+
+    //essai
+    EssaiPage,
+    AjouterEssaiPage,
+    ModifierEssaiPage,
+    DetailEssaiPage,
+
+    //traitement
+    TraitementPage,
+    AjouterTraitementPage,
+    ModifierTraitementPage,
+    DetailTraitementPage,
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, PouchdbProvider, Device, Sim, KoboProvider, Camera, StatusBar, SplashScreen]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, Device, Sim, KoboProvider, Camera, StatusBar, SplashScreen]
 })
 export class AppModule { }

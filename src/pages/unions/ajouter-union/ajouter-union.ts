@@ -41,15 +41,16 @@ export class AjouterUnionPage {
     //});
 
     this.unionForm = this.formBuilder.group({
-      _id:[''],
-      nom_union: ['', Validators.required],
+      //_id:[''],
+      type:['union'],
+      nom_union: ['', Validators.required], 
       num_aggrement: ['', Validators.required],
       pays: [this.confLocaliteEnquete.pays.id, Validators.required],
       pays_nom: [this.confLocaliteEnquete.pays.nom],
       pays_autre: [this.confLocaliteEnquete.pays_autre],
       region: [this.confLocaliteEnquete.region.id, Validators.required],
-      region_nom: [this.confLocaliteEnquete.nom],
-      region_autre: [this.confLocaliteEnquete.region.autre],
+      region_nom: [this.confLocaliteEnquete.region.nom],
+      region_autre: [this.confLocaliteEnquete.region_autre],
       departement: [this.confLocaliteEnquete.departement.id, Validators.required],
       departement_nom: [this.confLocaliteEnquete.departement.nom],
       departement_autre: [this.confLocaliteEnquete.departement_autre],
@@ -187,7 +188,7 @@ export class AjouterUnionPage {
     //data.push(this.unionsApplication);
     //data.push(this.unionKobo);
     this.allUnions.forEach((u, index) => {
-      if((union.nom_union === u.data.nom_union) || (union.num_aggrement === u.data.num_aggrement)){
+      if(/*(union.nom_union === u.data.nom_union) || */(union.num_aggrement === u.data.num_aggrement)){
         res = 0;
       }
     });

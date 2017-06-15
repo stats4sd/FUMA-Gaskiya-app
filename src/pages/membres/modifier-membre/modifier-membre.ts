@@ -173,26 +173,26 @@ export class ModifierMembrePage {
     }*/
 
     if(this.nom.length >= 2 && !this.membreForm){
-      this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2), np.toUpperCase().substr(0, 2), nr.toUpperCase().substr(0, 2), nd.toUpperCase().substr(0, 2), nc.toUpperCase().substr(0, 2), nv.toUpperCase().substr(0, 2));
+      this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2)/*, np.toUpperCase().substr(0, 2), nr.toUpperCase().substr(0, 2), nd.toUpperCase().substr(0, 2), nc.toUpperCase().substr(0, 2), nv.toUpperCase().substr(0, 2)*/);
     }else{
        let membre = this.membreForm.value;   
         if(this.nom.length >= 2){
-          this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2), membre.pays.toUpperCase().substr(0, 2), membre.region.toUpperCase().substr(0, 2), membre.departement.toUpperCase().substr(0, 2), membre.commune.toUpperCase().substr(0, 2), this.selectedVillageID.toUpperCase().substr(0, 2));
+          this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2)/*, membre.pays.toUpperCase().substr(0, 2), membre.region.toUpperCase().substr(0, 2), membre.departement.toUpperCase().substr(0, 2), membre.commune.toUpperCase().substr(0, 2), this.selectedVillageID.toUpperCase().substr(0, 2)*/);
         } 
     }
  }
 
-  generateId(operation, pays, region, departement, commune, village){
-    var pays = pays||'XX'
+  generateId(operation/*, pays, region, departement, commune, village*/){
+    /*var pays = pays||'XX'
     var region = region||'XX'
     var department = departement || 'XX'
     var commune = commune || 'XX'
-    var village = village || 'XX'
+    var village = village || 'XX'*/
     //select 3 random numbers and random letter for up to 25,000 unique per department
     var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
     var numbers='0123456789'
     var randomArray=[]
-    for(let i=0;i<3;i++){
+    for(let i=0;i<6;i++){
       var rand = Math.floor(Math.random()*10)
       randomArray.push(numbers[rand])
     }
@@ -200,7 +200,7 @@ export class ModifierMembrePage {
     var rand = Math.floor(Math.random()*24)
     randomArray.push(chars[rand])
     var randomString=randomArray.join("");
-    var Id= ''+operation+' '+pays+'-'+region+'-'+department+'-'+commune +'-'+ village+ ' '+randomString 
+    var Id= operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-'+ village+ ' '*/+randomString 
     return Id
   }
 
@@ -348,7 +348,7 @@ export class ModifierMembrePage {
     this.grandMembre.data = this.membre
     this.servicePouchdb.updateDoc(this.grandMembre);
     
-    if(this.ancienSelectedOPID !== this.selectedOPID){
+    /*if(this.ancienSelectedOPID !== this.selectedOPID){
       if(this.selectedOPID !== 'AUTRE' && this.ancienSelectedOPID === 'AUTRE'){
         this.ops.forEach((o, i) => {
           if(o.data.num_aggrement === this.selectedOPID){
@@ -401,7 +401,7 @@ export class ModifierMembrePage {
           }
         });
       }
-    }
+    }*/
 
     let toast = this.toastCtl.create({
       message: 'Membre bien sauvegardé!',

@@ -7,6 +7,14 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
+    <ion-buttons start>
+      <button ion-button icon-only>
+        <ion-badge color="fuma-green" item-right>{{unions.length}}</ion-badge>
+      </button>
+      <button ion-button icon-only color="royal" (click) = "sync()" >
+        <ion-icon name="sync"></ion-icon>
+      </button>
+    </ion-buttons>
     <ion-title>unions</ion-title>
     <ion-buttons end>
       <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>

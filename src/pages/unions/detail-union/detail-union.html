@@ -28,24 +28,25 @@
             <ion-row> <ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'> {{union.data.nom_union}} </ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>Numéro aggrément:</strong></ion-col> <ion-col class='meta-value'> {{union.data.num_aggrement}}</ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>Nombre d'OP:</strong></ion-col> <ion-col class='meta-value'> {{union.data.num_OP}}</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Nombre de membres:</strong></ion-col> <ion-col class='meta-value'> {{union.data.num_membre}}</ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>Nombre hommes:</strong></ion-col> <ion-col class='meta-value'> {{union.data.num_hommes}}</ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>Nombre femmes:</strong></ion-col> <ion-col class='meta-value'> {{union.data.num_femmes}}</ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{union.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Pays ID:</strong></ion-col> <ion-col class='meta-value'> {{union.data.pays}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Pays nom:</strong></ion-col> <ion-col class='meta-value'> {{union.data.pays_nom}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Pays autre:</strong></ion-col> <ion-col class='meta-value'> {{union.data.pays_autre}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Région ID:</strong></ion-col> <ion-col class='meta-value'> {{union.data.region}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Région nom:</strong></ion-col> <ion-col class='meta-value'> {{union.data.region_nom}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Région autre:</strong></ion-col> <ion-col class='meta-value'> {{union.data.region_autre}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Departement ID:</strong></ion-col> <ion-col class='meta-value'> {{union.data.departement}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Departement nom:</strong></ion-col> <ion-col class='meta-value'> {{union.data.departement_nom}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Departement autre:</strong></ion-col> <ion-col class='meta-value'> {{union.data.departement_autre}} </ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Commune ID:</strong></ion-col> <ion-col class='meta-value'> {{union.data.commune}}</ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Commune nom:</strong></ion-col> <ion-col class='meta-value'> {{union.data.commune_nom}}</ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Commune autre:</strong></ion-col> <ion-col class='meta-value'> {{union.data.commune_autre}}</ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Village ID:</strong></ion-col> <ion-col class='meta-value'> {{union.data.village}}</ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Village nom:</strong></ion-col> <ion-col class='meta-value'> {{union.data.village_nom}}</ion-col> </ion-row>
-            <ion-row> <ion-col class='meta-key'><strong>Village autre:</strong></ion-col> <ion-col class='meta-value'> {{union.data.village_autre}}</ion-col> </ion-row>
+            <ion-row *ngIf="union.data.pays != 'AUTRE' && !union.data.pays_nom"> <ion-col class='meta-key'><strong>Pays:</strong></ion-col> <ion-col class='meta-value'> {{union.data.pays}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.pays != 'AUTRE' && union.data.pays_nom"> <ion-col class='meta-key'><strong>Pays:</strong></ion-col> <ion-col class='meta-value'> {{union.data.pays_nom}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.pays == 'AUTRE'"> <ion-col class='meta-key'><strong>Pays:</strong></ion-col> <ion-col class='meta-value'> {{union.data.pays_autre}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.region != 'AUTRE' && !union.data.region_nom"> <ion-col class='meta-key'><strong>Région:</strong></ion-col> <ion-col class='meta-value'> {{union.data.region}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.region != 'AUTRE' && union.data.region_nom"> <ion-col class='meta-key'><strong>Région:</strong></ion-col> <ion-col class='meta-value'> {{union.data.region_nom}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.region == 'AUTRE'"> <ion-col class='meta-key'><strong>Région:</strong></ion-col> <ion-col class='meta-value'> {{union.data.region_autre}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.departement != 'AUTRE' && !union.data.departement_nom"> <ion-col class='meta-key'><strong>Departement:</strong></ion-col> <ion-col class='meta-value'> {{union.data.departement}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.departement != 'AUTRE' && union.data.departement_nom"> <ion-col class='meta-key'><strong>Departement:</strong></ion-col> <ion-col class='meta-value'> {{union.data.departement_nom}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.departement == 'AUTRE'"> <ion-col class='meta-key'><strong>Departement:</strong></ion-col> <ion-col class='meta-value'> {{union.data.departement_autre}} </ion-col> </ion-row>
+            <ion-row *ngIf="union.data.commune != 'AUTRE' && !union.data.commune_nom"> <ion-col class='meta-key'><strong>Commune:</strong></ion-col> <ion-col class='meta-value'> {{union.data.commune}}</ion-col> </ion-row>
+            <ion-row *ngIf="union.data.commune != 'AUTRE' && union.data.commune_nom"> <ion-col class='meta-key'><strong>Commune:</strong></ion-col> <ion-col class='meta-value'> {{union.data.commune_nom}}</ion-col> </ion-row>
+            <ion-row *ngIf="union.data.commune == 'AUTRE'"> <ion-col class='meta-key'><strong>Commune:</strong></ion-col> <ion-col class='meta-value'> {{union.data.commune_autre}}</ion-col> </ion-row>
+            <ion-row *ngIf="union.data.village != 'AUTRE' && !union.data.village_nom"> <ion-col class='meta-key'><strong>Village:</strong></ion-col> <ion-col class='meta-value'> {{union.data.village}}</ion-col> </ion-row>
+            <ion-row *ngIf="union.data.village != 'AUTRE' && union.data.village_nom"> <ion-col class='meta-key'><strong>Village:</strong></ion-col> <ion-col class='meta-value'> {{union.data.village_nom}}</ion-col> </ion-row>
+            <ion-row *ngIf="union.data.village == 'AUTRE'"> <ion-col class='meta-key'><strong>Village:</strong></ion-col> <ion-col class='meta-value'> {{union.data.village_autre}}</ion-col> </ion-row>
             <!--ion-row> <ion-col class='meta-key'><strong>deviceid:</strong></ion-col> <ion-col class='meta-value'> {{union.data.deviceid}}</ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>imei:</strong></ion-col> <ion-col class='meta-value'> {{union.data.imei}}</ion-col> </ion-row>
             <ion-row> <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col> <ion-col class='meta-value'> {{union.data.phonenumber}}</ion-col> </ion-row>

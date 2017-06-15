@@ -51,22 +51,8 @@
     </ion-card-header>
     <ion-card-content>          
       <ion-grid>
-        <ion-row>
-          <ion-col class='meta-key'>
-              <strong>Nom:</strong> 
-          </ion-col>
-          <ion-col class='meta-value'>
-              {{membre.doc.data.nom_Membre}}
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col class='meta-key'>
-            <strong>Matricule:</strong>
-          </ion-col>
-          <ion-col class='meta-value'>
-            {{membre.doc.data.matricule_Membre}}
-          </ion-col>
-        </ion-row>
+        <ion-row><ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'>{{membre.doc.data.nom_Membre}} </ion-col>   </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Matricule:</strong> </ion-col> <ion-col class='meta-value'> {{membre.doc.data.matricule_Membre}} </ion-col> </ion-row>
         <ion-row>
           <ion-col class='meta-key'>
             <strong>Sex:</strong>
@@ -75,49 +61,49 @@
               {{membre.doc.data.genre}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.classe != 'AUTRE' && !membre.doc.data.classe_nom">
           <ion-col class='meta-key'>
-            <strong>Classe ID:</strong>
+            <strong>Classe:</strong>
             </ion-col>
             <ion-col class='meta-value'>
               {{membre.doc.data.classe}}
             </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.classe != 'AUTRE' && membre.doc.data.classe_nom">
           <ion-col class='meta-key'>
-            <strong>Classe nom:</strong>
+            <strong>Classe:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.classe_nom}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.classe == 'AUTRE'">
           <ion-col class='meta-key'>
-            <strong>Classe autre:</strong>
+            <strong>Classe:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.classe_autre}}
           </ion-col>
         </ion-row>
-          <ion-row>
+          <ion-row *ngIf="membre.doc.data.op != 'AUTRE' && !membre.doc.data.op_nom">
           <ion-col class='meta-key'>
-            <strong>OP ID:</strong>
+            <strong>OP:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.op}}
           </ion-col>
           </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.op != 'AUTRE' && membre.doc.data.op_nom">
           <ion-col class='meta-key'>
-              <strong>OP nom:</strong>
+              <strong>OP:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.op_nom}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.op == 'AUTRE'">
           <ion-col class='meta-key'>
-            <strong>OP autre:</strong>
+            <strong>OP:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.op_autre}}
@@ -131,121 +117,121 @@
             {{membre.doc.data.today | date: 'dd-MM-yyyy'}}
             </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.pays != 'AUTRE' && !membre.doc.data.pays_nom">
           <ion-col class='meta-key'>
-            <strong>Pays ID:</strong> 
+            <strong>Pays:</strong> 
           </ion-col>
           <ion-col class='meta-value'>
             {{membre.doc.data.pays}} 
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.pays != 'AUTRE' && membre.doc.data.pays_nom">
           <ion-col class='meta-key'>
-            <strong>Pays nom:</strong>
+            <strong>Pays:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.pays_nom}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.pays == 'AUTRE'">
           <ion-col class='meta-key'>
-            <strong>Pays autre:</strong>
+            <strong>Pays:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.pays_autre}} 
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.region != 'AUTRE' && !membre.doc.data.region_nom">
           <ion-col class='meta-key'>
-            <strong>Région ID:</strong>
+            <strong>Région:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.region}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.region != 'AUTRE' && membre.doc.data.region_nom">
           <ion-col class='meta-key'>
-            <strong>Région nom:</strong>
+            <strong>Région:</strong>
           </ion-col>
           <ion-col class='meta-value'> 
             {{membre.doc.data.region_nom}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.region == 'AUTRE'">
           <ion-col class='meta-key'>
-            <strong>Région autre:</strong> 
+            <strong>Région:</strong> 
           </ion-col>
           <ion-col class='meta-value'>
             {{membre.doc.data.region_autre}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.departement != 'AUTRE' && !membre.doc.data.departement_nom">
           <ion-col class='meta-key'>
-            <strong>Departement ID:</strong>
+            <strong>Departement:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.departement}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.departement != 'AUTRE' && membre.doc.data.departement_nom">
           <ion-col class='meta-key'>
-            <strong>Departement nom:</strong>
+            <strong>Departement:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.departement_nom}} 
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.departement == 'AUTRE'">
           <ion-col class='meta-key'>
-            <strong>Departement autre:</strong>
+            <strong>Departement:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.departement_autre}} 
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.commune != 'AUTRE' && !membre.doc.data.commune_nom">
           <ion-col class='meta-key'>
-            <strong>Commune ID:</strong> 
+            <strong>Commune:</strong> 
           </ion-col>
           <ion-col class='meta-value'>
             {{membre.doc.data.commune}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.commune != 'AUTRE' && membre.doc.data.commune_nom">
           <ion-col class='meta-key'>
-            <strong>Commune nom:</strong>
+            <strong>Commune:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.commune_nom}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.commune == 'AUTRE'">
           <ion-col class='meta-key'>
-          <strong>Commune autre:</strong>
+          <strong>Commune:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.commune_autre}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.village != 'AUTRE' && !membre.doc.data.village_nom">
           <ion-col class='meta-key'>
-            <strong>Village ID:</strong>
+            <strong>Village:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.village}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.village != 'AUTRE' && membre.doc.data.village_nom">
           <ion-col class='meta-key'>
-            <strong>Village nom:</strong>
+            <strong>Village:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.village_nom}}
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="membre.doc.data.village == 'AUTRE'">
           <ion-col class='meta-key'>
-            <strong>Village autre:</strong>
+            <strong>Village:</strong>
           </ion-col>
           <ion-col class='meta-value'>
               {{membre.doc.data.village_autre}}
