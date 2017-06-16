@@ -25,8 +25,15 @@ export class OpPage {
   opsKobo: any = [];
   allOPs: any = [];
   confLocaliteEnquete: any;
+  num_aggrement_union: any;
+  nom_union: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider) {
+    if(this.navParams.data.num_aggrement_union){
+      this.num_aggrement_union = this.navParams.data.num_aggrement_union;
+      this.nom_union = this.navParams.data.nom_union;
+    }
+  }
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
@@ -38,9 +45,24 @@ export class OpPage {
             if(!o.data.op/* || o.data.op !== ''*/){
               opss.push(o)
             }
-          })
-          this.ops = opss;
-          this.allOPs = opss;
+          });
+
+          if(this.num_aggrement_union){
+            let opu: any = [];
+            opss.forEach((o, i) => {
+              if(o.data.union === this.num_aggrement_union){
+                opu.push(o)
+              }
+           });
+           this.ops = opu;
+           this.allOPs = opu;
+
+          }else{
+            this.ops = opss;
+            this.allOPs = opss;
+          }
+          //this.ops = opss;
+          //this.allOPs = opss;
         }
       });
     }else if(this.selectedSource === 'kobo'){
@@ -52,15 +74,31 @@ export class OpPage {
              opss.push(o) ;
              //this.allOPs.push(o);
             }
-          })
-          this.ops = opss ;
-          this.allOPs = opss;
+          });
+
+          if(this.num_aggrement_union){
+            let opu: any = [];
+            opss.forEach((o, i) => {
+              if(o.data.union === this.num_aggrement_union){
+                opu.push(o)
+              }
+           });
+           this.ops = opu;
+           this.allOPs = opu;
+
+          }else{
+            this.ops = opss;
+            this.allOPs = opss;
+          }
+          //this.ops = opss ;
+          //this.allOPs = opss;
           //this.ops = ops;
           //this.allOPs = ops;
         }
       });
     }else{
       let A = [];
+      let opss: any = [];
       this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((opsA) => {
         if(opsA){
           //opss = ops;
@@ -80,8 +118,24 @@ export class OpPage {
             }
           })
 
-          this.ops = A.concat(k);
-          this.allOPs = this.ops
+          opss = A.concat(k);
+          if(this.num_aggrement_union){
+            let opu: any = [];
+            opss.forEach((o, i) => {
+              if(o.data.union === this.num_aggrement_union){
+                opu.push(o)
+              }
+           });
+           this.ops = opu;
+           this.allOPs = opu;
+
+          }else{
+            this.ops = opss;
+            this.allOPs = opss;
+          }
+
+          //this.ops = A.concat(k);
+          //this.allOPs = this.ops
 
        
       }, err => console.log(err));
@@ -111,25 +165,58 @@ export class OpPage {
               opss.push(o)
             }
           })
-          this.ops = opss;
-          this.allOPs = opss;
+
+          if(this.num_aggrement_union){
+            let opu: any = [];
+            opss.forEach((o, i) => {
+              if(o.data.union === this.num_aggrement_union){
+                opu.push(o)
+              }
+           });
+           this.ops = opu;
+           this.allOPs = opu;
+
+          }else{
+            this.ops = opss;
+            this.allOPs = opss;
+          }
+          //this.ops = opss;
+          //this.allOPs = opss;
         }
       });
     }else if(this.selectedSource === 'kobo'){
-      this.ops = [];
-      this.allOPs = [];
+      //this.ops = [];
+      //this.allOPs = [];
+      let opss: any = [];
       this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((ops) => {
         if(ops){
           ops.forEach((o, i) => {
             if(!o.data.op){
-             this.ops.push(o) ;
-             this.allOPs.push(o);
+              opss.push(o)
+             //this.ops.push(o) ;
+             //this.allOPs.push(o);
             }
-          })
+          });
+
+          if(this.num_aggrement_union){
+            let opu: any = [];
+            opss.forEach((o, i) => {
+              if(o.data.union === this.num_aggrement_union){
+                opu.push(o)
+              }
+           });
+           this.ops = opu;
+           this.allOPs = opu;
+
+          }else{
+            this.ops = opss;
+            this.allOPs = opss;
+          }
         }
       });
     }else{
       let A = [];
+      let opss: any = [];
       this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((opsA) => {
         if(opsA){
           //opss = ops;
@@ -146,9 +233,25 @@ export class OpPage {
              k.push(o) ;
              //this.allOPs.push(o);
             }
-          })
-          this.ops = A.concat(k);
-          this.allOPs = this.ops
+          });
+
+          opss = A.concat(k);
+          if(this.num_aggrement_union){
+            let opu: any = [];
+            opss.forEach((o, i) => {
+              if(o.data.union === this.num_aggrement_union){
+                opu.push(o)
+              }
+           });
+           this.ops = opu;
+           this.allOPs = opu;
+
+          }else{
+            this.ops = opss;
+            this.allOPs = opss;
+          }
+          //this.ops = A.concat(k);
+          //this.allOPs = this.ops
 
       }, err => console.log(err));
 
@@ -161,7 +264,12 @@ export class OpPage {
 
   ajouter(confLocaliteEnquete){
     if(this.confLocaliteEnquete){
-      this.navCtrl.push(AjouterOpPage, {'confLocaliteEnquete': confLocaliteEnquete});
+      if(this.num_aggrement_union){
+        this.navCtrl.push(AjouterOpPage, {'confLocaliteEnquete': confLocaliteEnquete, 'num_aggrement_union': this.num_aggrement_union, 'nom_union': this.nom_union});
+      }else{
+        this.navCtrl.push(AjouterOpPage, {'confLocaliteEnquete': confLocaliteEnquete});
+      }
+      
     }else{
       let alert = this.alertCtl.create({
         title: 'Erreur',

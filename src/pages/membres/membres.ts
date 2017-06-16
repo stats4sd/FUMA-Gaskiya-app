@@ -25,8 +25,15 @@ export class MembresPage {
   membresKobo: any = [];
   allMembres: any = [];
   confLocaliteEnquete: any;
+  num_aggrement_op: any;
+  nom_op: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
+    if(this.navParams.data.num_aggrement_op){
+      this.num_aggrement_op = this.navParams.data.num_aggrement_op;
+      this.nom_op = this.navParams.data.nom_op;
+    }
+  } 
 
   ionViewDidEnter() {
     if(this.selectedSource === 'application'){
@@ -107,7 +114,12 @@ export class MembresPage {
 
   ajouter(confLocaliteEnquete){
     if(this.confLocaliteEnquete){
-      this.navCtrl.push(AjouterMembrePage, {'confLocaliteEnquete': confLocaliteEnquete});
+      if(this.num_aggrement_op){
+        this.navCtrl.push(AjouterMembrePage, {'confLocaliteEnquete': confLocaliteEnquete, 'num_aggrement_op': this.num_aggrement_op, 'nom_op': this.nom_op});
+      }else{
+        this.navCtrl.push(AjouterMembrePage, {'confLocaliteEnquete': confLocaliteEnquete});
+      }
+      
     }else{
       let alert = this.alertCtl.create({
         title: 'Erreur',
@@ -165,8 +177,22 @@ export class MembresPage {
         }.bind(this))
         return Promise.all(promises).then(
           res => {
-            this.membres = res
-            this.allMembres=res
+            let m: any = res
+            if(this.num_aggrement_op){
+              let mbrs: any = [];
+              m.forEach((mbr, i) => {
+                if(mbr.doc.data.op === this.num_aggrement_op){
+                  mbrs.push(mbr);
+                }
+              });
+
+            this.membres = mbrs
+            this.allMembres=mbrs
+            }else{
+              this.membres = res
+              this.allMembres=res
+            }
+           
           }
         )
       }

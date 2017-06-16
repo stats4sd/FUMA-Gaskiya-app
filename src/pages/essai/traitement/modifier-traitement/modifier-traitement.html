@@ -44,7 +44,7 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['code_traitement'].hasError('required') && traitementForm.controls['code_traitement'].touched">* le code du traitement est obligatoir!</div>
    
   <ion-item>
-    <ion-label floating>Nom traitement <span class="error-box">*</span></ion-label>
+    <ion-label floating>Nom traitement</ion-label>
     <ion-input type="text" formControlName="nom_traitement" ></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_traitement'].hasError('required') && traitementForm.controls['nom_traitement'].touched">* le nom du traitement est obligatoir!</div>

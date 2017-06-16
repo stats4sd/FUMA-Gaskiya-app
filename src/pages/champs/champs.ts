@@ -22,9 +22,16 @@ export class ChampsPage {
   champs: any = [];
   allChamps: any = [];
   typeSoles: any = [];
-  typeSoleTous: any = {'data': {'nom': 'Tous'}}
+  typeSoleTous: any = {'data': {'nom': 'Tous'}};
+  matricule_producteur: any;
+  nom_producteur: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {}
+  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
+    if(this.navParams.data.matricule_producteur){
+      this.matricule_producteur = this.navParams.data.matricule_producteur;
+      this.nom_producteur = this.navParams.data.nom_producteur;
+    }
+  }
 
   ionViewDidEnter() {
 
@@ -39,8 +46,20 @@ export class ChampsPage {
      // this.unions = [];
       this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
         if(c){
-          this.champs = c;
-          this.allChamps = c;
+          if(this.matricule_producteur){
+            let chmps: any = [];
+            c.forEach((ch, i) => {
+              if(ch.data.matricule_producteur === this.matricule_producteur){
+                chmps.push(ch);
+              }
+            });
+
+            this.champs = chmps;
+            this.allChamps = chmps;
+          }else {
+            this.champs = c;
+            this.allChamps = c;
+          }
         }
       });
     }else{
@@ -53,8 +72,24 @@ export class ChampsPage {
               ch.push(cp);
             }
           });
-          this.champs = ch;
-          this.allChamps = ch;
+
+          if(this.matricule_producteur){
+            let chmps: any = [];
+            ch.forEach((chm, i) => {
+              if(chm.data.matricule_producteur === this.matricule_producteur){
+                chmps.push(chm);
+              }
+            });
+
+            this.champs = chmps;
+            this.allChamps = chmps;
+          }else {
+            this.champs = ch;
+            this.allChamps = ch;
+          }
+
+          //this.champs = ch;
+          //this.allChamps = ch;
         }
       });
     }
@@ -66,8 +101,22 @@ export class ChampsPage {
      // this.unions = [];
       this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
         if(c){
-          this.champs = c;
-          this.allChamps = c;
+          if(this.matricule_producteur){
+            let chmps: any = [];
+            c.forEach((ch, i) => {
+              if(ch.data.matricule_producteur === this.matricule_producteur){
+                chmps.push(ch);
+              }
+            });
+
+            this.champs = chmps;
+            this.allChamps = chmps;
+          }else {
+            this.champs = c;
+            this.allChamps = c;
+          }
+          //this.champs = c;
+          //this.allChamps = c;
         }
       });
     }else{
@@ -80,8 +129,23 @@ export class ChampsPage {
               ch.push(cp);
             }
           });
-          this.champs = ch;
-          this.allChamps = ch;
+
+          if(this.matricule_producteur){
+            let chmps: any = [];
+            ch.forEach((chm, i) => {
+              if(chm.data.matricule_producteur === this.matricule_producteur){
+                chmps.push(chm);
+              }
+            });
+
+            this.champs = chmps;
+            this.allChamps = chmps;
+          }else {
+            this.champs = ch;
+            this.allChamps = ch;
+          }
+          //this.champs = ch;
+          //this.allChamps = ch;
         }
       });
     }   
@@ -90,7 +154,12 @@ export class ChampsPage {
 
    ajouter(){
     if(this.typeSoles.length > 0){
-      this.navCtrl.push(AjouterChampsPage);
+      if(this.matricule_producteur){
+        this.navCtrl.push(AjouterChampsPage, {'matricule_producteur': this.matricule_producteur});
+      }else{
+        this.navCtrl.push(AjouterChampsPage);
+      }
+      
     }else{
       let alert = this.alertCtl.create({
         title: 'Erreur',

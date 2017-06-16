@@ -77,7 +77,7 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['village_autre'].hasError('required') && membreForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
 
-   <ion-item> 
+   <ion-item *ngIf="!num_aggrement_op"> 
     <ion-label floating>Selectionnez l'OP <span class="error-box">*</span></ion-label>
     <ion-select formControlName="op" [(ngModel)]="selectedOP" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomOP(selectedOP.data.num_aggrement)" >
       <ion-option value="" selected disabled>Selectionnez l'OP</ion-option>
@@ -85,9 +85,22 @@
         <ion-option *ngIf="o.data.num_aggrement" [value]=o >{{o.data.nom_OP}}</ion-option>
       </span>
     </ion-select>
-  </ion-item>
+  </ion-item> 
   <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['op'].hasError('required') && membreForm.controls['op'].touched">* l'OP est obligatoir!</div>
   
+  <ion-item *ngIf="num_aggrement_op">
+    <ion-label floating>Num. aggrement OP <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="op" type="text"  [(ngModel)]="num_aggrement_op" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['op_autre'].hasError('required') && membreForm.controls['op_autre'].touched">* Le nom de l'OP est obligatoire</div>
+  
+  <ion-item *ngIf="num_aggrement_op">
+    <ion-label floating>Nom OP <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="op_nom" type="text"  [(ngModel)]="nom_op" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['op_autre'].hasError('required') && membreForm.controls['op_autre'].touched">* Le nom de l'OP est obligatoire</div>
+
+
   <ion-item *ngIf="selectedOP" [hidden]="selectedOP.data.num_aggrement != 'AUTRE'">
     <ion-label floating>Nom OP <span class="error-box">*</span></ion-label>
     <ion-input formControlName="op_autre" type="text"  [(ngModel)]="nom_autre_op" ></ion-input>

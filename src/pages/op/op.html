@@ -22,6 +22,11 @@
 
 
 <ion-content padding>
+
+  <h5 *ngIf="num_aggrement_union" style="text-align: center; color: seagreen">
+    Les OP de l'union: {{nom_union}} - N.A: {{num_aggrement_union}}
+  </h5>
+
   <ion-list>
     <ion-item>
       <ion-label floating>Choisir la source</ion-label>

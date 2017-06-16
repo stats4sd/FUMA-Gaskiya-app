@@ -61,11 +61,26 @@ export class AjouterTypeSolePage {
   }
 
 ionViewDidEnter() {
+    
     this.sim.getSimInfo().then(
       (info) => {
-        this.phonenumber = info.phoneNumber;
-        this.imei = info.deviceId;
-      }, (err) => console.log('Unable to get sim info: ', err));
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
+      },
+      (err) => console.log('Unable to get sim info: ', err)
+    );
 
       this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((typeSoles) => {
         if(typeSoles){

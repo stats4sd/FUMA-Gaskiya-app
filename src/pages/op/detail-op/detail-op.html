@@ -103,13 +103,21 @@
     </ion-card-content> 
   </ion-card>
 
+  <ion-fab bottom right >
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini (click)="supprimer(op)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab (click)="membresOP(op.data.num_aggrement, op.data.nom_OP)"><ion-icon name="people"></ion-icon></button>
+      <button ion-fab mini (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>
 
-  <ion-fab bottom right>
+  <!--ion-fab bottom right>
     <button ion-fab mini (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
   </ion-fab>
 
   <ion-fab bottom left>
     <button ion-fab mini (click)="supprimer(op)" color="delete" ><ion-icon name="trash"></ion-icon></button>
-  </ion-fab>
+  </ion-fab-->
 
 </ion-content>

@@ -27,13 +27,19 @@
     <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider"></ion-datetime>
   </ion-item>
 
-  <ion-row>
+  <ion-row *ngIf="!matricule_producteur">
     <ion-col>
       
       <ion-auto-complete [dataProvider]="ServiceAutoCompletion" [options]="{ placeholder : 'Matricule producteur' }" (itemSelected)="itemSelected($event)" ></ion-auto-complete>
       
     </ion-col>
   </ion-row>
+
+  <ion-item *ngIf="matricule_producteur">
+    <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="matricule_producteur" disabled></ion-input>
+  </ion-item>
+  
 
   <ion-item>
     <ion-label floating>Nom producteur <span class="error-box">*</span></ion-label>
@@ -64,17 +70,21 @@
 
   <ion-item>
     <ion-label floating>Longitude</ion-label>
-    <ion-input type="text" formControlName="longitude" ></ion-input>
+    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-label floating>Latitude</ion-label>
-    <ion-input type="text" formControlName="latitude" ></ion-input>
+    <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
   </ion-item>
 
     <br>
     <button ion-button type="submit" color="my_secondary" [disabled]="!champsForm.valid" block>Sauvegarder</button>
   </form>
   <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="getPosition()"><ion-icon name="pin"></ion-icon></button>
+  </ion-fab>
 
 </ion-content>

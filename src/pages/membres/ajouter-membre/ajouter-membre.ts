@@ -41,8 +41,16 @@ export class AjouterMembrePage {
   nom_autre_classe: any = '';
   matricule: any = '';
   nom:any = '';
+  num_aggrement_op: any;
+  nom_op: any;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+    
+    if(this.navParams.data.num_aggrement_op){
+      this.num_aggrement_op = this.navParams.data.num_aggrement_op;
+      this.nom_op = this.navParams.data.nom_op;
+      this.nom_autre_op= 'NA';
+    }
     this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
 
     this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((oA) => {
@@ -57,7 +65,7 @@ export class AjouterMembrePage {
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-classe','koboSubmission_fuma-classe\uffff').then((cK) => {
           this.classes = cA.concat(cK);
           this.classes.push(this.autreClasse);
-      }, err => console.log(err));
+      }, err => console.log(err)); 
 
       }, err => console.log(err));
 
@@ -93,7 +101,7 @@ export class AjouterMembrePage {
       village_autre: ['', Validators.required],
       op: ['', Validators.required],
       op_nom: [''],
-      op_autre: ['', Validators.required],
+      op_autre: ['NA', Validators.required],
       today: [today, Validators.required],
       deviceid: [''],
       imei: [''],
@@ -102,6 +110,10 @@ export class AjouterMembrePage {
       end: ['']
     });
     
+  }
+
+  chargerOp(){
+    this.nom_op
   }
 
   createDate(jour: any, moi: any, annee: any){
@@ -155,8 +167,20 @@ export class AjouterMembrePage {
 
     this.sim.getSimInfo().then(
       (info) => {
-        this.phonenumber = info.phoneNumber;
-        this.imei = info.deviceId;
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
       },
       (err) => console.log('Unable to get sim info: ', err)
     );
@@ -244,8 +268,10 @@ export class AjouterMembrePage {
     }else{
       membre.village = this.selectedVillage.id;
       membre.village_nom = this.selectedVillage.nom;
-      membre.op = this.selectedOP.data.num_aggrement;
-      membre.op_nom = this.selectedOP.data.nom_OP;
+      if(!this.num_aggrement_op){
+         membre.op = this.selectedOP.data.num_aggrement;
+         membre.op_nom = this.selectedOP.data.nom_OP;
+      }
       membre.classe = this.selectedClasse.data.id;
       membre.classe_nom = this.selectedClasse.data.nom;
       membre.deviceid = this.device.uuid;

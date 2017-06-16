@@ -40,9 +40,9 @@ export class ModifierTraitementPage {
 
     this.traitementForm = this.formBuilder.group({
      // _id:[''],
-      nom_traitement: [this.traitement.nom_traitement, Validators.required],
-      code_traitement: [this.traitement.code_traitement],
-      annee: [this.traitement.annee],
+      nom_traitement: [this.traitement.nom_traitement],
+      code_traitement: [this.traitement.code_traitement, Validators.required],
+      annee: [this.traitement.annee, Validators.required],
       nom_entree: [this.traitement.nom_entree, Validators.required],
       description_entree: [this.traitement.description_entree],
       objectif_traitement: [this.traitement.objectif_traitement],

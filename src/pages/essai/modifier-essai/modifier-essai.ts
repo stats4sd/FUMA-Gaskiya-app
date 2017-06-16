@@ -98,7 +98,7 @@ export class ModifierEssaiPage {
     }
     this.annees.push('Tous');
 
-    this.selectedAnnee = maDate.getFullYear();
+    this.selectedAnnee = this.essai.annee_essai;//maDate.getFullYear();
     this. chargerTraitements(this.selectedAnnee)
     this.chargerChamps(this.selectedProducteur)
 
@@ -121,6 +121,7 @@ export class ModifierEssaiPage {
       nom_entree: [this.essai.nom_entree],
       id_champs: [this.essai.id_champs, Validators.required],
       superficie: [this.essai.superficie, Validators.required],
+      superficie_essai: [this.essai.superficie_essai, Validators.required],
       type_sole: [this.essai.type_sole, Validators.required],
       longitude:[this.essai.longitude],
       latitude: [this.essai.latitude],
@@ -130,8 +131,6 @@ export class ModifierEssaiPage {
       date_recolte: [this.essai.date_recolte],
       NPR: [this.essai.NPR],
       PDE: [this.essai.PDE],
-      N: [this.essai.N],
-      E: [this.essai.E],
       observation: [this.essai.observation],
       objectif_essai: [this.essai.objectif_essai],
       estValide: [this.essai.estValide],
@@ -250,7 +249,7 @@ export class ModifierEssaiPage {
                 this.superficie = champs.data.superficie;
                 this.longitude = champs.data.longitude;
                 this.latitude = champs.data.latitude;
-                this.nom_champs = this.champs.data.nom_champs;
+                this.nom_champs = champs.data.nom;
               }
             });
           }
@@ -312,6 +311,7 @@ export class ModifierEssaiPage {
       this.essai.nom_entree = essai.nom_entree;
       this.essai.id_champs = essai.id_champs;
       this.essai.superficie = essai.superficie;
+      this.essai.superficie_essai = essai.superficie_essai;
       this.essai.type_sole = essai.type_sole;
       this.essai.longitude = essai.longitude;
       this.essai.latitude = essai.latitude;
@@ -321,8 +321,6 @@ export class ModifierEssaiPage {
       this.essai.date_recolte = essai.date_recolte;
       this.essai.NPR = essai.NPR;
       this.essai.PDE = essai.PDE;
-      this.essai.N = essai.N;
-      this.essai.E = essai.E;
       this.essai.observation = essai.observation;
       this.essai.objectif_essai = essai.objectif_essai;
       this.essai.estValide = essai.estValide;

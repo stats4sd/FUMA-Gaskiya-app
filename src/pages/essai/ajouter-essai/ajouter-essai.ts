@@ -8,6 +8,7 @@ import { AutoCompletion } from '../../../providers/auto-completion';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
 import { AjouterTraitementPage } from '../traitement/ajouter-traitement/ajouter-traitement';
+import { AjouterChampsPage } from '../../champs/ajouter-champs/ajouter-champs'
 
 /*
   Generated class for the AjouterEssai page.
@@ -46,23 +47,35 @@ export class AjouterEssaiPage {
   longitude: any;
   latitude: any;
   code_essai: any;
+  matricule_producteur: any;
+  //nom_producteur: any;
 
   annees: any = [];
 
   
   constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder) {
     
+    if(this.navParams.data.matricule_producteur){
+      this.matricule_producteur = this.navParams.data.matricule_producteur;
+      this.nom_producteur = this. navParams.data.nom_producteur;
+    }
     //charger les producteurs
     let p: any = [];
     this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrA) => {
       
         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrK) => {
         this.producteurs = mbrA.concat(mbrK);
+        if(this.matricule_producteur){
+          this.producteurSelected(this.matricule_producteur)
+        }
+
         this.producteurs.forEach((prod, index) => {
           p.push(prod.data); 
         });
 
         this.ServiceAutoCompletion.data = p;
+
+
         //this.ServiceAutoCompletion.data = this.producteurs;
         //this.allMembres = this.membres
     }, err => console.log(err));
@@ -101,6 +114,7 @@ export class AjouterEssaiPage {
       nom_entree: ['', Validators.required],
       id_champs: ['', Validators.required],
       superficie: ['', Validators.required],
+      superficie_essai: ['', Validators.required],
       type_sole: ['', Validators.required],
       longitude:[''],
       latitude: [''],
@@ -110,8 +124,6 @@ export class AjouterEssaiPage {
       date_recolte: [''],
       NPR: [''],
       PDE: [''],
-      N: [''],
-      E: [''],
       observation: [''],
       objectif_essai: [''],
       estValide: [true],
@@ -144,10 +156,23 @@ export class AjouterEssaiPage {
 
   ionViewDidEnter() {
 
+    
     this.sim.getSimInfo().then(
       (info) => {
-        this.phonenumber = info.phoneNumber;
-        this.imei = info.deviceId;
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
       },
       (err) => console.log('Unable to get sim info: ', err)
     );
@@ -156,8 +181,18 @@ export class AjouterEssaiPage {
        if(e){
           this.allEssais = e;
        }
-      }, err => console.log(err));      
-  }
+      }, err => console.log(err)); 
+
+      /*if(this.matricule_producteur){
+        this.producteurSelected(this.matricule_producteur)
+      }  */   
+  } 
+
+ /* ionViewWillEnter(){
+    if(this.matricule_producteur){
+        this.producteurSelected(this.matricule_producteur)
+      }
+  }*/
 
     itemSelected(ev: any){
     //alert(ev.code_produit);
@@ -204,6 +239,52 @@ export class AjouterEssaiPage {
     });
   }
 
+    producteurSelected(matricule){
+    //alert(ev.code_produit);
+
+    this.chargerChamps(matricule);
+    this.code_essai = this.generateId(matricule);
+
+    this.producteurs.forEach((prod, index) => {
+      if(prod.data.matricule_Membre === matricule){
+        this.selectedProducteur = prod;
+        //nom producteur
+        this.nom_producteur = prod.data.nom_Membre;
+
+        //sex producteur
+        this.sex_producteur = prod.data.genre;
+        
+        //site
+        if((prod.data.commune != 'AUTRE') && (!prod.data.commune_nom)){
+          this.site_producteur = prod.data.commune
+        }else if(prod.data.commune != 'AUTRE' && prod.data.commune_nom){
+          this.site_producteur = prod.data.commune_nom;
+        }else{
+          this.site_producteur = prod.data.commune_autre;
+        }
+
+        //village
+        if((prod.data.village != 'AUTRE') && (!prod.data.village_nom)){
+          this.village_producteur = prod.data.village
+        }else if(prod.data.village != 'AUTRE' && prod.data.village_nom){
+          this.village_producteur = prod.data.village_nom;
+        }else{
+          this.village_producteur = prod.data.village_autre;
+        }
+
+        //classe
+        if((prod.data.classe != 'AUTRE') && (!prod.data.classe_nom)){
+          this.classe_producteur = prod.data.classe
+        }else if(prod.data.classe != 'AUTRE' && prod.data.classe_nom){
+          this.classe_producteur = prod.data.classe_nom;
+        }else{
+          this.classe_producteur = prod.data.classe_autre
+        }
+      }
+    });
+  }
+
+
     chargerChamps(matricule){
       let chmp: any = [];
       this.servicePouchdb.getPlageDocs('fuma:champs', 'fuma:champs:\uffff').then((c) => {
@@ -215,7 +296,25 @@ export class AjouterEssaiPage {
             });
             this.champs = chmp;
             if(this.champs.length <= 0){
-              alert('Avertissement: Ce producteur n\'a aucun champs!')
+              //alert('Avertissement: Ce producteur n\'a aucun champs!') 
+              let alert = this.alertCtl.create({
+                title: 'Avertissement!',
+                message: 'Ce producteur n\'a aucun champs.',
+                buttons: [
+                  {
+                    text: 'Définir champs',
+                    handler:  () => {
+                      this.navCtrl.push(AjouterChampsPage, {'matricule_producteur': this.matricule_producteur});
+                    }        
+                  },
+                  {
+                    text: 'Annuler',
+                    handler: () => console.log('annuler')
+                  }
+                ]
+              });
+
+              alert.present();
             }
           }
         });
@@ -294,11 +393,11 @@ export class AjouterEssaiPage {
       essai.code_traitement = this.selectedTraitement.data.code_traitement;
       essai.nom_entree = this.selectedTraitement.data.nom_entree;
       essai.id_champs = this.selectedChamps.data.id_champs;
-      essai.nom_champs = this.selectedChamps.data.nom_champs;
+      essai.nom_champs = this.selectedChamps.data.nom;
       essai.matricule_producteur = this.selectedProducteur.data.matricule_Membre;
       essai.deviceid = this.device.uuid;
       essai.phonenumber = this.phonenumber;
-      essai.imei = this.imei;
+      essai.imei = this.imei; 
       
       //union._id = 'fuma'+ id;
       essai.end = date.toJSON();

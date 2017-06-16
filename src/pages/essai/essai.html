@@ -28,6 +28,10 @@
 
 <ion-content padding>
 
+  <h5 *ngIf="matricule_producteur && selectedStyle == 'liste'" style="text-align: center; color: seagreen">
+    Les essai de M. {{nom_producteur}} - mat. {{matricule_producteur}}
+  </h5>
+
   <ion-list>
     <ion-row>
       <ion-col>
@@ -52,152 +56,133 @@
     </ion-row>
 
     <ion-item>
-      <ion-searchbar placeholder="Rechercher nom producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar placeholder="Rechercher mat. producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
     </ion-item>
   </ion-list>
  
     <ion-list *ngIf="essais.length > 0 && selectedStyle == 'liste'">
       <br>
       <ion-list-header>
-        <h2 style="width: 100%"><strong style="width: 100%">Essai {{selectedAnnee}}</strong></h2>
+        <h2 style="width: 100%"><strong style="width: 100%">Essais {{selectedAnnee}}</strong></h2>
       </ion-list-header>
     <ion-item *ngFor="let essai of essais" (click)="detail(essai)" > 
-      <h6><strong>Code:</strong> {{essai.data.code_essai}}</h6>
+      <h6><strong>Code essai:</strong> {{essai.data.code_essai}}</h6>
+      <h6><strong>Mat. producteur:</strong> {{essai.data.matricule_producteur}}</h6>
       <h6><strong>Nom producteur:</strong> {{essai.data.nom_producteur}}</h6>
-      <p><strong>Nom d'entrée:</strong> {{essai.data.nom_entree}}</p>
+      <h6><strong>Nom d'entrée:</strong> {{essai.data.nom_entree}}</h6>
     </ion-item>
     </ion-list>
 
   <ion-card style="height: 60%" *ngIf="essais.length > 0 && selectedStyle == 'tableau'">
-    <ion-scroll scrollX="true" scrollY="true" style="height: 100%"> 
-    <ion-card-header>
-      <h2 style="width: 100%"><strong style="width: 100%">Essai {{selectedAnnee}}</strong></h2>
+    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 100%"> 
+    <ion-card-header  style="width: 200%;">
+      <h2><strong>Essais {{selectedAnnee}} <span *ngIf="matricule_producteur">
+    de M. {{nom_producteur}} - mat. {{matricule_producteur}}
+  </span></strong></h2>
     </ion-card-header> 
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
-        <th width-25>
+        <th  >
           <strong>Code essai</strong> 
         </th>
-        <th width-25>
+        <th  >
           <strong>Site</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Village</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Matricule producteur</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Nom producteur</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Sex</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Classes</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Type de sole</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Nom d'entrée</strong>
         </th>
-        <th width-25>
-          <strong>Superficie</strong>
+        <th  >
+          <strong>Superficie essai (m²)</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Date de sémis</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>NPL</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>Gestion 1 ou 2</strong> 
         </th>
-        <th width-25>
+        <th  >
           <strong>Date récolte</strong>
         </th>
-        <th width-25>
+        <th  >
           <strong>NPR</strong> 
         </th>
-        <th width-25>
-          <strong>PDE</strong> 
-        </th>
-        <th width-25>
-          <strong>N</strong> 
-        </th>
-        <th width-25>
-          <strong>E</strong> 
-        </th>
-        <th width-25>
-          <strong>Action</strong> 
+        <th  >
+          <strong>PDE (kg)</strong> 
         </th>
         </tr>
       </thead>
       <!--hr style="width: 375%"-->
       <tbody>
-        <tr *ngFor="let essai of essais" >
-          <td width-25>
+        <tr *ngFor="let essai of essais" (click)="detail(essai)">
+          <td  >
             {{essai.data.code_essai}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.site_producteur}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.village_producteur}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.matricule_producteur}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.nom_producteur}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.sex_producteur}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.classe_producteur}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.type_sole}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.nom_entree}}
           </td>
-          <td width-25>
-            {{essai.data.superficie}}
+          <td  >
+            {{essai.data.superficie_essai}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.date_semis | date: 'dd-MM-yyyy'}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.NPL}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.gestion}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.date_recolte | date: 'dd-MM-yyyy'}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.NPR}}
           </td>
-          <td width-25>
+          <td  >
             {{essai.data.PDE}}
-          </td>
-          <td width-25>
-            {{essai.data.N}}
-          </td>
-          <td width-25>
-            {{essai.data.E}}
-          </td>
-          <td width-25>
-            <ion-row>
-              <ion-col>
-                <button (click)="detail(essai)" class="create-account">Détail</button>
-              </ion-col>
-            </ion-row>
           </td>
         </tr>
       </tbody>
@@ -212,8 +197,23 @@
     </ion-item>    
   </ion-list>
 
+  <!--ion-fab bottom right *ngIf="essais.length > 0 && selectedStyle == 'tableau'">
+    <button ion-fab mini (click)="onPrint()"><ion-icon name="print"></ion-icon></button->
+    <button ion-fab mini (click)="exportXLSX()"><ion-icon name="cloud-upload"></ion-icon></button>
+</ion-fab-->
 
-  <ion-fab bottom right>
+<ion-fab bottom right *ngIf="essais.length > 0 && selectedStyle == 'tableau'">
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini (click)="onPrint()"><ion-icon name="print"></ion-icon></button>
+      <button ion-fab mini (click)="exportExcel()"><ion-icon name="logo-windows"></ion-icon></button>
+      <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+      
+    </ion-fab-list>
+  </ion-fab>
+
+
+  <ion-fab bottom right *ngIf="selectedStyle != 'tableau'">
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
   </ion-fab>
 

@@ -3,6 +3,8 @@ import { NavController, NavParams,  AlertController, ToastController } from 'ion
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ModifierMembrePage } from '../modifier-membre/modifier-membre';
 import JsBarcode from 'jsbarcode';
+import { ChampsPage } from  '../../champs/champs';
+import { EssaiPage } from  '../../essai/essai';
 
 /*
   Generated class for the DetailMembre page.
@@ -80,8 +82,17 @@ export class DetailMembrePage {
     }
   }
 
+
   editer(membre){
     this.navCtrl.push(ModifierMembrePage, {'membre': membre});
+  }
+
+  mesChamps(matricule, nom){
+    this.navCtrl.push(ChampsPage, {'matricule_producteur': matricule, 'nom_producteur': nom})
+  }
+
+  mesEssai(matricule, nom){
+    this.navCtrl.push(EssaiPage, {'matricule_producteur': matricule, 'nom_producteur': nom})
   }
 
   supprimer(membre){

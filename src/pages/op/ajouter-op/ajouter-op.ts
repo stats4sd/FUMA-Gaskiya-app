@@ -34,9 +34,16 @@ export class AjouterOpPage {
   autreUnion: any = {"data": {'num_aggrement':'AUTRE', 'nom_union':'Autre'}};
   nom_autre_village: any = '';
   nom_autre_union: any = '';
+  num_aggrement_union: any;
+  nom_union: any;
  
   constructor(public navCtrl: NavController, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
+    if(this.navParams.data.num_aggrement_union){
+      this.num_aggrement_union = this.navParams.data.num_aggrement_union;
+      this.nom_union = this.navParams.data.nom_union;
+      this.nom_autre_union= 'NA';
+    }
 
     this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
@@ -74,7 +81,7 @@ export class AjouterOpPage {
       village_autre: ['', Validators.required],
       union: ['', Validators.required],
       union_nom: [''],
-      union_autre: ['', Validators.required],
+      union_autre: ['NA', Validators.required],
       today: [today, Validators.required],
       deviceid: [''],
       imei: [''],
@@ -108,10 +115,23 @@ export class AjouterOpPage {
 
   ionViewDidEnter() {
 
+    
     this.sim.getSimInfo().then(
       (info) => {
-        this.phonenumber = info.phoneNumber;
-        this.imei = info.deviceId;
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
       },
       (err) => console.log('Unable to get sim info: ', err)
     );
@@ -183,8 +203,11 @@ export class AjouterOpPage {
     }else{
       op.village = this.selectedVillage.id;
       op.village_nom = this.selectedVillage.nom;
-      op.union = this.selectedUnion.data.num_aggrement;
-      op.union_nom = this.selectedUnion.data.nom_union;
+      if(!this.num_aggrement_union){
+        op.union = this.selectedUnion.data.num_aggrement;
+        op.union_nom = this.selectedUnion.data.nom_union;
+      }
+
       op.deviceid = this.device.uuid;
       op.phonenumber = this.phonenumber;
       op.imei = this.imei;
@@ -211,7 +234,7 @@ export class AjouterOpPage {
 
     }
 
-  }
+  } 
 
   annuler(){
     this.navCtrl.pop();

@@ -6,13 +6,13 @@
 -->
 <ion-header>
 
-  <ion-navbar class="info-card">
+  <ion-navbar color="fuma_primary">
     <ion-title>modifier-champs</ion-title>
 
     <ion-buttons end>
       <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
     </ion-buttons>
-  </ion-navbar>
+  </ion-navbar> 
 
 </ion-header>
 
@@ -31,7 +31,7 @@
     <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
     <ion-select formControlName="matricule_producteur" [(ngModel)]="selectedProducteur" cancelText="Annuler" (ionChange)="getNomProducteur()" okText="Ok">
       <ion-option value="" selected disabled>Selectionnez le matricule du producteur</ion-option>
-      <ion-option *ngFor="let p of producteurs" [value]=p.data.matricule_Membre >{{p.data.matricule_Membre}}</ion-option>
+      <ion-option *ngFor="let p of producteurs" [value]=p.data.matricule_Membre >{{p.data.matricule_Membre}} - {{p.data.nom_Membre}}</ion-option>
     </ion-select> 
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['matricule_producteur'].hasError('required') && champsForm.controls['matricule_producteur'].touched">* le ùatricule du producteur est obligatoir!</div>
@@ -65,17 +65,22 @@
 
   <ion-item>
     <ion-label floating>Longitude</ion-label>
-    <ion-input type="text" formControlName="longitude" ></ion-input>
+    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-label floating>Latitude</ion-label>
-    <ion-input type="text" formControlName="latitude" ></ion-input>
+    <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
   </ion-item>
+
 
     <br>
     <button ion-button type="submit" color="my_secondary" [disabled]="!champsForm.valid" block>Sauvegarder</button>
   </form>
   <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="getPosition()"><ion-icon name="pin"></ion-icon></button>
+  </ion-fab>
 
 </ion-content>

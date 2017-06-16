@@ -31,7 +31,7 @@ export class UnionsPage {
   constructor(public storage: Storage, public navCtrl: NavController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {}
 
   sync(){
-    this.servicePouchdb.syncAvecToast();
+    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
   }
 
   ionViewDidEnter() {

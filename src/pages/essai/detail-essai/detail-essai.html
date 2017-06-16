@@ -35,19 +35,18 @@
         <ion-row> <ion-col class='meta-key'><strong>ID champs:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.id_champs}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Nom champs:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_champs}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Type de sole:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.type_sole}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Superficie (ha):</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie}}ha</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.longitude}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Latitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.latitude}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Code traitement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.code_traitement}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Nom d'entrée:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_entree}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Superficie essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie_essai}}m²</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Date sémis:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_semis | date: 'dd-MM-yyyy'}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>NPL:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPL}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Gesion 1 ou 2:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.gstion}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Gesion 1 ou 2:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.gestion}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Date récolte:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_recolte | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>NPR:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPR}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>PDE:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>N:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.N}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>E:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.E}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>PDE:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE}}kg</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Objectif de l'essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.objectif_essai}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Observation:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Est valide:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.estValide}}</ion-col> </ion-row>
@@ -57,14 +56,21 @@
     </ion-card-content> 
   </ion-card>
 
-
-  <ion-fab bottom right>
+  <ion-fab bottom right >
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini (click)="supprimer(essai)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini (click)="editer(essai)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>
+ 
+  <!--ion-fab bottom right>
     <button ion-fab mini (click)="editer(essai)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
   </ion-fab>
 
   <ion-fab bottom left>
     <button ion-fab mini (click)="supprimer(essai)" color="delete" ><ion-icon name="trash"></ion-icon></button>
-  </ion-fab>
+  </ion-fab-->
 
 
 </ion-content>

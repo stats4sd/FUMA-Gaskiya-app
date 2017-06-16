@@ -4,7 +4,11 @@ import { IonicStorageModule } from '@ionic/storage';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import { Geolocation} from '@ionic-native/geolocation'
 import { AutoCompleteModule } from 'ionic2-auto-complete';
+import { File } from '@ionic-native/file';
+import { Printer } from '@ionic-native/printer'
+//import { FileService } from '../providers/file.service';
 
 //native components
 import { Camera } from '@ionic-native/camera';
@@ -260,6 +264,6 @@ export function createTranslateLoader(http: Http) {
     ModifierTraitementPage,
     DetailTraitementPage,
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, Device, Sim, KoboProvider, Camera, StatusBar, SplashScreen]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, File, Printer, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen]
 })
 export class AppModule { }

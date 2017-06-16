@@ -48,8 +48,8 @@ export class AjouterTraitementPage {
     this.traitementForm = this.formBuilder.group({
      // _id:[''],
       type:['traitement'],
-      nom_traitement: ['', Validators.required],
-      code_traitement: [''],
+      nom_traitement: [''],
+      code_traitement: ['', Validators.required],
       annee: [maDate.getFullYear()],
       nom_entree: ['', Validators.required],
       description_entree: [''],
@@ -83,10 +83,23 @@ export class AjouterTraitementPage {
 
   ionViewDidEnter() {
 
+    
     this.sim.getSimInfo().then(
       (info) => {
-        this.phonenumber = info.phoneNumber;
-        this.imei = info.deviceId;
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
       },
       (err) => console.log('Unable to get sim info: ', err)
     );

@@ -22,6 +22,11 @@
 
 
 <ion-content padding>
+
+   <h5 *ngIf="num_aggrement_op" style="text-align: center; color: seagreen">
+    Les membres de l'OP: {{nom_op}} - N.A: {{num_aggrement_op}}
+  </h5>
+
   <ion-list>
     <ion-item>
       <ion-label floating>Choisir la source</ion-label>
@@ -34,7 +39,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-searchbar placeholder="Rechercher par nom union..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar placeholder="Rechercher par nom membre..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
     </ion-item>
   </ion-list>
 

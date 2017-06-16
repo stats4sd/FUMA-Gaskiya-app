@@ -5,6 +5,7 @@ import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
+import { OpPage } from '../../op/op'
 
 /*
   Generated class for the DetailUnion page.
@@ -33,10 +34,14 @@ export class DetailUnionPage {
     this.servicePouchdb.getDocById(this.unionID).then((u) => {
       this.union = u;
     }, err => console.log(err))
-  }
+  } 
 
   editer(union){
     this.navCtrl.push(ModifierUnionPage, {'union': union});
+  }
+
+  opUnion(num_aggrement, nom_union){
+    this.navCtrl.push(OpPage, {'num_aggrement_union': num_aggrement, 'nom_union': nom_union});
   }
 
   supprimer(union){

@@ -7,7 +7,9 @@ import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { AutoCompletion } from '../../../providers/auto-completion';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import { Geolocation } from '@ionic-native/geolocation'
 
+ 
 /*
   Generated class for the AjouterChamps page.
 
@@ -29,9 +31,16 @@ export class AjouterChampsPage {
   allChamps: any;
   imei: any = '';
   phonenumber: any = '';
+  matricule_producteur: any;
+  longitude: any ='';
+  latitude: any = '';
 
-  constructor(public navCtrl: NavController, public ServiceAutoCompletion: AutoCompletion, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public ServiceAutoCompletion: AutoCompletion, public navParams: NavParams, public sim: Sim, public geolocation: Geolocation, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
+    if(this.navParams.data.matricule_producteur){
+      this.matricule_producteur = this.navParams.data.matricule_producteur;
+    }
+
     this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((ts) => {
           this.typeSoles = ts;
       }, err => console.log(err)); 
@@ -40,6 +49,10 @@ export class AjouterChampsPage {
       
         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrK) => {
         this.producteurs = mbrA.concat(mbrK);
+
+        if(this.matricule_producteur){
+          this.producteurSelected(this.matricule_producteur);
+        }
         this.producteurs.forEach((prod, index) => {
           p.push(prod.data); 
         });
@@ -74,6 +87,28 @@ export class AjouterChampsPage {
     
   }
 
+  msg(msg: string = ''){
+    let toast = this.toastCtl.create({
+      message: msg,
+      position: 'top',
+      duration: 3000
+    });
+
+    toast.present();
+  }
+
+  getPosition(){
+    this.msg('Obtention des coordonnées en cours...');
+    this.geolocation.getCurrentPosition().then((resp) => {
+      this.longitude = resp.coords.longitude;
+      this.latitude = resp.coords.latitude;
+      this.msg('Coordonnées obtenues avec succes!')
+    }, err => {
+      this.msg('Une erreur c\'est produite lors de l\obtention des coordonnées. \nVeuillez reéssayer plus tard!')
+      console.log('')
+    });
+  }
+
   createDate(jour: any, moi: any, annee: any){
     let s = annee+'-';
     moi += 1;
@@ -93,10 +128,23 @@ export class AjouterChampsPage {
 
   ionViewDidEnter() {
 
+    
     this.sim.getSimInfo().then(
       (info) => {
-        this.phonenumber = info.phoneNumber;
-        this.imei = info.deviceId;
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard, i) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
       },
       (err) => console.log('Unable to get sim info: ', err)
     );
@@ -105,7 +153,6 @@ export class AjouterChampsPage {
         this.allChamps = ch;
 
       }, err => console.log(err));      
-   
   }
 
   generateId(matricule){
@@ -128,6 +175,16 @@ export class AjouterChampsPage {
     //alert(ev.code_produit);
     this.producteurs.forEach((prod, index) => {
       if(prod.data.matricule_Membre === ev.matricule_Membre){
+        this.selectedProducteur = prod;
+        this.nom_producteur = prod.data.nom_Membre;
+      }
+    });
+  }
+
+  producteurSelected(matricule){
+    //alert(ev.code_produit);
+    this.producteurs.forEach((prod, index) => {
+      if(prod.data.matricule_Membre === matricule){
         this.selectedProducteur = prod;
         this.nom_producteur = prod.data.nom_Membre;
       }

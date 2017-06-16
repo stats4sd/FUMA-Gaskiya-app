@@ -42,11 +42,16 @@
     <ion-input type="text" formControlName="code_essai" [(ngModel)]="code_essai" disabled></ion-input>
   </ion-item> 
 
-  <ion-row>
+  <ion-row *ngIf="!matricule_producteur">
     <ion-col>
       <ion-auto-complete [dataProvider]="ServiceAutoCompletion" [options]="{ placeholder : 'Matricule producteur' }" (itemSelected)="itemSelected($event)" ></ion-auto-complete>  
     </ion-col>
   </ion-row>
+
+  <ion-item *ngIf="matricule_producteur">
+    <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="matricule_producteur" disabled></ion-input>
+  </ion-item> 
 
   <ion-item>
     <ion-label floating>Nom producteur <span class="error-box">*</span></ion-label>
@@ -119,6 +124,13 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['nom_entree'].hasError('required') && essaiForm.controls['nom_entree'].touched">* le nom de l'entrée est obligatoir!</div>
 
+   <ion-item>
+    <ion-label floating>Superficie essai (m²) <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="superficie_essai"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['superficie_essai'].hasError('required') && essaiForm.controls['superficie_essai'].touched">* la superficie de l'essai est obligatoir!</div>
+
+
   <ion-item>
     <ion-label floating>Date sémi</ion-label>
     <ion-datetime displayFormat="DD/MM/YYYY" formControlName="date_semis" cancelText="Annuler" doneText="Valider"></ion-datetime>
@@ -145,18 +157,8 @@
   </ion-item>
 
   <ion-item>
-    <ion-label floating>PDE</ion-label>
+    <ion-label floating>PDE (kg)</ion-label>
     <ion-input type="number" formControlName="PDE"></ion-input>
-  </ion-item>
-
-  <ion-item>
-    <ion-label floating>N</ion-label>
-    <ion-input type="number" formControlName="N"></ion-input>
-  </ion-item>
-
-  <ion-item>
-    <ion-label floating>E</ion-label>
-    <ion-input type="number" formControlName="E"></ion-input>
   </ion-item>
 
   <ion-item>

@@ -7,7 +7,7 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
-    <ion-title>ajouter-op</ion-title>
+    <ion-title>ajouter-op</ion-title> 
     <ion-buttons end>
       <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
     </ion-buttons>
@@ -77,7 +77,7 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['village_autre'].hasError('required') && opForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
 
-   <ion-item> 
+   <ion-item *ngIf="!num_aggrement_union"> 
     <ion-label floating>Selectionnez l'union <span class="error-box">*</span></ion-label>
     <ion-select formControlName="union" [(ngModel)]="selectedUnion" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomUnion(selectedUnion.data.num_aggrement)" >
       <ion-option value="" selected disabled>Selectionnez l'union</ion-option>
@@ -86,6 +86,18 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union'].hasError('required') && opForm.controls['union'].touched">* l'union est obligatoir!</div>
   
+  <ion-item *ngIf="num_aggrement_union">
+    <ion-label floating>Num. aggrément union <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="union" type="text"  [(ngModel)]="num_aggrement_union" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union'].hasError('required') && opForm.controls['union'].touched">* Le num. aggrément de l'union est obligatoire</div>
+
+  <ion-item *ngIf="num_aggrement_union">
+    <ion-label floating>Nom union <span class="error-box">*</span></ion-label>
+    <ion-input formControlName="union_nom" type="text"  [(ngModel)]="nom_union" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union_nom'].hasError('required') && opForm.controls['union_nom'].touched">* Le nom de l'union est obligatoire</div>
+
   <ion-item *ngIf="selectedUnion" [hidden]="selectedUnion.data.num_aggrement != 'AUTRE'">
     <ion-label floating>Nom union <span class="error-box">*</span></ion-label>
     <ion-input formControlName="union_autre" type="text"  [(ngModel)]="nom_autre_union" ></ion-input>

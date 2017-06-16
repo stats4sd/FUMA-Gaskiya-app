@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams,  AlertController, ToastController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ModifierOpPage } from '../modifier-op/modifier-op';
-
+import { MembresPage } from '../../membres/membres'
 /* 
   Generated class for the DetailOp page.
 
@@ -34,6 +34,10 @@ export class DetailOpPage {
 
   editer(op){
     this.navCtrl.push(ModifierOpPage, {'op': op});
+  }
+
+  membresOP(num_aggrement, nom_OP){
+    this.navCtrl.push(MembresPage, {'num_aggrement_op': num_aggrement, 'nom_op': nom_OP});
   }
 
   supprimer(op){

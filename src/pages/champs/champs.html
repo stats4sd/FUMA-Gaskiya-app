@@ -25,6 +25,10 @@
 
 <ion-content padding>
 
+  <h5 *ngIf="matricule_producteur" style="text-align: center; color: seagreen">
+    Les champs de M. {{nom_producteur}} - mat. {{matricule_producteur}}
+  </h5>
+
   <ion-list>
     <ion-item>
       <ion-label floating>Choisir le type de sole</ion-label>

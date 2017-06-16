@@ -4,6 +4,7 @@ import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
+import { Geolocation } from '@ionic-native/geolocation'
 
 /*
   Generated class for the ModifierChamps page.
@@ -28,8 +29,10 @@ export class ModifierChampsPage {
   allChamps: any;
   id_champs: any;
   ancienMatriculeProducteur: any;
+  longitude: any;
+  latitude: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public toastCtl: ToastController, public geolocation: Geolocation, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     this.grandChamps = this.navParams.data.champ;
     this.champs = this.grandChamps.data;
 
@@ -38,6 +41,8 @@ export class ModifierChampsPage {
     this.ancienMatriculeProducteur = this.champs.matricule_producteur;
     this.selectedTypeSole = this.champs.type_sole;
     this.id_champs = this.champs.id_champs;
+    this.longitude = this.champs.longitude;
+    this.latitude = this.champs.latitude;
     
     this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((ts) => {
           this.typeSoles = ts;
@@ -74,11 +79,35 @@ export class ModifierChampsPage {
           }else{
             this.id_champs = this.ancienMatriculeProducteur;
           }
-      }
+      } 
     });
 
     
   }
+
+  msg(msg: string = ''){
+    let toast = this.toastCtl.create({
+      message: msg,
+      position: 'top',
+      duration: 3000
+    });
+
+    toast.present();
+  }
+
+
+    getPosition(){
+    this.msg('Obtention des coordonnées en cours...');
+    this.geolocation.getCurrentPosition().then((resp) => {
+      this.longitude = resp.coords.longitude;
+      this.latitude = resp.coords.latitude;
+      this.msg('Coordonnées obtenues avec succes!')
+    }, err => {
+      this.msg('Une erreur c\'est produite lors de l\obtention des coordonnées. \nVeuillez reéssayer plus tard!')
+      console.log('')
+    });
+  }
+
 
 
   ionViewDidLoad() {

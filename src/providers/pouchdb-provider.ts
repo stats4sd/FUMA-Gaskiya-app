@@ -148,7 +148,7 @@ export class PouchdbProvider {
         toast.present();
     }
 
-    public syncAvecToast(remote ?: string, options: any = {}) {
+    public syncAvecToast(metode: any) {
     console.log('setting up db sync')
     this.affichierMsg('Synchronisation en cours...');
     //default connection
@@ -187,9 +187,11 @@ export class PouchdbProvider {
     }).on('complete',  (info) => {
         console.log('complete', info)
         this.affichierMsg('Synchronisation terminée avec succes')
+        metode;
     }).on('error',  (err) => {
         console.log('error', err)
         this.affichierMsg('Erreur synchronisation, problème réseau!')
+        metode;
     });
 }
 
