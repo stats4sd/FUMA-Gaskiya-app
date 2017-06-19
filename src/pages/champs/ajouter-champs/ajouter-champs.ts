@@ -120,7 +120,7 @@ export class AjouterChampsPage {
     //var rand = Math.floor(Math.random()*24)
     //randomArray.push(chars[rand])
     var randomString=randomArray.join("");
-    var Id= matricule+' '+/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    var Id= matricule+' '+'CH-'+/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     return Id;
   }
 

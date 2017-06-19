@@ -8,6 +8,10 @@ import { Storage } from '@ionic/storage'
 import { AdminPage } from '../pages/tabs/admin/admin'
 import { ConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/conf-localite-enquete';
 import { LanguePage } from '../pages/langue/langue'
+import { CollectPage } from '../pages/tabs/collect/collect'
+import { TypeSolePage } from '../pages/type-sole/type-sole'
+import { ChampsPage } from '../pages/champs/champs'
+import { TraitementPage } from '../pages/essai/traitement/traitement'
 
 
 @Component({
@@ -43,8 +47,13 @@ export class MyApp {
     this.pages = [
             { title: 'Changer la langue', component: LanguePage },
             { title: 'Changer la langue', component: LanguePage },
-            { title: 'Admin', component: AdminPage },
+            { title: 'Formulaires ODK', component: CollectPage },
             { title: 'Config Localité Enquete', component: ConfLocaliteEnquetePage },
+            { title: 'Gestion types soles', component: TypeSolePage },
+            { title: 'Gestion champs', component: ChampsPage },
+            { title: 'Gestion traitements', component: TraitementPage },
+            { title: 'Admin', component: AdminPage },
+           
      ]
   } 
 

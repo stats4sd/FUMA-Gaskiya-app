@@ -39,7 +39,11 @@ export class AjouterTraitementPage {
     }
     this.annees.push('Tous');
 
-    this.selectedAnnee = maDate.getFullYear();
+    if(this.navParams.data.annee){
+      this.selectedAnnee = this.navParams.data.annee;
+    }else{
+      this.selectedAnnee = maDate.getFullYear();
+    }
 
     this.traitementForm = this.formBuilder.group({
      // _id:[''],
