@@ -158,7 +158,7 @@ export class EssaiPage {
               e.forEach((ess, i) => {
                 if(ess.data.matricule_producteur === this.matricule_producteur){
                   ep.push(ess);
-                }
+                }  
               });
               this.essais = ep;
               this.allEssais = ep;

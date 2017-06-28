@@ -218,11 +218,11 @@ export class PouchdbProvider {
 
   createDoc(doc){
     let dat = new Date();
-    doc.created_at = dat.toJSON();
-    doc.updatet_at = dat.toJSON();
-    doc.created_by = '';
-    doc.updated_by = '';
-    doc.deleted = false;
+    doc.data.created_at = dat.toJSON();
+    doc.data.updatet_at = dat.toJSON();
+    doc.data.created_by = '';
+    doc.data.updated_by = '';
+    doc.data.deleted = false;
     /*doc.deleted_at = '';
     doc.deleted_by = '';
     doc.supprime = false;
@@ -276,9 +276,9 @@ export class PouchdbProvider {
 
   deleteDoc(doc){
     let dat = new Date();
-    doc.deleted_at = dat.toJSON();
-    doc.deleted_by = '';
-    doc.deleted = true;
+    doc.data.deleted_at = dat.toJSON();
+    doc.data.deleted_by = '';
+    doc.data.deleted = true;
    // this.database.put(doc).catch((err) => console.log(err));
     /*let dat = new Date();
     doc.deleted_at = dat.toJSON();
@@ -306,9 +306,9 @@ export class PouchdbProvider {
 
   updateDoc(doc){
     let dat = new Date();
-    doc.updatet_at = dat.toJSON();
-    doc.updated_by = '';
-    doc.deleted = false;
+    doc.data.updatet_at = dat.toJSON();
+    doc.data.updated_by = '';
+    doc.data.deleted = false;
     /*doc.deleted_at = '';
     doc.deleted_by = '';
     doc.supprime = false;

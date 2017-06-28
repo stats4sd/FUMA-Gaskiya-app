@@ -88,13 +88,13 @@
   
   <ion-item *ngIf="num_aggrement_union">
     <ion-label floating>Num. aggrément union <span class="error-box">*</span></ion-label>
-    <ion-input formControlName="union" type="text"  [(ngModel)]="num_aggrement_union" ></ion-input>
+    <ion-input formControlName="union" type="text"  [(ngModel)]="num_aggrement_union" disabled></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union'].hasError('required') && opForm.controls['union'].touched">* Le num. aggrément de l'union est obligatoire</div>
 
   <ion-item *ngIf="num_aggrement_union">
     <ion-label floating>Nom union <span class="error-box">*</span></ion-label>
-    <ion-input formControlName="union_nom" type="text"  [(ngModel)]="nom_union" ></ion-input>
+    <ion-input formControlName="union_nom" type="text"  [(ngModel)]="nom_union" disabled></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union_nom'].hasError('required') && opForm.controls['union_nom'].touched">* Le nom de l'union est obligatoire</div>
 

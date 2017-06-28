@@ -127,7 +127,7 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['genre'].hasError('required') && membreForm.controls['genre'].touched">* le sex est obligatoir!</div>
   
   <ion-item> 
-    <ion-label floating>Selectionnez la classe <span class="error-box">*</span></ion-label>
+    <ion-label floating>Selectionnez la classe</ion-label>
     <ion-select formControlName="classe" [(ngModel)]="selectedClasseID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomClasse(selectedClasseID)" >
       <ion-option value="" selected disabled>Selectionnez la classe</ion-option>
       <ion-option *ngFor="let c of classes" [value]=c.data.id >{{c.data.nom}}</ion-option>
@@ -136,7 +136,7 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['classe'].hasError('required') && membreForm.controls['classe'].touched">* la classe est obligatoir!</div>
   
   <ion-item *ngIf="selectedClasseID" [hidden]="selectedClasseID != 'AUTRE'">
-    <ion-label floating>Nom classe <span class="error-box">*</span></ion-label>
+    <ion-label floating>Nom classe</ion-label>
     <ion-input formControlName="classe_autre" type="text"  [(ngModel)]="nom_autre_classe" ></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['classe_autre'].hasError('required') && membreForm.controls['classe_autre'].touched">* Le nom de la classe est obligatoire</div>

@@ -73,9 +73,9 @@
     </ion-item>
     </ion-list>
 
-  <ion-card style="height: 60%" *ngIf="essais.length > 0 && selectedStyle == 'tableau'">
+  <ion-card style="height: 100%" *ngIf="essais.length > 0 && selectedStyle == 'tableau'">
     <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 100%"> 
-    <ion-card-header  style="width: 200%;">
+    <ion-card-header  style="width: 100%;">
       <h2><strong>Essais {{selectedAnnee}} <span *ngIf="matricule_producteur">
     de M. {{nom_producteur}} - mat. {{matricule_producteur}}
   </span></strong></h2>

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, ToastController, AlertController } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+//import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { AutoCompletion } from '../../../providers/auto-completion';
@@ -118,7 +118,7 @@ export class AjouterEssaiPage {
       type_sole: ['', Validators.required],
       longitude:[''],
       latitude: [''],
-      date_semis: [today],
+      date_semis: [''],
       NPL: [''],
       gestion: [''],
       date_recolte: [''],
