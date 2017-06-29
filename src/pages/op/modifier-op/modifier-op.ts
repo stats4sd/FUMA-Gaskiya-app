@@ -33,6 +33,8 @@ export class ModifierOpPage {
   nom_autre_village: any = '';
   autreUnion: any = {"data": {'num_aggrement':'AUTRE', 'nom_union':'Autre'}};
   nom_autre_union: any = '';
+  nom_op: string = '';
+  code_op: any = '';
 
   constructor(public navCtrl: NavController, public navParams: NavParams,  public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
 
@@ -51,6 +53,8 @@ export class ModifierOpPage {
     this.selectedVillageID = this.op.village;
     this.selectedUnionID = this.op.union;
     this.ancienSelectedUnionID = this.op.union;
+    this.nom_op = this.op.nom_OP;
+    this.code_op = this.op.code_OP
 
     if(this.op.village_autre){
         this.nom_autre_village = this.op.village_autre;
@@ -73,6 +77,7 @@ export class ModifierOpPage {
     this.opForm = this.formBuilder.group({
       //_id:[''],
       nom_OP: [this.op.nom_OP, Validators.required],
+      code_OP: [this.op.code_OP, Validators.required],
       num_aggrement: [this.op.num_aggrement, Validators.required],
       pays: [this.op.pays, Validators.required],
       pays_nom: [this.op.pays_nom],
@@ -116,6 +121,7 @@ export class ModifierOpPage {
         }*/
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opK) => {
           this.allOP = opA.concat(opK);
+          //this.genererCodeOP();
           //this.allUnions = this.unions
 
        /* if(unionsK){
@@ -126,6 +132,68 @@ export class ModifierOpPage {
 
       }, err => console.log(err)); 
   }
+
+  //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
+  genererCodeOP(){
+    let taille_nom = this.nom_op.length;
+    let nom = this.nom_op;
+    //taille initiale: deux aractères
+    let taille_code = 2;
+    let code: string = '';
+    let p = 0;
+    let last_position = 0;
+    let trouve: boolean;
+
+    if(taille_nom >= 2){
+      while(taille_code <= taille_nom){
+        last_position = taille_code - 1;
+        trouve  = false;
+        code = '';
+        for(let i = 0; i < taille_code; i++){
+          code += nom.charAt(i).toString() ;
+        }
+
+        do{
+            code = code.substr(0, code.length - 1);
+            code += nom.charAt(last_position).toString() ;
+            p = 0;
+            for(let pos=0; pos < this.allOP.length; pos++){
+              let op = this.allOP[pos];
+              if(op.data.code_OP === code.toUpperCase()){
+                trouve = true;
+                break ;
+              }else{
+                trouve = false;
+              }
+            }
+            
+            last_position++;
+
+          }while(trouve && last_position < taille_nom);
+          //
+          if(last_position === taille_nom && trouve){
+            //non disponible, augmenter la taille du code
+            taille_code++;
+        
+            //au cas ou on teste toutes les combinaisons, sant trouver de combinaison disponible, on ajoute des chiffre
+            if(taille_code > taille_nom){
+              //non disponible, augmenter la taille et utiliser des chiffres
+              taille_code = 3;
+              nom = this.nom_op.toString() + '123456789'.toString();
+              taille_nom = nom.length;
+            }
+          }else{
+              this.code_op = code.toUpperCase();
+              break;
+            
+          }
+      }
+      
+    }
+    
+  }
+
+
 
   chargerVillages(c){
     this.villages = [];
@@ -180,6 +248,7 @@ export class ModifierOpPage {
     let op = this.opForm.value;
 
     this.op.nom_OP = op.nom_OP;
+    this.op.code_OP = op.code_OP;
     this.op.num_aggrement = op.num_aggrement;
     this.op.village = op.village;
     this.op.village_nom = op.village_nom;

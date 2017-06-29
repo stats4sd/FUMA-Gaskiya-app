@@ -99,6 +99,12 @@ import { ModifierTraitementPage } from '../pages/essai/traitement/modifier-trait
 import { DetailTraitementPage } from '../pages/essai/traitement/detail-traitement/detail-traitement';
 
 
+//Sécurity
+import { LoginPage } from '../pages/security/login/login';
+import { RegisterPage } from '../pages/security/register/register';
+import { ProfileUserPage } from '../pages/security/profile/profile-user';
+import { ModifierProfilePage } from '../pages/security/profile/modifier-profile/modifier-profile';
+
 // needed to load translation from assets folder
 export function createTranslateLoader(http: Http) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -176,6 +182,12 @@ export function createTranslateLoader(http: Http) {
     AjouterTraitementPage,
     ModifierTraitementPage,
     DetailTraitementPage,
+
+    //security
+    LoginPage,
+    RegisterPage,
+    ProfileUserPage,
+    ModifierProfilePage,
   ],
   imports: [
     IonicModule.forRoot(MyApp),
@@ -263,6 +275,12 @@ export function createTranslateLoader(http: Http) {
     AjouterTraitementPage,
     ModifierTraitementPage,
     DetailTraitementPage,
+    
+    //security
+    LoginPage,
+    RegisterPage,
+    ProfileUserPage,
+    ModifierProfilePage,
   ],
   providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, File, Printer, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen]
 })

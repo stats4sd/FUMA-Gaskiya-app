@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController, MenuController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, MenuController, ToastController } from 'ionic-angular';
 import { TabsPage } from '../tabs/tabs';
 import { LoginPage } from '../login/login';
-import { ConfigBoutiquePage } from '../accueil/config-boutique/config-boutique';
-import { GestionBoutique } from '../../providers/gestion-boutique';
+//import { ConfigBoutiquePage } from '../accueil/config-boutique/config-boutique';
+import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { Validators, FormBuilder } from '@angular/forms';
 import { Storage } from '@ionic/storage';
 import { TranslateService } from '@ngx-translate/core';
-import { global } from '../../global-variables/variable';
+import { global } from '../../../global-variables/variable';
 
 /*
   Generated class for the Register page.
@@ -28,7 +28,7 @@ export class RegisterPage {
   confmdpass: string;
   registerForm: any;
 
-  constructor(public translate: TranslateService, public navCtrl: NavController, public storage: Storage, public menuCtrl: MenuController, public formBuilder: FormBuilder, public navParams: NavParams, public loadinCtl: LoadingController, public gestionService: GestionBoutique) {
+  constructor(public translate: TranslateService, public toastCtl: ToastController, public navCtrl: NavController, public storage: Storage, public menuCtrl: MenuController, public formBuilder: FormBuilder, public navParams: NavParams, public loadinCtl: LoadingController, public gestionService: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
     let d: Date = new Date();
     let s = this.createDate(d.getDate(), d.getMonth(), d.getFullYear());
@@ -47,6 +47,16 @@ export class RegisterPage {
         //deleted_at: [d.toJSON()],
         //deleted_by: [d.toJSON()],
     });
+  }
+
+  afficheMsg(msg: string){
+    let toast = this.toastCtl.create({
+      message: msg,
+      position: 'top',
+      duration: 3000
+    });
+
+    toast.present();
   }
 
   createDate(jour: any, moi: any, annee: any){
@@ -93,7 +103,7 @@ export class RegisterPage {
       loading.present();
 
       //let db = new PouchDB('http://localhost:5984/stock-fuma');
-      this.gestionService.remote.signup(user.username, user.mdpass,{metadata : meta}, (err, response) => {
+      this.gestionService.remoteSaved.signup(user.username, user.mdpass,{metadata : meta}, (err, response) => {
         if(err){
           loading.dismissAll();
           if (err.name === 'conflict') {
@@ -105,7 +115,9 @@ export class RegisterPage {
             }
         }else if(response){
           loading.dismissAll();
+          this.afficheMsg('Compte créé avec succèes');
           this.loginUser(user.username, user.mdpass)
+          this.navCtrl.pop();
           //this.navCtrl.setRoot(TabsPage);
         }else{
           loading.dismissAll();
@@ -133,7 +145,7 @@ export class RegisterPage {
         }
       }
     };
-    this.gestionService.remote.login(username, mdpass, ajaxOpts, (err, response) => {
+    this.gestionService.remoteSaved.login(username, mdpass, ajaxOpts, (err, response) => {
       let user: any = {
         'username': username,
         'mdpass': mdpass
@@ -153,8 +165,9 @@ export class RegisterPage {
         //this.MyApp.setPage();
         //let m = MyApp.g
         //m.setPage();
-        this.storage.set('user', user);
-        this.gestionService.remote.getUser(username, (err, us) => {
+        this.storage.set('info_connexion', user);
+        global.info_connexion = user;
+        this.gestionService.remoteSaved.getUser(username, (err, us) => {
           if (err) {
             if (err.name === 'not_found') {
               // typo, or you don't have the privileges to see this user
@@ -165,17 +178,18 @@ export class RegisterPage {
             }
           } else {
             // response is the user object
-           this.storage.set('gerant', us);
+           this.storage.set('info_user', us);
+           global.info_user = us;
           }
         });
         loading.dismissAll();
-        if(global.configOK == false){
+       /* if(global.configOK == false){
           this.enableAuthenticatedMenu();
           this.navCtrl.push(ConfigBoutiquePage);
         }else{
           this.enableAuthenticatedMenu();
           this.navCtrl.setRoot(TabsPage);
-        }
+        }*/
         
         
   

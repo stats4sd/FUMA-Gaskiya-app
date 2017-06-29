@@ -6,7 +6,7 @@
 -->
 <ion-header>
 
-  <ion-navbar>
+  <ion-navbar color="fuma_primary">
     <ion-title>{{'MODIFIERPROFILE' | translate}}</ion-title>
   </ion-navbar>
 
@@ -14,8 +14,8 @@
 
 
 <ion-content padding>
-  <ion-row  class="login-logo">
-      <ion-col><img src="assets/img/fuma_gaskiya_logo.png"></ion-col>
+  <ion-row  class="img-container">
+      <ion-col><img src="assets/images/Fuma Gaskiya Logo.png"></ion-col>
     </ion-row>
     
   <ion-row class="account-form">
@@ -41,8 +41,10 @@
           <ion-label floating>{{'SEX' | translate}}<span class="error-box">*</span></ion-label>
           <ion-select formControlName="sex" cancelText="Annuler" okText="Ok">
             <ion-option value="" selected disabled>{{'SELECTIONNEZSEX' | translate}}</ion-option>
-            <ion-option value="H" >{{'HOMME' | translate}}</ion-option>
-            <ion-option value="F" >{{'FEMME' | translate}}</ion-option>
+            <ion-option *ngIf="l == 'fr'" value="H" >Homme</ion-option>
+            <ion-option *ngIf="l == 'fr'" value="F" >Femme</ion-option>
+            <ion-option *ngIf="l == 'en'" value="H" >Men</ion-option>
+            <ion-option *ngIf="l == 'en'" value="F" >Women</ion-option>
           </ion-select>
         </ion-item>
         <div style="padding-left: 15px;" class="error-box" *ngIf="registerForm.controls['sex'].hasError('required') && registerForm.controls['sex'].touched">* le sex est obligatoir!</div>

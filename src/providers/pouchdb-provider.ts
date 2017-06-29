@@ -1,9 +1,17 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { ToastController } from 'ionic-angular';
+import { ToastController, LoadingController, Events } from 'ionic-angular';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { Storage } from '@ionic/storage';
+import { global } from '../global-variables/variable'
 //pouchDB made available to compiler through  @types/pouchdb (npm install @types/pouchdb --save --save-exact)
-import PouchDB from 'pouchdb'
+//import PouchDB from 'pouchdb'
+import PouchDB from 'pouchdb';
+import * as pouchdbAuthentication from 'pouchdb-authentication';
+import * as pouchdbQuickSearch from 'pouchdb-quick-search';
+//var PouchDB = require("pouchdb");
+PouchDB.plugin(pouchdbAuthentication);
+PouchDB.plugin(pouchdbQuickSearch);
 
 
 @Injectable()
@@ -14,13 +22,22 @@ export class PouchdbProvider {
     private database: any;
     private listener: EventEmitter<any> = new EventEmitter();
     // private remoteDetails: any;
+    
+    //pour la sécurité
+    remoteSaved: any;
+    loading: any;
+    pouchOpts = {
+        skip_setup: true
+    };
 
     //my array
     data: any;
 
-    constructor(public http: Http, public toastCtl: ToastController) {
+    constructor(public http: Http, public toastCtl: ToastController, public events: Events, public loadingCtrl: LoadingController, public storage: Storage) {
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
+        this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4sd.org/test");//, this.pouchOpts);
+        //this.remoteSaved = new PouchDB("http://127.0.0.1:5984/app_fuma");//, this.pouchOpts);
         if (!this.isInstantiated) {
             this.database = new PouchDB("app-database");
             this.database.changes({
@@ -109,13 +126,14 @@ export class PouchdbProvider {
     // }
 
     
-    var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
+    //var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
     //var remoteSaved = "http://127.0.0.1:5984/app_fuma"
     var optionsSaved = {
-        "auth.username": "fumagaskiya-app",
-       "auth.password": "AA61E1481D12534A9CABE87465474"
+      //  "auth.username": "fumagaskiya-app",
+      // "auth.password": "AA61E1481D12534A9CABE87465474"
     }
-    let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+    //let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+     let remoteDatabase = new PouchDB(this.remoteSaved, optionsSaved);
     console.log('remoteDB', remoteDatabase)
     this.database.sync(remoteDatabase, {
         live: true,
@@ -161,13 +179,14 @@ export class PouchdbProvider {
     // }
 
     
-    var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
+    //var remoteSaved = "http://fumagaskiya-db.stats4sd.org/test"
     //var remoteSaved = "http://127.0.0.1:5984/app_fuma"
     var optionsSaved = {
-        "auth.username": "fumagaskiya-app",
-       "auth.password": "AA61E1481D12534A9CABE87465474"
+       // "auth.username": "fumagaskiya-app",
+       //"auth.password": "AA61E1481D12534A9CABE87465474"
     }
-    let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+    //let remoteDatabase = new PouchDB(remoteSaved, optionsSaved);
+    let remoteDatabase = new PouchDB(this.remoteSaved, optionsSaved);
     console.log('remoteDB', remoteDatabase)
     this.database.sync(remoteDatabase, {
         //live: true,
@@ -407,6 +426,185 @@ export class PouchdbProvider {
     var randomString=randomArray.join("");
     var Id= ':'+operation+':'+randomString;
     return Id
+  }
+
+
+  /**************************************************
+  ***************************************************
+  ************ Sécurity section *********************
+  ***************************************************
+  **************************************************/
+  
+  showLoader(msg: any){
+    this.loading = this.loadingCtrl.create({
+      content: msg
+    });
+    this.loading.present();
+  }
+
+  register(username: any, mdpass: any, meta = {}){
+    this.showLoader('Création du compte...');
+    //let db = new PouchDB('http://localhost:5984/stock-fuma');
+    this.remoteSaved.signup(username, mdpass,{metadata : meta}, (err, response) => {
+      if(err){
+        this.loading.dismiss();
+        if (err.name === 'conflict') {
+            return 'username exist';
+          }else  if (err.name === 'forbidden') {
+            return 'username invalide';
+          } else{
+            return 'erreur';
+          }
+      }else if(response){
+        this.loading.dismiss();
+        return 'success';
+      }else{
+        this.loading.dismiss();
+        return 'echec';
+      }
+        
+    });
+  }
+
+  login(username: any, mdpass: any){
+    let ajaxOpts = {
+      ajax: {
+        headers: {
+          Authorization: 'Basic ' + window.btoa(username + ':' + mdpass),
+        }
+      }
+    };
+    this.showLoader('Authentification...');
+    //this.remote.login(username, mdpass, ajaxOpts).then((err, response) =
+    this.remoteSaved.login(username, mdpass, ajaxOpts, (err, response) => {
+      if (err) {
+        this.loading.dismiss();
+        if (err.name === 'unauthorized') {
+          alert('nom ou mdpass incorrecte');
+          //return 'nom ou mdpass incorrecte';
+        } else {
+          alert('erreur');
+          //return 'erreur';
+        }
+      }else if(response){
+        this.loading.dismiss();
+        alert('success');
+        //return 'success';
+      }else{
+        this.loading.dismiss();
+        alert('echec');
+        //return 'echec';
+      }
+    });
+  }
+
+  logout(){
+    this.showLoader('Déconnexion...');
+    this.remoteSaved.logout((err, response) => {
+      if (err) {
+        this.loading.dismissAll();
+        this.events.publish('user:login');
+        return 'echec déconnexion';
+      }else if(response){
+        //this.data = null;
+        //this.db.destroy().then(() => {
+        //  console.log("base de données supprimée");
+        //});
+        this.storage.remove('info_user').catch((err) => console.log(err));
+        this.storage.remove('info_connexion').catch((err) => console.log(err));
+        global.info_connexion = null;
+        global.info_user = null;
+        this.loading.dismissAll();
+        this.affichierMsg('Déconnexion terminée avec succès. \nVous êtes désormais hors ligne!')
+        this.events.publish('user:login');
+        return 'success';
+      }else{
+        this.loading.dismiss();
+        this.affichierMsg('Une erreur s\'est produite lors de la déconnexion. \n Veuillez réessayer plus tard!')
+        this.events.publish('user:login');
+        return 'echec';
+      }
+    });
+  }
+
+  getUser(username: any){
+    this.remoteSaved.getUser(username, (err, response) => {
+      if (err) {
+        if (err.name === 'not_found') {
+          return 'acces non autorise'
+        } else {
+          return 'erreur'
+        }
+      } else {
+        return response;
+      }
+    });
+  }
+
+  getSession(){
+    this.remoteSaved.getSession((err, response) => {
+      if (err) {
+        return 'erreur du réseau';
+      } else if (!response.userCtx.name) {
+        return 'Personne n\est connecté';
+      } else {
+        return response.userCtx.name;
+      }
+    });
+  }
+
+  updateUser(unsername: string){
+    this.remoteSaved.putUser(unsername, {
+      metadata : {
+        email : 'robin@boywonder.com',
+        birthday : '1932-03-27T00:00:00.000Z',
+        likes : ['acrobatics', 'short pants', 'sidekickin\''],
+      }
+    }, (err, response) => {
+      // etc.
+    });
+  }
+
+  changerMdpass(){
+    this.remoteSaved.changePassword('spiderman', 'will-remember', (err, response) => {
+      if (err) {
+        if (err.name === 'not_found') {
+          // typo, or you don't have the privileges to see this user
+        } else {
+          // some other error
+        }
+      } else {
+        // response is the user update response
+        // {
+        //   "ok": true,
+        //   "id": "org.couchdb.user:spiderman",
+        //   "rev": "2-09310a62dcc7eea42bf3d4f67e8ff8c4"
+        // }
+      }
+    });
+  }
+
+  chagerUsername(){
+    this.remoteSaved.changeUsername('spiderman', 'batman', (err) => {
+      if (err) {
+        if (err.name === 'not_found') {
+          // typo, or you don't have the privileges to see this user
+        } else if (err.taken) {
+          // auth error, make sure that 'batman' isn't already in DB
+        } else {
+          // some other error
+        }
+      } else {
+        // succeeded
+      }
+    });
+  }
+
+  verifieCodeUnion(code){
+   return this.database.search({
+      query: code,
+      fields: ['data.code_union']
+    });
   }
 
 }

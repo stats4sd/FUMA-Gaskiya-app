@@ -77,18 +77,23 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['village_autre'].hasError('required') && unionForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
 
-
-  <ion-item>
-    <ion-label floating>Nom de l'union <span class="error-box">*</span></ion-label>
-    <ion-input type="text" formControlName="nom_union"></ion-input>
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['nom_union'].hasError('required') && unionForm.controls['nom_union'].touched">* le nom de l'union des est obligatoir!</div>
-  
   <ion-item>
     <ion-label floating>Numéro d'aggrément <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="num_aggrement"></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['num_aggrement'].hasError('required') && unionForm.controls['num_aggrement'].touched">* le numéro d'aggrément est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Nom de l'union <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_union" [(ngModel)]="nom_union" (keyup)="genererCodeUnion()" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['nom_union'].hasError('required') && unionForm.controls['nom_union'].touched">* le nom de l'union des est obligatoir!</div>
+  
+  <ion-item>
+    <ion-label floating>Code de l'union <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="code_union" [(ngModel)]="code_union" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['code_union'].hasError('required') && unionForm.controls['code_union'].touched">* le code de l'union des est obligatoir!</div>
   
     <br>
     <button ion-button type="submit" color="my_secondary" [disabled]="!unionForm.valid" block>Sauvegarder</button>

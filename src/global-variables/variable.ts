@@ -2,5 +2,8 @@ export var global = {
 
     //id_boutique: 'VIDE!',
     premierLancement: true,
-    langue: 'fr'
+    langue: 'fr',
+    estConnecte: false,
+    info_user: null,
+    info_connexion: null
 }

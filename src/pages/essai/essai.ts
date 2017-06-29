@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, Platform } from 'ionic-angular';
+import { NavController, NavParams, AlertController, Platform, MenuController, Events  } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterEssaiPage } from './ajouter-essai/ajouter-essai';
 import { DetailEssaiPage } from './detail-essai/detail-essai';
 import { Storage } from '@ionic/storage';
 import { File } from '@ionic-native/file';
+import { global } from '../../global-variables/variable';
 import * as FileSaver from 'file-saver';
 import { Printer, PrintOptions } from '@ionic-native/printer'
 declare var cordova: any;
@@ -33,10 +34,24 @@ export class EssaiPage {
 
   annees: any = [];
   selectedStyle: any = 'liste';
+  aProfile: boolean = true;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
+  constructor(public navCtrl: NavController, public events: Events, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
     //générer des années de 2000 à 2050
     //this.storageDirectory = cordova.file.externalDataDirectory;
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    events.subscribe('user:login', () => {
+      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      });
+    });
     
     if(this.navParams.data.matricule_producteur){
       this.matricule_producteur = this.navParams.data.matricule_producteur;
@@ -57,6 +72,26 @@ export class EssaiPage {
     this.fileService.save(this.storageDirectory, "exportEssais.xls", "application/vnd.ms-excel", table);
   }*/
 
+  option(){
+    this.menuCtl.enable(true, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  profile(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(true, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  connexion(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(true, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle() 
+  }
 
   exportExcel(){
 
@@ -96,7 +131,23 @@ export class EssaiPage {
     this.printer.print(content, options);
   }
 
+  /*ionViewWillEnter(){
+    if (global.estConnecte) {
+      this.aProfile = true;
+    }else{
+      this.aProfile = false;
+    }
+  }*/
+
   ionViewDidEnter() {
+
+   this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }); 
 
     if(this.selectedAnnee === 'Tous'){
       this.servicePouchdb.getPlageDocs('fuma:essai', 'fuma:essai:\uffff').then((e) => {
@@ -146,6 +197,8 @@ export class EssaiPage {
           }
         });
     }
+
+    //this.servicePouchdb.reset();
   }
 
   choixAnneeEssai(){

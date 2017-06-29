@@ -30,6 +30,8 @@ export class AjouterUnionPage {
   phonenumber: any = '';
   autreVillage: any = {'id':'AUTRE', 'nom':'Autre'};
   nom_autre_village: any = '';
+  nom_union: string = '';
+  code_union: any = '';
 
 
   constructor(public sim: Sim, public device: Device, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
@@ -44,6 +46,7 @@ export class AjouterUnionPage {
       //_id:[''],
       type:['union'],
       nom_union: ['', Validators.required], 
+      code_union: ['', Validators.required], 
       num_aggrement: ['', Validators.required],
       pays: [this.confLocaliteEnquete.pays.id, Validators.required],
       pays_nom: [this.confLocaliteEnquete.pays.nom],
@@ -162,7 +165,88 @@ export class AjouterUnionPage {
       });
     });
   } */
+ 
+  //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
+  genererCodeUnion(){
+    let taille_nom = this.nom_union.length;
+    let nom = this.nom_union;
+    //taille initiale: deux aractères
+    let taille_code = 2;
+    let code: string = '';
+    let p = 0;
+    let last_position = 0;
+    let trouve: boolean;
 
+    if(taille_nom >= 2){
+      while(taille_code <= taille_nom){
+        last_position = taille_code - 1;
+        trouve  = false;
+        code = '';
+        for(let i = 0; i < taille_code; i++){
+          code += nom.charAt(i).toString() ;
+        }
+
+        do{
+            code = code.substr(0, code.length - 1);
+            code += nom.charAt(last_position).toString() ;
+            p = 0;
+            for(let pos=0; pos < this.allUnions.length; pos++){
+              let u = this.allUnions[pos];
+              if(u.data.code_union === code.toUpperCase()){
+                //alert('trouve '+code.toUpperCase())
+                trouve = true;
+                //alert('trouver '+trouve)
+                break ;
+              }else{
+                //alert('non trouve '+code.toUpperCase())
+                trouve = false;
+              }
+            }
+            /*this.allUnions.forEach((u, i) => {
+              p++;
+              if(u.data.code_union === code.toUpperCase()){
+                //alert('trouve '+code.toUpperCase())
+                trouve = true;
+                //alert('trouver '+trouve)
+                return ;
+              }else{
+                //alert('non trouve '+code.toUpperCase())
+                trouve = false;
+              } 
+            });*/
+            
+            //avancer sur la lettre suivante
+            //if(p === this.allUnions.length){
+              //last_position = 
+            //}else{
+              last_position++;
+            //}
+            
+
+          }while(trouve && last_position < taille_nom);
+          //
+          if(last_position === taille_nom && trouve){
+            //non disponible, augmenter la taille du code
+            taille_code++;
+            //alert('ici')
+            //au cas ou on teste toutes les combinaisons, sant trouver de combinaison disponible, on ajoute des chiffre
+            if(taille_code > taille_nom){
+              //non disponible, augmenter la taille et utiliser des chiffres
+              taille_code = 3;
+              nom = this.nom_union.toString() + '123456789'.toString();
+              taille_nom = nom.length;
+            }
+          }else{
+              //trouvé
+              this.code_union = code.toUpperCase();
+              break;
+            
+          }
+      }
+      
+    }
+    
+  }
 
   chargerVillages(c){
     this.villages = [];

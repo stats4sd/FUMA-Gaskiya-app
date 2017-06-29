@@ -95,18 +95,24 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union_autre'].hasError('required') && opForm.controls['union_autre'].touched">* Le nom de l'union est obligatoire</div>
 
+  <ion-item>
+    <ion-label floating>Numéro d'aggrément <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="num_aggrement"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['num_aggrement'].hasError('required') && opForm.controls['num_aggrement'].touched">* le numéro d'aggrément est obligatoir!</div>
+  
+  <ion-item>
+    <ion-label floating>Code de l'OP <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="code_OP" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['code_OP'].hasError('required') && opForm.controls['code_OP'].touched">* le code de l'OP des est obligatoir!</div>
+
 
   <ion-item>
     <ion-label floating>Nom de l'OP <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="nom_OP"></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['nom_OP'].hasError('required') && opForm.controls['nom_OP'].touched">* le nom de l'OP des est obligatoir!</div>
-  
-  <ion-item>
-    <ion-label floating>Numéro d'aggrément <span class="error-box">*</span></ion-label>
-    <ion-input type="text" formControlName="num_aggrement"></ion-input>
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['num_aggrement'].hasError('required') && opForm.controls['num_aggrement'].touched">* le numéro d'aggrément est obligatoir!</div>
   
     <br>
     <button ion-button type="submit" color="my_secondary" [disabled]="!opForm.valid" block>Sauvegarder</button>

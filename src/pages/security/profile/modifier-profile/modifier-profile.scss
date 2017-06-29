@@ -78,4 +78,12 @@ page-modifier-profile {
     .error-border {
         color: red;
     }
+
+    .img-container{
+        display: flex;
+        justify-content: center
+    }
+    img{
+        max-height:33vh
+    }
 }

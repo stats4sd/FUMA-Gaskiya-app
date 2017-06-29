@@ -12,6 +12,9 @@ import { TypeSolePage } from '../../type-sole/type-sole'
 import { ChampsPage } from '../../champs/champs'
 import { EssaiPage } from '../../essai/essai'
 import { TraitementPage } from '../../essai/traitement/traitement'
+import { LoginPage } from '../../security/login/login';
+import { RegisterPage } from '../../security/register/register';
+import { ProfileUserPage } from '../../security/profile/profile-user'
 
 /*
   Generated class for the Admin page.
@@ -89,6 +92,35 @@ export class AdminPage {
     });
 
     toast.present();
+  }
+
+  connexion(){
+    this.navCtrl.push(LoginPage);
+  }
+
+  register(){
+    this.navCtrl.push(RegisterPage);
+  }
+
+  profile(){
+    this.database.remoteSaved.getSession((err, response) => {
+      if (err) {
+        // network error
+        alert('Erreur du réseau');
+        
+      } else if (!response.userCtx.name) {
+        // nobody's logged in
+        alert('Personne n\'est connecté');
+        
+      } else {
+        this.navCtrl.push(ProfileUserPage);
+      }
+    });
+    
+  }
+
+  deconnexion(){
+    this.database.logout()
   }
 
   confLocaliteEnquetee(){

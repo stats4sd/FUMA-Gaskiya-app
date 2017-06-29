@@ -28,7 +28,7 @@
           <h2><strong>{{'NOM' | translate}}:</strong> {{user.nom}} </h2>
           <h2><strong>{{'NOMUTILISATEUR' | translate}}:</strong> {{user.name}} </h2>
           <h2><strong>{{'EMAIL' | translate}}:</strong> {{user.email}} </h2>
-          <h2><strong>{{'SEX' | translate}}:</strong> {{user.sex}} </h2>
+          <h2><strong>{{'SEX' | translate}}:</strong> <span *ngIf="user.sex == 'H'">{{'HOMME' | translate}}</span> <span *ngIf="user.sex == 'F'">{{'FEMME' | translate}}</span> </h2>
           <h2><strong>{{'DATEENREGISTREMENT' | translate}}:</strong> {{user.date | date: 'dd-MM-yyyy'}}</h2>
           <h2><strong>Role:</strong> <span *ngFor="let role of user.roles" > {{role}}</span></h2>
         </ion-item>

@@ -36,6 +36,8 @@ export class AjouterOpPage {
   nom_autre_union: any = '';
   num_aggrement_union: any;
   nom_union: any;
+  nom_op: string = '';
+  code_op: any = '';
  
   constructor(public navCtrl: NavController, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
@@ -63,6 +65,7 @@ export class AjouterOpPage {
      // _id:[''],
       type:['op'],
       nom_OP: ['', Validators.required],
+      code_OP: ['', Validators.required],
       num_aggrement: ['', Validators.required],
       pays: [this.confLocaliteEnquete.pays.id, Validators.required],
       pays_nom: [this.confLocaliteEnquete.pays.nom],
@@ -95,6 +98,67 @@ export class AjouterOpPage {
     });
     
   }
+
+  //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
+  genererCodeOP(){
+    let taille_nom = this.nom_op.length;
+    let nom = this.nom_op;
+    //taille initiale: deux aractères
+    let taille_code = 2;
+    let code: string = '';
+    let p = 0;
+    let last_position = 0;
+    let trouve: boolean;
+
+    if(taille_nom >= 2){
+      while(taille_code <= taille_nom){
+        last_position = taille_code - 1;
+        trouve  = false;
+        code = '';
+        for(let i = 0; i < taille_code; i++){
+          code += nom.charAt(i).toString() ;
+        }
+
+        do{
+            code = code.substr(0, code.length - 1);
+            code += nom.charAt(last_position).toString() ;
+            p = 0;
+            for(let pos=0; pos < this.allOP.length; pos++){
+              let op = this.allOP[pos];
+              if(op.data.code_OP === code.toUpperCase()){
+                trouve = true;
+                break ;
+              }else{
+                trouve = false;
+              }
+            }
+            
+            last_position++;
+
+          }while(trouve && last_position < taille_nom);
+          //
+          if(last_position === taille_nom && trouve){
+            //non disponible, augmenter la taille du code
+            taille_code++;
+        
+            //au cas ou on teste toutes les combinaisons, sant trouver de combinaison disponible, on ajoute des chiffre
+            if(taille_code > taille_nom){
+              //non disponible, augmenter la taille et utiliser des chiffres
+              taille_code = 3;
+              nom = this.nom_op.toString() + '123456789'.toString();
+              taille_nom = nom.length;
+            }
+          }else{
+              this.code_op = code.toUpperCase();
+              break;
+            
+          }
+      }
+      
+    }
+    
+  }
+
 
   createDate(jour: any, moi: any, annee: any){
     let s = annee+'-';
