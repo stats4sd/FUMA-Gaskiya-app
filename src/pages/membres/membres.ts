@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterMembrePage } from './ajouter-membre/ajouter-membre';
 import { DetailMembrePage } from './detail-membre/detail-membre';
 import { Storage } from '@ionic/storage';
 import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { global } from '../../global-variables/variable';
+import blobUtil from 'blob-util';
 
 /*
   Generated class for the Membres page.
@@ -27,15 +29,72 @@ export class MembresPage {
   confLocaliteEnquete: any;
   num_aggrement_op: any;
   nom_op: any;
+  aProfile: boolean = true;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
+  constructor(public navCtrl: NavController, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
+    
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    events.subscribe('user:login', () => {
+      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      }, err => console.log(err));
+    });
+    
     if(this.navParams.data.num_aggrement_op){
       this.num_aggrement_op = this.navParams.data.num_aggrement_op;
       this.nom_op = this.navParams.data.nom_op;
     }
   } 
 
+  option(){
+    this.menuCtl.enable(true, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  profile(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(true, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  connexion(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(true, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle() 
+  }
+
+  sync(){
+    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
+  }
+
   ionViewDidEnter() {
+
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }, err => {
+      if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }
+      //console.log(err)
+    }); 
+
     if(this.selectedSource === 'application'){
       this.getMembres('fuma:op:membre', 'fuma:op:membre:\uffff');
       /*this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrs) => {
@@ -201,16 +260,44 @@ export class MembresPage {
 
   getPhoto(membre) {
     return new Promise((resolve, reject) => {
-      var profilePhotoId = membre.doc.data["meta/deprecatedID"]
-      var photoDocId = 'photos_fuma-op-membre/' + profilePhotoId
-      var filename = profilePhotoId + '.jpeg'
+      //var v = true;
+      var photoDocId = '';
+      var filename = '';
+      if(!membre.doc.data.photoID){
+        var profilePhotoId = membre.doc.data["meta/deprecatedID"];
+        photoDocId = 'photos_fuma-op-membre/' + profilePhotoId;
+        filename = profilePhotoId + '.jpeg';
+        //v = false;
+      }else{
+        photoDocId = membre.doc.data.photoID;
+        filename = photoDocId + '.jpeg';
+        //v = true;
+        //alert(v)
+      }
+
+      //var profilePhotoId = membre.doc.data["meta/deprecatedID"]
       // return 'assets/images/no photo.jpg'
-      this.servicePouchdb.getAttachment('photos_fuma-op-membre/' + profilePhotoId, filename).then(url => {
-        membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
-        if (url != "assets/images/no-photo.png") {
-          membre.photoDocId = photoDocId;
-        }  
-        resolve(membre)
+      //this.servicePouchdb.getAttachment('photos_fuma-op-membre/' + profilePhotoId, filename).then(url => {
+      this.servicePouchdb.getAttachment(photoDocId, filename).then(url => {
+         //membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
+         if(url){
+           if(!membre.doc.data.photoID){
+            membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
+            if (url != "assets/images/no-photo.png") {
+              membre.photoDocId = photoDocId;
+            } 
+          resolve(membre)
+          }else{
+            //var blobURL = blobUtil.createObjectURL(url);
+            //URL.createObjectURL()
+            membre.photo = this.sanitizer.bypassSecurityTrustUrl(url);
+            if (url != "assets/images/no-photo.png") {
+              membre.photoDocId = photoDocId;
+            } 
+          resolve(membre)
+          }
+        
+         }
       }).catch(err => {
         console.log('err', err)
         // profile.photo = 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 import { AjouterUnionPage } from './ajouter-union/ajouter-union';
 import { DetailUnionPage } from './detail-union/detail-union';
@@ -7,6 +7,7 @@ import { Storage } from '@ionic/storage';
 import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete';
 import { ChoixSourceAjoutUnionPage } from './choix-source-ajout-union/choix-source-ajout-union';
 import { CollectPage } from '../tabs/collect/collect';
+import { global } from '../../global-variables/variable'
 
 /*
   Generated class for the Unions page.
@@ -26,15 +27,69 @@ export class UnionsPage {
   unionsKobo: any = [];
   allUnions: any = [];
   confLocaliteEnquete: any;
+  aProfile: boolean = true;
 
 
-  constructor(public storage: Storage, public navCtrl: NavController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {}
+  constructor(public storage: Storage, public navCtrl: NavController, public events: Events, public menuCtl: MenuController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {
+
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    events.subscribe('user:login', () => {
+      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      }, err => console.log(err));
+    });
+  }
 
   sync(){
     this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
   }
 
+  option(){
+    this.menuCtl.enable(true, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  profile(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(true, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  connexion(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(true, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle() 
+  }
+
   ionViewDidEnter() {
+
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }, err => {
+      if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }
+      //console.log(err)
+    }); 
+
+
     if(this.selectedSource === 'application'){
      // this.unions = [];
       this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((unions) => {

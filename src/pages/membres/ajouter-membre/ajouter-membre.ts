@@ -1,11 +1,20 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController } from 'ionic-angular';
+import { NavController, NavParams, ToastController, ViewController, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Camera } from '@ionic-native/camera';
+import { ImagePicker } from '@ionic-native/image-picker';
+import { global } from '../../../global-variables/variable'
+//import { blob } from 'blob-util'
+//import blobUtil from 'blob-util';
+//import { File } from '@ionic-native/file'
+//import * as fs from 'fs'
+
 
 /*
   Generated class for the AjouterMembre page.
@@ -34,7 +43,7 @@ export class AjouterMembrePage {
   imei: any = '';
   phonenumber: any = '';
   autreVillage: any = {'id':'AUTRE', 'nom':'Autre'};
-  autreOP: any = {"data": {'num_aggrement':'AUTRE', 'nom_OP':'Autre'}};
+  autreOP: any = {"data": {'num_aggrement':'AUTRE', 'nom_OP':'Autre', 'code_OP':'AUTRE'}};
   autreClasse: any = {"data": {'id':'AUTRE', 'nom':'Autre'}};
   nom_autre_village: any = '';
   nom_autre_op: any = '';
@@ -43,9 +52,36 @@ export class AjouterMembrePage {
   nom:any = '';
   num_aggrement_op: any;
   nom_op: any;
+  public base64Image: string;
+  public showCamera = true;
+  //instanceID: string;
+  imageData: any = '';
+  attachments:any;
+  photo: any;
+  aProfile: boolean = true;
+  fileName: any;
+  imageBlob:any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, private sanitizer: DomSanitizer, public file: File, public menuCtl: MenuController, public events: Events, public imagePicker: ImagePicker, public viewCtrl: ViewController, private camera: Camera, public translate: TranslateService, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
+    //this.base64Image(this.photo);
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    events.subscribe('user:login', () => {
+      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      }, err => console.log(err));
+    });
+
+    this.translate.setDefaultLang(global.langue)
+    //this.instanceID = this.setInstanceID();
+
     if(this.navParams.data.num_aggrement_op){
       this.num_aggrement_op = this.navParams.data.num_aggrement_op;
       this.nom_op = this.navParams.data.nom_op;
@@ -112,6 +148,106 @@ export class AjouterMembrePage {
     
   }
 
+getBase64Image(img) {
+  var canvas = document.createElement("canvas");
+  //canvas.width = img.width;
+  //canvas.height = img.height;
+  var ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0);
+  var dataURL = canvas.toDataURL("image/png");
+  return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+}
+
+ con(img, callback){
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    context.drawImage(img, 0, 0)
+    canvas.toBlob(callback, "image/png")
+  }
+  
+    close() {
+    //ideally want to minimise/make transparent so forms keep attempting upload
+    //will need to move code onto new form tab or combine into collect tab
+
+    // var iframe = window.frames['form-iframe']
+    // console.log('iframe doc', iframe.document)
+    // console.log('content window', iframe.contentWindow)
+    this.viewCtrl.dismiss()
+    //this.iframeHeight="100px"
+  }
+
+ 
+  takePhoto() {
+    
+    let option = {
+      sourceType: this.camera.PictureSourceType.CAMERA,
+      //destinationType: this.camera.DestinationType.NATIVE_URI,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      quality: 50,
+      targetWidth: 500,
+      targetHeight: 500,
+      correctOrientation: true,
+      saveToPhotoAlbum: true
+    };
+
+    this.camera.getPicture(option).then((imageData) => {
+      // imageData is a base64 encoded string
+      //this.photo = this.sanitizer.bypassSecurityTrustUrl(imageData);
+      this.imageData = imageData;
+      this.base64Image = "data:image/jpeg;base64," + imageData;
+      this.photo = this.base64Image ;
+    }, (err) => {
+      console.log(err);
+    });
+  }
+
+  chooseImage(){
+
+
+    let option = {
+      maximumImagesCount: 1,
+      quality: 50,
+      width: 500,
+      height: 500,
+      outputType: 1
+    };
+
+    this.imagePicker.getPictures(option).then((imageData) => {
+      //this.photo = this.sanitizer.bypassSecurityTrustUrl(imageData[0]);
+      this.imageData = imageData[0];
+      this.base64Image = "data:image/jpeg;base64," + imageData[0];
+      this.photo = this.base64Image ;
+    }, (err) => console.log(err) );
+  }
+
+ 
+  option(){
+    this.menuCtl.enable(true, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  profile(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(true, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  connexion(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(true, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle() 
+  }
+
+  sync(){
+    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
+  }
+
+
+
   chargerOp(){
     this.nom_op
   }
@@ -137,11 +273,11 @@ export class AjouterMembrePage {
     let membre = this.membreForm.value;
    
     if(this.nom.length === 2){
-      this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2),/* membre.pays.toUpperCase().substr(0, 2), membre.region.toUpperCase().substr(0, 2), membre.departement.toUpperCase().substr(0, 2), membre.commune.toUpperCase().substr(0, 2), this.selectedVillage.nom.toUpperCase().substr(0, 2)*/);
+      //this.matricule = this.generateId(this.nom.toUpperCase().substr(0, 2),/* membre.pays.toUpperCase().substr(0, 2), membre.region.toUpperCase().substr(0, 2), membre.departement.toUpperCase().substr(0, 2), membre.commune.toUpperCase().substr(0, 2), this.selectedVillage.nom.toUpperCase().substr(0, 2)*/);
     } 
  }
-
-  generateId(operation, /*pays, region, departement, commune, village*/){
+ 
+  generateId(code_op/*operation, /*pays, region, departement, commune, village*/){
     /*var pays = pays||'XX'
     var region = region||'XX'
     var department = departement || 'XX'
@@ -151,7 +287,7 @@ export class AjouterMembrePage {
     var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
     var numbers='0123456789'
     var randomArray=[]
-    for(let i=0;i<6;i++){
+    for(let i=0;i<3;i++){
       var rand = Math.floor(Math.random()*10)
       randomArray.push(numbers[rand])
     }
@@ -159,11 +295,33 @@ export class AjouterMembrePage {
     var rand = Math.floor(Math.random()*24)
     randomArray.push(chars[rand])
     var randomString=randomArray.join("");
-    var Id= operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     return Id
   }
 
+ 
+
   ionViewDidEnter() {
+    //this.con(document.getElementById("imageid") , (blo) => {
+     // this.imageBlob = blo;
+    //})
+    //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }, err => {
+      if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }
+      //console.log(err)
+    }); 
+
+    this.translate.use(global.langue)
 
     this.sim.getSimInfo().then(
       (info) => {
@@ -232,11 +390,24 @@ export class AjouterMembrePage {
     }
   }
 
-  chargerAutreNomOP(op){
+  chargerAutreNomOP(op, code_op){
     if(op !== 'AUTRE'){
       this.nom_autre_op = 'NA';
+      this.matricule = this.generateId(code_op);
+      /*this.servicePouchdb.compterNbEnregistrement('op_code', 'AM').then((res) => {
+        let dernier = this.generateId(code_op);
+        alert(res.total_rows)
+        if(dernier < 10){
+          this.matricule = 'FM '+code_op+'-00'+ dernier.toString();
+        }else if(dernier < 100){
+          this.matricule = 'FM '+code_op+'-0'+ dernier.toString();
+        }else{
+          this.matricule = 'FM '+code_op+'-'+ dernier.toString();
+        }
+      });*/
     }else{
       this.nom_autre_op = '';
+      this.matricule = this.generateId(code_op);
     }
   }
 
@@ -271,21 +442,58 @@ export class AjouterMembrePage {
       if(!this.num_aggrement_op){
          membre.op = this.selectedOP.data.num_aggrement;
          membre.op_nom = this.selectedOP.data.nom_OP;
+         membre.op_code = this.selectedOP.data.code_OP;
       }
-      membre.classe = this.selectedClasse.data.id;
-      membre.classe_nom = this.selectedClasse.data.nom;
+
+      if(this.selectedClasse){
+         membre.classe = this.selectedClasse.data.id;
+         membre.classe_nom = this.selectedClasse.data.nom;
+      }
       membre.deviceid = this.device.uuid;
       membre.phonenumber = this.phonenumber;
       membre.imei = this.imei;
+      membre.file_name = this.fileName;
+      
       let id = this.servicePouchdb.generateId('op:membre', membre.pays, membre.region, membre.departement,membre.commune, membre.village);
       //union._id = 'fuma'+ id;
       membre.end = date.toJSON();
-
+ 
       let membreFinal: any = {};
       membreFinal._id = 'fuma'+ id;
-      membreFinal.data = membre
+    
+      let ida = 'fuma:photo:membre:'+ this.matricule;
+      if(this.photo){
+        membre.photoID = ida; 
+      }
+      
+      //membre.blob = this.imageBlob;
+      membreFinal.data = membre;
       this.servicePouchdb.createDoc(membreFinal);
+      
+      if(this.photo){
+        var doc = {
+        // _id: ida,
+          _attachments: {},
+          photoID: ida,
+          timestamp: new Date().toString()
+        }
 
+        //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
+
+        this.fileName = ida + '.jpeg';
+        doc._attachments[this.fileName] = {
+          content_type: 'image/jpeg', 
+          data: this.imageData
+        }
+
+        //this.servicePouchdb.createDoc(doc)
+        this.servicePouchdb.put(doc, ida)
+  
+      }
+     
+      
+    
+        
       /*if(this.selectedOP.data.num_aggrement !== 'AUTRE'){
         this.selectedOP.data.num_membre++;
         if(membre.genre === 'male'){

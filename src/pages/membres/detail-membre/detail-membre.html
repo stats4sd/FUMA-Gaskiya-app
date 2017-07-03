@@ -111,6 +111,14 @@
         </ion-row>
         <ion-row>
           <ion-col class='meta-key'>
+            <strong>Code OP:</strong>
+          </ion-col> 
+            <ion-col class='meta-value'>
+            {{membre.doc.data.op_code}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class='meta-key'>
             <strong>Date enregistrement:</strong>
           </ion-col> 
             <ion-col class='meta-value'>
@@ -288,7 +296,7 @@
       <button ion-fab mini (click)="supprimer(membre.doc)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab (click)="mesEssai(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre)"><strong>ES</strong></button>
       <button ion-fab (click)="mesChamps(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre)"><strong>CH</strong></button>
-      <button ion-fab mini (click)="editer(membre.doc)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+      <button ion-fab mini (click)="editer(membre.doc, membre.photo, membre.photoDocId)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab>
 

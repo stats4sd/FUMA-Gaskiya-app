@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, AlertController } from 'ionic-angular';
+import { NavController, NavParams, ToastController, AlertController, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 //import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -9,6 +9,7 @@ import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
 import { AjouterTraitementPage } from '../traitement/ajouter-traitement/ajouter-traitement';
 import { AjouterChampsPage } from '../../champs/ajouter-champs/ajouter-champs'
+import { global } from '../../../global-variables/variable'
 
 /*
   Generated class for the AjouterEssai page.
@@ -51,9 +52,24 @@ export class AjouterEssaiPage {
   //nom_producteur: any;
 
   annees: any = [];
+  aProfile: boolean = true;
 
   
-  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public alertCtl: AlertController, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder) {
+    
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    events.subscribe('user:login', () => {
+      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      }, err => console.log(err));
+    });
     
     if(this.navParams.data.matricule_producteur){
       this.matricule_producteur = this.navParams.data.matricule_producteur;
@@ -137,6 +153,32 @@ export class AjouterEssaiPage {
     
   }
 
+  option(){
+    this.menuCtl.enable(true, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  profile(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(true, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  connexion(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(true, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle() 
+  }
+
+  sync(){
+    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
+  }
+
+
   createDate(jour: any, moi: any, annee: any){
     let s = annee+'-';
     moi += 1;
@@ -156,7 +198,21 @@ export class AjouterEssaiPage {
 
   ionViewDidEnter() {
 
-    
+     this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }, err => {
+      if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }
+      //console.log(err)
+    }); 
+
     this.sim.getSimInfo().then(
       (info) => {
         if(info.cards.length > 0){

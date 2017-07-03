@@ -7,9 +7,25 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
+    <ion-buttons start>
+      <button ion-button icon-only color="royal" (click)="takePhoto()">
+        <ion-icon name="camera"></ion-icon>
+      </button>
+      <button ion-button icon-only color="royal" (click)="chooseImage()">
+        <ion-icon name="image"></ion-icon>
+      </button>
+
+      <button *ngIf="aProfile == true" ion-button icon-only color="royal" (click)="profile()">
+        <ion-icon name="person"></ion-icon>
+      </button>
+
+      <button *ngIf="aProfile == false" ion-button icon-only color="royal" (click)="connexion()">
+        <ion-icon name="unlock"></ion-icon>
+      </button>
+    </ion-buttons>
     <ion-title>modifier-membre</ion-title>
     <ion-buttons end>
-      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+      <button ion-button icon-only color="royal" (click)="option()"><ion-icon name="options"></ion-icon></button>
     </ion-buttons>
   </ion-navbar>
 
@@ -17,6 +33,11 @@
 
 
 <ion-content padding>
+
+  <ion-card text-center>
+    <img [src]="photo" *ngIf="photo" id="imageid">
+  </ion-card>
+  
     
 <form [formGroup]="membreForm" (ngSubmit) = "modifier()">
 
@@ -85,7 +106,7 @@
     <ion-select formControlName="op" [(ngModel)]="selectedOPID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomOP(selectedOPID)" >
       <ion-option value="" selected disabled>Selectionnez l'OP</ion-option>
       <span *ngFor="let o of ops">
-        <ion-option *ngIf="o.data.num_aggrement" [value]=o.data.num_aggrement >{{o.data.nom_OP}}</ion-option>
+        <ion-option *ngIf="o.data.num_aggrement" [value]=o.data.num_aggrement >{{o.data.code_OP}} - {{o.data.nom_OP}}</ion-option>
       </span>
     </ion-select>
   </ion-item>

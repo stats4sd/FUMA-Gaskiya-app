@@ -123,33 +123,6 @@ export class LoginPage {
            this.servicePouchdb.sync();
            this.afficheMsg('Connexion terminée avec succèes. \nVous êtes connectés!')
            this.viewCtl.dismiss();
-           /*if(this.tache !== 'admin'){
-              this.enableAuthenticatedMenu();
-              //this.navCtrl.setRoot(TabsPage);
-              
-            }else{
-            
-              if(us.roles.indexOf('admin') >= 0){
-                //global.typeUtilisateur = 'admin';
-                this.gestionService.dbSyncAdmin();
-                this.storage.set('tache', 'admin');
-                this.viewCtl.dismiss();
-                this.enableAuthenticatedMenu();
-                //this.navCtrl.setRoot(TabsPage);
-                
-              }else{
-                //global.typeUtilisateur = 'simple';
-                this.viewCtl.dismiss();
-                this.enableAuthenticatedMenu();
-                //this.navCtrl.push(ConfigBoutiquePage);
-                
-                //this.gestionService.logout();
-                //this.storage.remove('gerant');
-                //alert('Désolé, provillèges isuffisants!')
-              }
-              
-            }*/
-           
           }
         });        
   

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { ResearchViewPage } from '../../research-view/research-view'
 import { TranslateService  } from '@ngx-translate/core';
@@ -10,17 +10,76 @@ import { global } from '../../../global-variables/variable'
   templateUrl: 'research.html'
 })
 export class ResearchPage {
-  researchData: any;
-  public forms: any;
+  researchData: any = [];
+  public forms: any = [];
   private update = false;
   public devMode = false;
+  aProfile: boolean = true;
+  nb: any = 0;
 
-  constructor(public translate: TranslateService, public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider) {
+  constructor(public translate: TranslateService, public menuCtl: MenuController, public events: Events,  public navCtrl: NavController, public navParams: NavParams, private database: PouchdbProvider) {
+    
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    events.subscribe('user:login', () => {
+      this.database.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      }, err => console.log(err));
+    });
+    
     if(this.devMode==true){this.devScripts()}
     this.translate.setDefaultLang(global.langue)
   }
 
+  option(){
+    this.menuCtl.enable(true, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  profile(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(true, 'profile');
+    this.menuCtl.toggle()
+  }
+
+  connexion(){
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(true, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    this.menuCtl.toggle() 
+  }
+
+  sync(){
+    this.database.syncAvecToast(this.ionViewDidEnter());
+  }
+
+
   ionViewDidEnter() {
+
+     this.database.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }, err => {
+      if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }
+      //console.log(err)
+    }); 
+
     this.translate.use(global.langue)
     console.log('view entered, getting research and forms')
     this.getResearch()

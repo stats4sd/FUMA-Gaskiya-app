@@ -34,11 +34,10 @@ export class EssaiPage {
 
   annees: any = [];
   selectedStyle: any = 'liste';
-  aProfile: boolean = true;
+  aProfile: boolean = true; 
 
   constructor(public navCtrl: NavController, public events: Events, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
-    //générer des années de 2000 à 2050
-    //this.storageDirectory = cordova.file.externalDataDirectory;
+   
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
@@ -50,13 +49,16 @@ export class EssaiPage {
         }else{
           this.aProfile = false;
         }
-      });
+      }, err => console.log(err));
     });
     
     if(this.navParams.data.matricule_producteur){
       this.matricule_producteur = this.navParams.data.matricule_producteur;
       this.nom_producteur = this.navParams.data.nom_producteur;
     }
+
+     //générer des années de 2000 à 2050
+    //this.storageDirectory = cordova.file.externalDataDirectory;
     for(let i=0; i<=50; i++){
       this.annees.push(2000 + i)
     } 
@@ -91,6 +93,10 @@ export class EssaiPage {
     this.menuCtl.enable(true, 'connexion');
     this.menuCtl.enable(false, 'profile');
     this.menuCtl.toggle() 
+  }
+
+  sync(){
+    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
   }
 
   exportExcel(){
@@ -147,6 +153,13 @@ export class EssaiPage {
         }else{
           this.aProfile = false;
         }
+    }, err => {
+      if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }
+      //console.log(err)
     }); 
 
     if(this.selectedAnnee === 'Tous'){
@@ -268,9 +281,7 @@ export class EssaiPage {
     this.navCtrl.push(DetailEssaiPage, {'essai': essai});
   }
 
-  sync(){
-    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
-  }
+  
 
   getItems(ev: any) {
     // Reset items back to all of the items

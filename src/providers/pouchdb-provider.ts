@@ -36,10 +36,12 @@ export class PouchdbProvider {
     constructor(public http: Http, public toastCtl: ToastController, public events: Events, public loadingCtrl: LoadingController, public storage: Storage) {
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
+        //this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4sd.org/fuma_frn_app");//, this.pouchOpts);//base production
         this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4sd.org/test");//, this.pouchOpts);
-        //this.remoteSaved = new PouchDB("http://127.0.0.1:5984/app_fuma");//, this.pouchOpts);
+        //this.remoteSaved = new PouchDB("http://192.168.43.53:5984/app_fuma");//, this.pouchOpts);
         if (!this.isInstantiated) {
             this.database = new PouchDB("app-database");
+            //this.database = new PouchDB("fuma-frn-app-db");////base production
             this.database.changes({
                 live: true,
                 include_docs: true
@@ -239,8 +241,19 @@ export class PouchdbProvider {
     let dat = new Date();
     doc.data.created_at = dat.toJSON();
     doc.data.updatet_at = dat.toJSON();
-    doc.data.created_by = '';
-    doc.data.updated_by = '';
+    //doc.data.created_by = '';
+    if(global.info_user !== null){
+      doc.data.created_by = global.info_user.name;
+    }else{
+      doc.data.created_by = '';
+    }
+    //doc.data.updated_by = '';
+    if(global.info_user !== null){
+      doc.data.updated_by = global.info_user.name;
+    }else{
+      doc.data.updated_by = '';
+    }
+    
     doc.data.deleted = false;
     /*doc.deleted_at = '';
     doc.deleted_by = '';
@@ -261,7 +274,7 @@ export class PouchdbProvider {
        
     });*/
     
-    this.database.put(doc);
+    this.database.put(doc).catch((err) => alert('Erreur lors de l\'enreistrement. \nVeuillez reéssayer plus tard!'));
   }
 
   getPlageDocs(startkey, endkey){
@@ -271,7 +284,7 @@ export class PouchdbProvider {
     if(data){
       return data
     }
-
+ 
     
     return new Promise ( resolve => {
       this.database.allDocs({
@@ -296,7 +309,11 @@ export class PouchdbProvider {
   deleteDoc(doc){
     let dat = new Date();
     doc.data.deleted_at = dat.toJSON();
-    doc.data.deleted_by = '';
+    if(global.info_user !== null){
+      doc.data.deleted_by = global.info_user.name;
+    }else{
+      doc.data.deleted_by = '';
+    }
     doc.data.deleted = true;
    // this.database.put(doc).catch((err) => console.log(err));
     /*let dat = new Date();
@@ -326,7 +343,12 @@ export class PouchdbProvider {
   updateDoc(doc){
     let dat = new Date();
     doc.data.updatet_at = dat.toJSON();
-    doc.data.updated_by = '';
+    if(global.info_user !== null){
+      doc.data.updated_by = global.info_user.name;
+    }else{
+      doc.data.updated_by = '';
+    }
+    
     doc.data.deleted = false;
     /*doc.deleted_at = '';
     doc.deleted_by = '';
@@ -597,13 +619,13 @@ export class PouchdbProvider {
       } else {
         // succeeded
       }
-    });
+    }); 
   }
 
-  verifieCodeUnion(code){
+  compterNbEnregistrement(enregistrement, nom){
    return this.database.search({
-      query: code,
-      fields: ['data.code_union']
+      query: nom,
+      fields: ['data.op_code']
     });
   }
 

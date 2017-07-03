@@ -83,8 +83,8 @@ export class DetailMembrePage {
   }
 
 
-  editer(membre){
-    this.navCtrl.push(ModifierMembrePage, {'membre': membre});
+  editer(membre, photo, photoID){
+    this.navCtrl.push(ModifierMembrePage, {'membre': membre, 'photo': photo, 'photoID': photoID});
   }
 
   mesChamps(matricule, nom){
@@ -109,6 +109,14 @@ export class DetailMembrePage {
           text: 'Confirmer',
           handler: () => {
             this.servicePouchdb.deleteDoc(membre);
+            if(membre.data.photoID){
+              this.servicePouchdb.getDocById(membre.data.photoID).then((doc) => {
+                if(doc){
+                  this.servicePouchdb.delete(doc)
+                }
+              }, err => console.log(err))
+              
+            }
             let toast = this.toastCtl.create({
               message:'Membre OP bien suppriée',
               position: 'top',

@@ -14,6 +14,7 @@ import { Printer } from '@ionic-native/printer'
 import { Camera } from '@ionic-native/camera';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
+import { ImagePicker } from '@ionic-native/image-picker';
 // translation module
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -282,6 +283,6 @@ export function createTranslateLoader(http: Http) {
     ProfileUserPage,
     ModifierProfilePage,
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, File, Printer, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, File, Printer, ImagePicker, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen]
 })
 export class AppModule { }
