@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NavController, NavParams, ModalController, AlertController } from 'ionic-angular';
+import { NavController, NavParams, IonicPage, ModalController, AlertController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { FormViewPage } from '../../form-view/form-view';
 import { FormViewComponent } from '../../../components/form-view/form-view';
 import { TranslateService } from '@ngx-translate/core'
 import { global } from '../../../global-variables/variable'
-import { AjouterUnionPage } from '../ajouter-union/ajouter-union'
+//import { AjouterUnionPage } from '../ajouter-union/ajouter-union'
 import { Storage } from '@ionic/storage';
-import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enquete/conf-localite-enquete';
+//import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enquete/conf-localite-enquete';
 
 /*
   Generated class for the ChoixSourceAjoutUnion page.
@@ -15,6 +15,7 @@ import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enque
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-choix-source-ajout-union',
   templateUrl: 'choix-source-ajout-union.html'
@@ -52,7 +53,7 @@ export class ChoixSourceAjoutUnionPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(ConfLocaliteEnquetePage);
+              this.navCtrl.push('ConfLocaliteEnquetePage');
             }        
           },
           {

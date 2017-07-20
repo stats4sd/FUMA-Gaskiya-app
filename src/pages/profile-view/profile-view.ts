@@ -1,9 +1,10 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, IonicPage } from 'ionic-angular';
 import JsBarcode from 'jsbarcode';
 import { TranslateService  } from '@ngx-translate/core';
 import { global } from '../../global-variables/variable'
 
+@IonicPage()
 @Component({
   selector: 'page-profile-view',
   templateUrl: 'profile-view.html'

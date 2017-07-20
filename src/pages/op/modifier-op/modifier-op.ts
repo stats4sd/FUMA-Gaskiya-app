@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, ToastController, ModalController, IonicPage, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -12,6 +12,7 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-modifier-op',
   templateUrl: 'modifier-op.html'
@@ -38,7 +39,7 @@ export class ModifierOpPage {
   code_op: any = '';
   aProfile: boolean = true;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public modelCtl: ModalController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
@@ -59,7 +60,7 @@ export class ModifierOpPage {
      this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
           this.unions = uA.concat(uK);
-          this.unions.push(this.autreUnion);
+          //this.unions.push(this.autreUnion);
       }, err => console.log(err));
 
       }, err => console.log(err));
@@ -173,6 +174,14 @@ export class ModifierOpPage {
       //console.log(err)
     }); 
 
+    this.storage.get('confLocaliteEnquete').then((confLocaliteEnquete) => {
+      if(confLocaliteEnquete){
+        this.confLocaliteEnquete = confLocaliteEnquete;
+      }
+      //this.chargerVillages(this.confLocaliteEnquete.commune.id);
+    });
+
+
      this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((opA) => {
         /*if(unionsA){
           this.unionsApplication = unionsA;
@@ -279,14 +288,36 @@ export class ModifierOpPage {
     if(v !== 'AUTRE'){
       this.nom_autre_village = 'NA';
     }else{
+       let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.op.commune, 'nom_commune': this.op.commune_nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerVillages(this.op.commune);
+        this.selectedVillageID = '';
+      })
       this.nom_autre_village = '';
     }
+  }
+
+  chargerUnion(){
+    this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
+          this.unions = uA.concat(uK);
+          this.unions.push(this.autreUnion);
+      }, err => console.log(err));
+
+      }, err => console.log(err)); 
   }
 
   chargerAutreNomUnion(u){
     if(u !== 'AUTRE'){
       this.nom_autre_union = 'NA';
     }else{
+      let model = this.modelCtl.create('AjouterUnionPage', {'confLocaliteEnquete': this.confLocaliteEnquete});
+        model.present();
+        model.onDidDismiss(() => {
+          this.chargerUnion();
+          this.selectedUnionID = '';
+      })
       this.nom_autre_union = '';
     }
   }
@@ -382,11 +413,12 @@ export class ModifierOpPage {
       let toast = this.toastCtl.create({
         message: 'OP bien sauvegardée!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
-
-      toast.present();
+      
       this.navCtrl.pop();
+      toast.present();
+      
 
     }
   }

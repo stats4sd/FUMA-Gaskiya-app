@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController } from 'ionic-angular';
+import { NavController, NavParams, ToastController, ViewController, IonicPage } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -16,6 +16,8 @@ import { Geolocation } from '@ionic-native/geolocation'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-ajouter-champs',
   templateUrl: 'ajouter-champs.html'
@@ -34,25 +36,33 @@ export class AjouterChampsPage {
   matricule_producteur: any;
   longitude: any ='';
   latitude: any = '';
+  membre: any;
+  nom: any = '';
+  champs: any = [];
+  type_sole: any;
+  superficie: any = '';
+  code_champs: any = '';
 
-  constructor(public navCtrl: NavController, public ServiceAutoCompletion: AutoCompletion, public navParams: NavParams, public sim: Sim, public geolocation: Geolocation, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public viewCtl: ViewController, public ServiceAutoCompletion: AutoCompletion, public navParams: NavParams, public sim: Sim, public geolocation: Geolocation, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
     if(this.navParams.data.matricule_producteur){
       this.matricule_producteur = this.navParams.data.matricule_producteur;
-    }
+      this.selectedProducteur = this.navParams.data.membre
+      this.nom_producteur = this.navParams.data.nom;
+      this.generecodeChamps(this.selectedProducteur.data.matricule_Membre)
+      //this.typeSoles = this.navParams.data.typeSoles
+    
+      //this.nom_producteur 
+        //  this.producteurSelected(this.matricule_producteur);
+    }else{
 
-    this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((ts) => {
-          this.typeSoles = ts;
-      }, err => console.log(err)); 
       let p: any = [];
     this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrA) => {
       
         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrK) => {
         this.producteurs = mbrA.concat(mbrK);
 
-        if(this.matricule_producteur){
-          this.producteurSelected(this.matricule_producteur);
-        }
+       
         this.producteurs.forEach((prod, index) => {
           p.push(prod.data); 
         });
@@ -63,7 +73,8 @@ export class AjouterChampsPage {
     }, err => console.log(err));
 
     }, err => console.log(err)); 
-
+  }
+    //this.chergerTypeSole()
     let maDate = new Date();
     let today = this.createDate(maDate.getDate(), maDate.getMonth(), maDate.getFullYear());
 
@@ -84,6 +95,15 @@ export class AjouterChampsPage {
       start: [maDate.toJSON()],
       end: ['']
     });
+    
+  }
+
+  chergerTypeSole(){
+    
+    this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((ts) => {
+              this.typeSoles = ts;
+    }, err => console.log(err)); 
+
     
   }
 
@@ -126,9 +146,10 @@ export class AjouterChampsPage {
     return s;
   }
 
-  ionViewDidEnter() {
-
+  ionViewDidLoad() {
     
+    this.chergerTypeSole();
+  
     this.sim.getSimInfo().then(
       (info) => {
         if(info.cards.length > 0){
@@ -177,20 +198,34 @@ export class AjouterChampsPage {
       if(prod.data.matricule_Membre === ev.matricule_Membre){
         this.selectedProducteur = prod;
         this.nom_producteur = prod.data.nom_Membre;
+        this.generecodeChamps(this.selectedProducteur.data.matricule_Membre)
       }
     });
   }
 
-  producteurSelected(matricule){
+  /*producteurSelected(matricule){
+    this.nom_producteur = prod.data.nom_Membre;
     //alert(ev.code_produit);
-    this.producteurs.forEach((prod, index) => {
+   /* this.producteurs.forEach((prod, index) => {
       if(prod.data.matricule_Membre === matricule){
         this.selectedProducteur = prod;
         this.nom_producteur = prod.data.nom_Membre;
       }
-    });
+    });/*
+  }*/
+
+  dechanfChamps(){
+    this.longitude ='';
+    this.latitude = '';
+    this.nom = '';
+    this.type_sole = '';
+    this.superficie = '';
+    this.generecodeChamps(this.selectedProducteur.data.matricule_Membre)
   }
 
+  generecodeChamps(matricule){
+    this.code_champs = this.generateId(matricule);
+  }
 
   ajouter(){
     let date = new Date();
@@ -200,29 +235,63 @@ export class AjouterChampsPage {
     champs.deviceid = this.device.uuid;
     champs.phonenumber = this.phonenumber;
     champs.imei = this.imei;
-    let id = this.generateId(this.selectedProducteur.data.matricule_Membre);
+    
     //union._id = 'fuma'+ id;
     champs.end = date.toJSON();
-    champs.id_champs = id;
+    champs.id_champs = this.code_champs;
 
     let champsFinal: any = {};
-    champsFinal._id = 'fuma'+':champs:'+ id;
+    champsFinal._id = 'fuma'+':champs:'+ this.code_champs;
     champsFinal.data = champs
-    this.servicePouchdb.createDoc(champsFinal);
-    let toast = this.toastCtl.create({
-      message: 'Champs bien enregistré!',
-      position: 'top',
-      duration: 3000
-    });
+    this.servicePouchdb.createDocReturn(champsFinal).then((res) => {
 
-    toast.present();
-    this.navCtrl.pop();
+      /*let toast = this.toastCtl.create({
+        message: 'Champs bien enregistré!',
+        position: 'top',
+        duration: 1000
+      });*/
+
+       champsFinal._rev = res.rev;
+
+       this.champs.push(champsFinal)
+        //});
+
+        this.dechanfChamps()
+    });
+    
+    
+
+    //this.navCtrl.pop();
+    //toast.present();
+    
 
   }
+
+  /*annuler(){
+    this.navCtrl.pop();
+  }*/
 
   annuler(){
-    this.navCtrl.pop();
+    //this.navCtrl.pop();
+    if(this.champs.length <= 0){
+      this.viewCtl.dismiss();
+    }else{
+      //this.essais.push(this.essais)
+      this.viewCtl.dismiss(this.champs);
+    }
+    
   }
+
+  back(){
+    //this.viewCtl.dismiss();
+     if(this.champs.length <= 0){
+      this.viewCtl.dismiss();
+    }else{
+      //this.essais.push(this.essais)
+      this.viewCtl.dismiss(this.champs);
+    }
+  }
+
 
 
 }

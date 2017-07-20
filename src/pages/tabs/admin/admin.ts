@@ -1,20 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, ToastController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { ConfLocaliteEnquetePage } from '../../configuration/conf-localite-enquete/conf-localite-enquete';
-import { UnionsPage } from '../../unions/unions';
 import { OpPage } from '../../op/op';
-import { MembresPage } from '../../membres/membres';
 import { TranslateService } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable';
-import { LanguePage } from '../../langue/langue'
-import { TypeSolePage } from '../../type-sole/type-sole'
-import { ChampsPage } from '../../champs/champs'
-import { EssaiPage } from '../../essai/essai'
-import { TraitementPage } from '../../essai/traitement/traitement'
-import { LoginPage } from '../../security/login/login';
-import { RegisterPage } from '../../security/register/register';
-import { ProfileUserPage } from '../../security/profile/profile-user'
+import { Storage } from '@ionic/storage'
 
 /*
   Generated class for the Admin page.
@@ -22,6 +12,8 @@ import { ProfileUserPage } from '../../security/profile/profile-user'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-admin',
   templateUrl: 'admin.html'
@@ -34,7 +26,7 @@ export class AdminPage {
   membres:any = [];
   //toast: any;
 
-  constructor(public translate: TranslateService, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
+  constructor(public translate: TranslateService, public storage: Storage, public alertCtl: AlertController, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
   }
 
@@ -42,7 +34,7 @@ export class AdminPage {
     this.translate.use(global.langue);
     this.getProfiles();
 
-    //union
+    //union 
     this.database.getPlageDocs('fuma:union','fuma:union:\uffff').then((unionsA) => {
          this.database.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unionsK) => {
           this.unions = unionsA.concat(unionsK);
@@ -83,6 +75,12 @@ export class AdminPage {
     }, err => console.log(err));
 
   }
+  culture(){
+    this.navCtrl.push('CulturePage')
+  }
+  variete(){
+    this.navCtrl.push('VarietePage')
+  }
 
   affichierMsg(msg = 'Enregistrement mis à jour'){
     let toast = this.toastCtl.create({
@@ -95,11 +93,11 @@ export class AdminPage {
   }
 
   connexion(){
-    this.navCtrl.push(LoginPage);
+    this.navCtrl.push('LoginPage');
   }
 
   register(){
-    this.navCtrl.push(RegisterPage);
+    this.navCtrl.push('RegisterPage');
   }
 
   profile(){
@@ -113,7 +111,7 @@ export class AdminPage {
         alert('Personne n\'est connecté');
         
       } else {
-        this.navCtrl.push(ProfileUserPage);
+        this.navCtrl.push('ProfileUserPage');
       }
     });
     
@@ -124,33 +122,40 @@ export class AdminPage {
   }
 
   confLocaliteEnquetee(){
-    this.navCtrl.push(ConfLocaliteEnquetePage);
+    this.navCtrl.push('ConfLocaliteEnquetePage');
   }
 
   changeLangue(){
-    this.navCtrl.push(LanguePage);
+    this.navCtrl.push('LanguePage');
   }
 
   gestionTypeSole(){
-    this.navCtrl.push(TypeSolePage);
+    this.navCtrl.push('TypeSolePage');
   }
 
   gestionChamps(){
-    this.navCtrl.push(ChampsPage);
+    this.navCtrl.push('ChampsPage');
   }
 
   gestionEssai(){
-    this.navCtrl.push(EssaiPage);
+    this.navCtrl.push('EssaiPage');
   }
 
   gestionTraitement(){
-    this.navCtrl.push(TraitementPage);
+    this.navCtrl.push('TraitementPage');
   }
 
   calculNbOPUnion(){
 
     //on recupere toutes les unions
-    this.affichierMsg('Calcul du nombre d\'OPs par union encours...');
+    //this.affichierMsg('Calcul du nombre d\'OPs par union encours...');
+     let toast = this.toastCtl.create({
+      message: 'Calcul du nombre d\'OPs par union encours...',
+      position: 'top',
+      duration: 10000
+    });
+
+    toast.present();
       //Pour chaque union
       this.unions.forEach((union, indexU) => {
         //reinitialiser le nombre d'OP de l'union
@@ -167,12 +172,26 @@ export class AdminPage {
         //mettre a jour l'union
         this.database.updateDoc(union);
       });
-      this.affichierMsg('Calcul du nombre d\'OPs par union terminé avec succes!');
+      //this.affichierMsg('Calcul du nombre d\'OPs par union terminé avec succes!');
       
+      toast.dismiss();
+      let toast1 = this.toastCtl.create({
+        message: 'Calcul du nombre d\'OPs par union terminé avec succes!',
+        position: 'top',
+        duration: 2000
+      });
+    toast1.present();
   }
 
   calculNbMembreOP(){
-    this.affichierMsg('Calcul du nombre de membre par OPs et par union encours...');                  
+    //this.affichierMsg('Calcul du nombre de membre par OPs et par union encours...');   
+     let toast = this.toastCtl.create({
+      message: 'Calcul du nombre de membre par OPs et par union encours...',
+      position: 'top',
+      duration: 10000
+    });
+
+    toast.present();               
     //on parcour les uion
     this.unions.forEach((union, indexU) =>{
 
@@ -220,7 +239,14 @@ export class AdminPage {
       
     });
     //fin union
-    this.affichierMsg('Calcul du nombre de membre apr OPs et par union terminé avec succes!');
+    //this.affichierMsg('Calcul du nombre de membre apr OPs et par union terminé avec succes!');
+    toast.dismiss()
+    let toast1 = this.toastCtl.create({
+      message: 'Calcul du nombre de membre apr OPs et par union terminé avec succes!',
+      position: 'top',
+      duration: 2000
+    });
+    toast1.present();
   }
 
   gestionOP(){
@@ -228,11 +254,11 @@ export class AdminPage {
   }
 
   gestionMembre(){
-    this.navCtrl.push(MembresPage);
+    this.navCtrl.push('MembresPage');
   }
 
   gestionUnion(){
-    this.navCtrl.push(UnionsPage);
+    this.navCtrl.push('UnionsPage');
   }
 
    getProfiles() {
@@ -286,5 +312,97 @@ export class AdminPage {
     return fumaId
   }
 
+
+    infoDB(){
+      this.storage.get('info_db').then((info_db) => {
+      if(!info_db){
+        //this.storage.set('ip_serveur', '127.0.0.1');
+        info_db = global.info_db
+      }//else{
+        let alert = this.alertCtl.create({
+        title: 'Information de connexion au du serveur',
+        //cssClass: 'error',
+        inputs: [
+          {
+            type: 'text',
+            placeholder: 'Adrèsse hôte',
+            name: 'ip',
+            value: info_db.ip
+          },
+          {
+            type: 'text',
+            placeholder: 'Nom DB',
+            name: 'nom_db',
+            value: info_db.nom_db
+          }
+        ],
+        buttons: [
+          {
+            //cssClass: 'error-border',
+            text: 'Annuler',
+            role: 'Cancel',
+            handler: () => console.log('Changement ip serveur annuler')
+          },
+          {
+            text: 'Valider',
+            handler: (data) => {
+              let i_db = {
+                ip: data.ip.toString(),
+                nom_db: data.nom_db.toString()
+              }
+              this.storage.set('info_db', i_db);
+              global.info_db = i_db;
+              //global.ip_serveur = data.ip_serveur;
+              this.database.syncIinfoDB(data.ip.toString(), data.nom_db.toString());
+              
+              let toast = this.toastCtl.create({
+                message: 'Info DB mises à jour avec succes...',
+                duration: 2000,
+                position: 'top'
+              });
+              toast.present();
+              
+            }
+          }
+        ]
+      }); 
+
+      alert.present();
+ //       }
+      });
+  }
+
+  reset(){
+    let alert = this.alertCtl.create({
+      title: 'Réinitialiser la base de données',
+      message: 'Etes vous sûr de vouloir réinitialiser la base de données ?',
+      buttons:[
+        {
+          text: 'Annuler',
+          handler: () => console.log('suppression annulée')
+ 
+        },
+        {
+          text: 'Confirmer',
+          handler: () => {
+            this.database.reset();
+            /*let toast = this.toastCtl.create({
+              message:'Base de données bien réinitialiser',
+              position: 'top',
+              duration: 1000
+            });
+
+            toast.present();
+            this.navCtrl.setRoot('HomePage');*/
+          }
+        }
+      ]
+    });
+
+    alert.present();
+  }
+
+    
+  //}
 
 }

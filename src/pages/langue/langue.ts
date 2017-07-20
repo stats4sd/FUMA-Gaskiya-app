@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, App } from 'ionic-angular';
+import { NavController, NavParams, ViewController, App, IonicPage } from 'ionic-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { global } from '../../global-variables/variable';
-import { TabsPage } from '../tabs/tabs';
+//import { TabsPage } from '../tabs/tabs';
 
 /*
   Generated class for the Langue page.
@@ -11,6 +11,8 @@ import { TabsPage } from '../tabs/tabs';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-langue',
   templateUrl: 'langue.html'

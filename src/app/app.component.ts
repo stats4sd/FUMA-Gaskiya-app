@@ -1,21 +1,23 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, Nav, MenuController, ModalController} from 'ionic-angular';
+import { Platform, Nav, MenuController, App, IonicApp, ToastController, ModalController} from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { TabsPage } from '../pages/tabs/tabs';
-import { HomePage  } from '../pages/tabs/home/home'
+//import { TabsPage } from '../pages/tabs/tabs';
+//import { HomePage  } from '../pages/tabs/home/home'
 import { Storage } from '@ionic/storage'
-import { AdminPage } from '../pages/tabs/admin/admin'
-import { ConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/conf-localite-enquete';
-import { LanguePage } from '../pages/langue/langue'
-import { CollectPage } from '../pages/tabs/collect/collect'
-import { TypeSolePage } from '../pages/type-sole/type-sole'
-import { ChampsPage } from '../pages/champs/champs'
-import { TraitementPage } from '../pages/essai/traitement/traitement'
-import { ProfileUserPage } from '../pages/security/profile/profile-user'
-import { LoginPage } from '../pages/security/login/login'
-import { RegisterPage } from '../pages/security/register/register'
-import { EssaiPage } from '../pages/essai/essai'
+//import { AdminPage } from '../pages/tabs/admin/admin'
+//import { ConfLocaliteEnquetePage } from '../pages/configuration/conf-localite-enquete/conf-localite-enquete';
+//import { LanguePage } from '../pages/langue/langue'
+//import { CollectPage } from '../pages/tabs/collect/collect'
+//import { TypeSolePage } from '../pages/type-sole/type-sole'
+//import { ChampsPage } from '../pages/champs/champs'
+//import { TraitementPage } from '../pages/essai/traitement/traitement'
+//import { ProfileUserPage } from '../pages/security/profile/profile-user'
+//import { CulturePage } from '../pages/culture/culture'
+//import { VarietePage } from '../pages/variete/variete'
+//import { LoginPage } from '../pages/security/login/login'
+//import { RegisterPage } from '../pages/security/register/register'
+//import { EssaiPage } from '../pages/essai/essai'
 import { PouchdbProvider } from '../providers/pouchdb-provider'
 import { global } from '../global-variables/variable';
 
@@ -29,25 +31,62 @@ export class MyApp {
   profiles: Array<{title: string, component: any}>; 
   connexions: Array<{title: string, component: any}>; 
   name: any;
+  quiter: boolean = false;
 
   @ViewChild(Nav) nav: Nav;
+  //@ViewChild('content') nav: Nav;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public modalCtl: ModalController, public gestionService: PouchdbProvider, public storage: Storage, public menuCtrl: MenuController) {
+  constructor(public platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public ionicApp: IonicApp, public app: App, public toastCtl: ToastController, public modalCtl: ModalController, public gestionService: PouchdbProvider, public storage: Storage, public menuCtrl: MenuController) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       splashScreen.hide();
+      //this.chergerInfoDB();
+      //back button handle
+      //Registration of push in Android and Windows Phone
+      this. chergerInfoDB();
+      var lastTimeBackPress = 0;
+      var timePeriodToExit  = 2000;
+
+      platform.registerBackButtonAction(() => {
+          // get current active page
+          let nav = this.app.getActiveNav()
+          let activeModal = this.ionicApp._modalPortal.getActive() || 
+                            this.ionicApp._loadingPortal.getActive() ||
+                            this.ionicApp._overlayPortal.getActive();// ||
+                            //this.ionicApp._toastPortal.getActive();
+          
+          if(activeModal){
+            //close modal or alert or loading
+            activeModal.dismiss();
+          }else if (nav.canGoBack()) {
+              // go to previous page
+              nav.pop();
+          } else {
+              //Double check to exit app
+              if (new Date().getTime() - lastTimeBackPress < timePeriodToExit) {
+                  this.platform.exitApp(); //Exit from app
+              } else {
+                  this.affMsg('Appuyez sur la touche retour à nouveau pour quitter!')
+                  lastTimeBackPress = new Date().getTime();
+              }
+          }
+      });
+
+           
       this.chargerInfo();
       this.setPage();
 
       this.storage.get('langue').then((langue) => {
         if(langue){
-          this.rootPage = TabsPage
+          this.rootPage = 'TabsPage'
+          //alert(this.nav.getActive().component.name)
         }else{
-          this.rootPage = HomePage;
+          this.rootPage = 'HomePage';
+          //alert(this.nav.getActive().component.name)
         }
-      }, err => this.rootPage = HomePage)
+      }, err => this.rootPage = 'HomePage')
 
     });
 /*
@@ -62,6 +101,16 @@ export class MyApp {
     }, err => this.rootPage = HomePage)*/
   }
 
+  chergerInfoDB(){
+    this.storage.get('info_db').then((info_db) => {
+      if(info_db){
+        global.info_db.ip = info_db.ip;
+        global.info_db.nom_db =  info_db.nom_db;
+      }
+    }).catch((err) => console.log(err));
+  }
+            
+
   close(){
     this.menuCtrl.close()
      this.menuCtrl.enable(false, 'options');
@@ -69,18 +118,30 @@ export class MyApp {
     this.menuCtrl.enable(false, 'profile');
   }
 
+  affMsg(msg){
+    let toast = this.toastCtl.create({
+      message: msg,
+      position: 'middle',
+      duration: 3000
+    });
+
+    toast.present();
+  }
+
 
   setPage(){
 
     this.pages = [
             //{ title: 'Changer la langue', component: LanguePage },
-            { title: 'Changer la langue', component: LanguePage },
-            { title: 'Formulaires ODK', component: CollectPage },
-            { title: 'Config Localité Enquete', component: ConfLocaliteEnquetePage },
-            { title: 'Gestion types soles', component: TypeSolePage },
-            { title: 'Gestion champs', component: ChampsPage },
-            { title: 'Gestion traitements', component: TraitementPage },
-            { title: 'Admin', component: AdminPage },
+            { title: 'Changer la langue', component: 'LanguePage' },
+            { title: 'Formulaires ODK', component: 'CollectPage' },
+            { title: 'Config Localité Enquete', component: 'ConfLocaliteEnquetePage' },
+            { title: 'Gestion types soles', component: 'TypeSolePage' },
+            { title: 'Gestion champs', component: 'ChampsPage' },
+            { title: 'Gestion traitements', component: 'TraitementPage' },
+            { title: 'Gestion cultures', component: 'CulturePage' },
+            { title: 'Gestion variétés', component: 'VarietePage' },
+            { title: 'Admin', component: 'AdminPage' },
            
      ];
 
@@ -89,7 +150,7 @@ export class MyApp {
             { title: 'Connexion', component: LoginPage },
             { title: 'Enregistrement', component: RegisterPage },*/
             //{ title: 'Profile', component: ProfileUserPage },
-            { title: 'Profile', component: ProfileUserPage },
+            { title: 'Profile', component: 'ProfileUserPage' },
             { title: 'Déconnexion', component: '' }
           ];
 
@@ -98,8 +159,8 @@ export class MyApp {
             { title: 'Connexion', component: LoginPage },
             { title: 'Enregistrement', component: RegisterPage },*/
             //{ title: 'Connexion', component: LoginPage },
-            { title: 'Connexion', component: LoginPage },
-            { title: 'Creéer un compte', component: RegisterPage },
+            { title: 'Connexion', component: 'LoginPage' },
+            { title: 'Creéer un compte', component: 'RegisterPage' },
           ];
     
       /*this.gestionService.remoteSaved.getSession((err, response) => {
@@ -135,7 +196,12 @@ export class MyApp {
       /*modal.onDidDismiss(() => {
       EssaiPage.prototype.ionViewWillEnter();
      })*/
-   }else{
+   }else if(page.title === 'Déconnexion'){
+      this.gestionService.logout();
+      global.estConnecte = false; 
+      this.menuCtrl.close();
+      //this.enableUnAuthenticatedMenu();
+    }else{
      this.gestionService.logout();
      this.menuCtrl.close();
      global.estConnecte = false; 

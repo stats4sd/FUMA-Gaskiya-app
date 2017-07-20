@@ -42,6 +42,13 @@
   </h5>
 
   <ion-list>
+    <ion-item>
+      <ion-label floating>Choisir la limite</ion-label>
+      <ion-select [(ngModel)]="selectedLimit" (ionChange)="choixLimit()" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez la limite</ion-option>
+        <ion-option *ngFor="let limit of limits" [value]=limit>{{limit}}</ion-option>
+      </ion-select>
+    </ion-item>
     <ion-row>
       <ion-col>
         <ion-item>

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams,  AlertController, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, IonicPage, AlertController, ToastController, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { ModifierOpPage } from '../modifier-op/modifier-op';
-import { MembresPage } from '../../membres/membres'
+//import { ModifierOpPage } from '../modifier-op/modifier-op';
+//import { MembresPage } from '../../membres/membres'
 import { global } from '../../../global-variables/variable'
 /* 
   Generated class for the DetailOp page.
@@ -10,6 +10,8 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-detail-op',
   templateUrl: 'detail-op.html'
@@ -91,11 +93,11 @@ export class DetailOpPage {
   }
 
   editer(op){
-    this.navCtrl.push(ModifierOpPage, {'op': op});
+    this.navCtrl.push('ModifierOpPage', {'op': op});
   }
 
-  membresOP(num_aggrement, nom_OP){
-    this.navCtrl.push(MembresPage, {'num_aggrement_op': num_aggrement, 'nom_op': nom_OP});
+  membresOP(num_aggrement, nom_OP, code_OP){
+    this.navCtrl.push('MembresPage', {'num_aggrement_op': num_aggrement, 'nom_op': nom_OP, 'code_op': code_OP});
   }
 
   supprimer(op){

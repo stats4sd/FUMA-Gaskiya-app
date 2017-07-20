@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NavController, NavParams, ModalController } from 'ionic-angular';
+import { NavController, NavParams, ModalController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { FormViewPage } from '../../form-view/form-view';
 import { FormViewComponent } from '../../../components/form-view/form-view';
 import { TranslateService } from '@ngx-translate/core'
 import { global } from '../../../global-variables/variable'
 
 
+@IonicPage()
 @Component({
   selector: 'page-collect',
   templateUrl: 'collect.html'

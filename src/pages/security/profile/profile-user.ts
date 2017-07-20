@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { ModifierProfilePage } from './modifier-profile/modifier-profile';
+//import { ModifierProfilePage } from './modifier-profile/modifier-profile';
 import { Storage } from '@ionic/storage';
 import { TranslateService } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable';
@@ -12,6 +12,7 @@ import { global } from '../../../global-variables/variable';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-profile-user',
   templateUrl: 'profile-user.html'
@@ -73,6 +74,6 @@ export class ProfileUserPage {
   }
  
  editer(user){
-  this.navCtrl.push(ModifierProfilePage, {'user': user})
+  this.navCtrl.push('ModifierProfilePage', {'user': user})
  }
 }

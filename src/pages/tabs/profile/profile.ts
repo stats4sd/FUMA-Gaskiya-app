@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ModalController, ToastController } from 'ionic-angular';
+import { NavController, NavParams, ModalController, ToastController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { ProfileViewPage } from '../../profile-view/profile-view';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TranslateService  } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable'
 
+@IonicPage()
 @Component({
   selector: 'page-profile',
   templateUrl: 'profile.html'
@@ -30,7 +30,7 @@ export class ProfilePage {
   }
   viewProfile(profile) {
     console.log('viewing profile', profile)
-    let formModal = this.modalCtrl.create(ProfileViewPage, profile, {
+    let formModal = this.modalCtrl.create('ProfileViewPage', profile, {
       showBackdrop: false,
       enableBackdropDismiss: false
     });

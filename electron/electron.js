@@ -31,7 +31,7 @@ function createWindow() {
 
     // Pour ouvrir la fenetre de deboggage
     // Open the DevTools.
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
 
 

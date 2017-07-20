@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
-import { ModifierChampsPage } from '../modifier-champs/modifier-champs';
+import { NavController, NavParams, AlertController, ToastController, IonicPage } from 'ionic-angular';
+//import { ModifierChampsPage } from '../modifier-champs/modifier-champs';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -11,6 +11,8 @@ import { Storage } from '@ionic/storage';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-detail-champs',
   templateUrl: 'detail-champs.html'
@@ -33,7 +35,7 @@ export class DetailChampsPage {
   }
 
   editer(champ){
-    this.navCtrl.push(ModifierChampsPage, {'champ': champ});
+    this.navCtrl.push('ModifierChampsPage', {'champ': champ});
   }
 
   supprimer(champ){

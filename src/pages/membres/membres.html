@@ -40,33 +40,58 @@
   </h5>
 
   <ion-list>
+    <ion-row>
+      <ion-col>
+        <ion-item>
+          <ion-label floating>Choisir la source</ion-label>
+          <ion-select [(ngModel)]="selectedSource" (ionChange)="choixSource()" cancelText="Annuler" okText="Ok" >
+            <ion-option value="" selected disabled>Selectionnez la source</ion-option>
+            <ion-option value="application">Application</ion-option>
+            <ion-option value="kobo">Kobo</ion-option>
+            <!--ion-option value="tous">Tous</ion-option-->
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col>
+        <ion-item>
+          <ion-label floating>Choisir la limite</ion-label>
+          <ion-select [(ngModel)]="selectedLimit" (ionChange)="choixLimit()" cancelText="Annuler" okText="Ok" >
+            <ion-option value="" selected disabled>Selectionnez la limite</ion-option>
+            <ion-option *ngFor="let limit of limits" [value]=limit>{{limit}}</ion-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+    </ion-row>
     <ion-item>
-      <ion-label floating>Choisir la source</ion-label>
-      <ion-select [(ngModel)]="selectedSource" (ionChange)="choixSource()" cancelText="Annuler" okText="Ok" >
-        <ion-option value="" selected disabled>Selectionnez la source</ion-option>
-        <ion-option value="application">Application</ion-option>
-        <ion-option value="kobo">Kobo</ion-option>
-        <!--ion-option value="tous">Tous</ion-option-->
+      <ion-label floating>Type de recherche</ion-label>
+      <ion-select [(ngModel)]="typeRecherche" (ionChange)="typeRechercheChange()" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez le type de recherche</ion-option>
+        <ion-option value="matricule" >Par matricule membre</ion-option>
+        <ion-option value="nom" >Par nom membre</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item>
-      <ion-searchbar placeholder="Rechercher par nom membre..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar *ngIf="typeRecherche == 'nom'" placeholder="Rechercher par nom..." [showCancelButton]="shouldShowCancel" (ionInput)="getItemsByNom($event)"></ion-searchbar>
+      <ion-searchbar *ngIf="typeRecherche == 'matricule'" placeholder="Rechercher par matricule..." [showCancelButton]="shouldShowCancel" (ionInput)="getItemsByMatricule($event)"></ion-searchbar>
     </ion-item>
   </ion-list>
 
   <ion-list>
-    <ion-item *ngFor="let membre of membres" (click)="detail(membre, selectedSource)" >
+    <ion-item *ngFor="let membre of membres">
       <!--ion-row>
-        <ion-col-->
+        <ion-col->
+          <ion-thumbnail item-left-->
           <ion-thumbnail item-left>
-            <img [src]="membre.photo">
+            <img [src]="membre.photo" imageViewer />
           </ion-thumbnail>
+          <span  (click)="detail(membre, selectedSource)" >
            <h6><strong>Matricule:</strong> {{membre.doc.data.matricule_Membre}}</h6>
            <h6><strong>Nom:</strong> {{membre.doc.data.nom_Membre}}</h6>
         <!--/ion-col>
         <ion-col class="aligneDate"-->
           <p><strong>Date:</strong> {{membre.doc.data.today | date: 'dd-MM-yyyy'}}</p>
+          </span>
         <!--/ion-col>
       </ion-row-->
     </ion-item>

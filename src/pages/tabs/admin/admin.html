@@ -23,6 +23,11 @@
     </ion-item>
   </ion-card-->
 
+  <ion-card (click)="infoDB()">
+    <ion-item style="text-align: center">Changer info DB
+    </ion-item>
+  </ion-card>
+
   <ion-card (click)="calculNbOPUnion()">
     <ion-item style="text-align: center">Calculer nombre d'OP par unions
     </ion-item>
@@ -32,6 +37,20 @@
     <ion-item style="text-align: center">Calculer nombre de membres par OP
     </ion-item>
   </ion-card>
+
+  <ion-card (click)="reset()">
+    <ion-item style="text-align: center"  color="delete">Reset Db
+    </ion-item>
+  </ion-card>
+
+  <!--ion-card (click)="culture()">
+    <ion-item style="text-align: center">Cultures
+    </ion-item>
+  </ion-card>
+  <ion-card (click)="variete()">
+    <ion-item style="text-align: center">Variété
+    </ion-item>
+  </ion-card-->
 
   <!--ion-card (click)="connexion()">
     <ion-item style="text-align: center">Connexion

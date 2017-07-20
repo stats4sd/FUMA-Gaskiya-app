@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, MenuController, Events, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { ResearchViewPage } from '../../research-view/research-view'
 import { TranslateService  } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable'
 
+@IonicPage()
 @Component({
   selector: 'page-research',
   templateUrl: 'research.html'
@@ -108,7 +108,7 @@ export class ResearchPage {
   }
 
   viewResearch(res) {
-    this.navCtrl.push(ResearchViewPage, res)
+    this.navCtrl.push('ResearchViewPage', res)
   }
   devScripts() {
     // this.database.put(testData, "research_ogatrials_2016_combine2016").then(res => {

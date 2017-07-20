@@ -94,7 +94,7 @@
     <ion-label floating>Selectionnez l'union <span class="error-box">*</span></ion-label>
     <ion-select formControlName="union" [(ngModel)]="selectedUnion" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomUnion(selectedUnion.data.num_aggrement)" >
       <ion-option value="" selected disabled>Selectionnez l'union</ion-option>
-      <ion-option *ngFor="let u of unions" [value]=u >{{u.data.nom_union}}</ion-option>
+      <ion-option *ngFor="let u of unions" [value]=u >{{u.data.code_union}} - {{u.data.nom_union}}</ion-option>
     </ion-select>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union'].hasError('required') && opForm.controls['union'].touched">* l'union est obligatoir!</div>

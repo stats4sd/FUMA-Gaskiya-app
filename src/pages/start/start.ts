@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
-import {TabsPage} from '../tabs/tabs';
+import { NavController, NavParams, IonicPage } from 'ionic-angular';
+//import {TabsPage} from '../tabs/tabs';
 import { TranslateService  } from '@ngx-translate/core';
 import { global } from '../../global-variables/variable'
 
-
+@IonicPage()
 @Component({
   selector: 'page-start',
   templateUrl: 'start.html'
@@ -28,7 +28,7 @@ export class StartPage {
   }
   viewSelect() {
     //set to database type of view selected
-    this.navCtrl.push(TabsPage)
+    this.navCtrl.push('TabsPage')
   }
 
 }

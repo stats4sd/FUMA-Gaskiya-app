@@ -3,6 +3,7 @@ import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { AutoCompleteService } from 'ionic2-auto-complete';
 import { PouchdbProvider } from './pouchdb-provider';
+
  
 /*
   Generated class for the AutoCompletion provider.

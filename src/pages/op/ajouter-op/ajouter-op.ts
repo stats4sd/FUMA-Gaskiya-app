@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, ToastController, IonicPage, ModalController, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -14,6 +14,8 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-ajouter-op',
   templateUrl: 'ajouter-op.html'
@@ -41,7 +43,7 @@ export class AjouterOpPage {
   code_op: any = '';
   aProfile: boolean = true;
  
-  constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public modelCtl: ModalController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -67,7 +69,7 @@ export class AjouterOpPage {
     this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
           this.unions = uA.concat(uK);
-          this.unions.push(this.autreUnion);
+          //this.unions.push(this.autreUnion);
       }, err => console.log(err));
 
       }, err => console.log(err)); 
@@ -144,11 +146,15 @@ export class AjouterOpPage {
 
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
   genererCodeOP(){
-    let taille_nom = this.nom_op.length;
+    
     let nom = this.nom_op;
+     nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '');
+     let taille_nom = nom.length;
+     let an = nom;
     //taille initiale: deux aractères
     let taille_code = 2;
     let code: string = '';
+    this.code_op = code.toUpperCase()
     let p = 0;
     let last_position = 0;
     let trouve: boolean;
@@ -188,7 +194,7 @@ export class AjouterOpPage {
             if(taille_code > taille_nom){
               //non disponible, augmenter la taille et utiliser des chiffres
               taille_code = 3;
-              nom = this.nom_op.toString() + '123456789'.toString();
+              nom = an + '123456789'.toString();
               taille_nom = nom.length;
             }
           }else{
@@ -292,14 +298,36 @@ export class AjouterOpPage {
     if(v !== 'AUTRE'){
       this.nom_autre_village = 'NA';
     }else{
+      let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.confLocaliteEnquete.commune.id, 'nom_commune': this.confLocaliteEnquete.commune.nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerVillages(this.confLocaliteEnquete.commune.id);
+        this.selectedVillage = '';
+      })
       this.nom_autre_village = '';
     }
+  }
+
+  chargerUnion(){
+    this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
+          this.unions = uA.concat(uK);
+          //this.unions.push(this.autreUnion);
+      }, err => console.log(err));
+
+      }, err => console.log(err)); 
   }
 
   chargerAutreNomUnion(u){
     if(u !== 'AUTRE'){
       this.nom_autre_union = 'NA';
     }else{
+      let model = this.modelCtl.create('AjouterUnionPage', {'confLocaliteEnquete': this.confLocaliteEnquete});
+        model.present();
+        model.onDidDismiss(() => {
+          this.chargerUnion();
+          this.selectedUnion = '';
+      })
       this.nom_autre_union = '';
     }
   }
@@ -347,11 +375,11 @@ export class AjouterOpPage {
       let toast = this.toastCtl.create({
         message: 'OP bien enregistré!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
-
-      toast.present();
       this.navCtrl.pop();
+      toast.present();
+      
 
     }
 

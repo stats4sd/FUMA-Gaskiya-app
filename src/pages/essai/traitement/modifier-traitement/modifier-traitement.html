@@ -56,6 +56,12 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_entree'].hasError('required') && traitementForm.controls['nom_entree'].touched">* le nom de l'entrée' est obligatoir!</div>
 
   <ion-item>
+    <ion-label floating>Superficie (m²)</ion-label>
+    <ion-input type="number" formControlName="superficie"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['superficie'].hasError('required') && traitementForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
+
+  <ion-item>
     <ion-label floating>Description de l'entrée</ion-label>
     <ion-textarea formControlName="description_entree" row="6"></ion-textarea>
   </ion-item>

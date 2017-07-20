@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { AjouterTraitementPage } from './ajouter-traitement/ajouter-traitement';
-import { DetailTraitementPage } from './detail-traitement/detail-traitement';
+//import { AjouterTraitementPage } from './ajouter-traitement/ajouter-traitement';
+//import { DetailTraitementPage } from './detail-traitement/detail-traitement';
 import { Storage } from '@ionic/storage';
 
 /*
@@ -11,6 +11,8 @@ import { Storage } from '@ionic/storage';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-traitement',
   templateUrl: 'traitement.html'
@@ -85,11 +87,11 @@ export class TraitementPage {
   }
 
    ajouter(){
-      this.navCtrl.push(AjouterTraitementPage);  
+      this.navCtrl.push('AjouterTraitementPage');  
   }
 
   detail(traitement){
-    this.navCtrl.push(DetailTraitementPage, {'traitement': traitement});
+    this.navCtrl.push('DetailTraitementPage', {'traitement': traitement});
   }
 
   getItems(ev: any) {

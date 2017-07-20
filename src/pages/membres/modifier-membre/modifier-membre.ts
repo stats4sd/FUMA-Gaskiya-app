@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, ViewController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, ToastController, IonicPage, ModalController, ViewController, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -15,6 +15,7 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-modifier-membre',
   templateUrl: 'modifier-membre.html'
@@ -48,15 +49,16 @@ export class ModifierMembrePage {
   public base64Image: string;
   public showCamera = true;
   //instanceID: string;
-  imageData: any = '';
+  imageData: any;
   attachments:any;
   photo: any;
   aProfile: boolean = true;
   fileName: any;
   imageBlob:any;
   photoID: any;
+  photoRev: any;
 
-  constructor(public navCtrl: NavController, private sanitizer: DomSanitizer, public menuCtl: MenuController, public events: Events, public imagePicker: ImagePicker, public viewCtrl: ViewController, private camera: Camera, public translate: TranslateService, public navParams: NavParams,  public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public modelCtl: ModalController, private sanitizer: DomSanitizer, public menuCtl: MenuController, public events: Events, public imagePicker: ImagePicker, public viewCtrl: ViewController, private camera: Camera, public translate: TranslateService, public navParams: NavParams,  public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -75,12 +77,13 @@ export class ModifierMembrePage {
     this.translate.setDefaultLang(global.langue)
     this.grandMembre = this.navParams.data.membre;
     this.photoID = this.navParams.data.photoID;
+    this.photoRev = this.navParams.data.photoRev;
     this.photo = this.navParams.data.photo;
 
     this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((oA) => {
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((oK) => {
           this.ops = oA.concat(oK);
-          this.ops.push(this.autreOP);
+          //this.ops.push(this.autreOP);
       }, err => console.log(err));
 
     }, err => console.log(err)); 
@@ -340,6 +343,13 @@ export class ModifierMembrePage {
 
     this.translate.use(global.langue)
 
+    this.storage.get('confLocaliteEnquete').then((confLocaliteEnquete) => {
+      if(confLocaliteEnquete){
+        this.confLocaliteEnquete = confLocaliteEnquete;
+      }
+      //this.chargerVillages(this.confLocaliteEnquete.commune.id);
+    });
+
     this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrsA) => {
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrsK) => {
           this.allMembres = mbrsA.concat(mbrsK);
@@ -383,8 +393,26 @@ export class ModifierMembrePage {
     if(v !== 'AUTRE'){
       this.nom_autre_village = 'NA';
     }else{
+      let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.membre.commune, 'nom_commune': this.membre.commune_nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerVillages(this.membre.commune);
+        this.selectedVillageID = '';
+      })
       this.nom_autre_village = '';
     }
+  }
+
+   chargerOp(){
+    //this.nom_op
+     this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((oA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((oK) => {
+          this.ops = oA.concat(oK);
+          this.ops.push(this.autreOP);
+      }, err => console.log(err));
+
+    }, err => console.log(err)); 
+    
   }
 
   chargerAutreNomOP(op){
@@ -399,6 +427,12 @@ export class ModifierMembrePage {
       });
       }*/
     }else{
+      let model = this.modelCtl.create('AjouterOpPage', {'confLocaliteEnquete': this.confLocaliteEnquete});
+        model.present();
+        model.onDidDismiss(() => {
+          this.chargerOp();
+          this.selectedOPID = '';
+      })
       this.nom_autre_op = '';
     }
   }
@@ -498,34 +532,31 @@ export class ModifierMembrePage {
     this.servicePouchdb.updateDoc(this.grandMembre);
     
     if(this.photoID && this.imageData){
-      this.servicePouchdb.getDocById(membre.data.photoID).then((doc) => {
-        this.fileName = membre.data.photoID + '.jpeg';
-        doc._attachments[this.fileName] = {
-          content_type: 'image/jpeg', 
-          data: this.imageData
-        }
+      //mise a jour
 
-        this.servicePouchdb.put(doc, membre.data.photoID);
-      });
-       /* var doc = {
+      this.servicePouchdb.updateAtachement(this.photoID, this.photoID + '.jpeg', this.photoRev, this.imageData , 'image/jpeg')
+      
+      //this.membre.photoID = ida;
+      /*   var doc = {
         // _id: ida,
           _attachments: {},
-          photoID: ida,
+          photoID: this.photoID,
           timestamp: new Date().toString()
-        }*/
+        }
 
         //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
 
-      /*  this.fileName = ida + '.jpeg';
+       this.fileName = this.photoID + '.jpeg';
         doc._attachments[this.fileName] = {
           content_type: 'image/jpeg', 
           data: this.imageData
         }
-*/
+
         //this.servicePouchdb.createDoc(doc)
-       // this.servicePouchdb.put(doc, ida)
-  
+       this.servicePouchdb.put(doc, ida)*/
+       
       }else if(!this.photoID && this.imageData){
+        //creation
         //let ida = 'fuma:photo:membre:'+ membre.matricule_Membre;
         this.membre.photoID = ida;
          var doc = {
@@ -550,17 +581,16 @@ export class ModifierMembrePage {
     let toast = this.toastCtl.create({
       message: 'Membre bien sauvegardé!',
       position: 'top',
-      duration: 3000
+      duration: 2000
     });
 
-    toast.present();
     this.navCtrl.pop();
+    toast.present();
+    
 
   }
 
   annuler(){
     this.navCtrl.pop();
   }
-
-
 } 

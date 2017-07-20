@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController, MenuController, ToastController, AlertController, Events, ViewController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, IonicPage, MenuController, ToastController, AlertController, Events, ViewController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 //import { TabsPage } from '../tabs/tabs';
-import { RegisterPage } from '../register/register';
+//import { RegisterPage } from '../register/register';
 import { Validators, FormBuilder } from '@angular/forms';
 //import { MyApp } from '../../app/app.component';
 import { Storage } from '@ionic/storage';
@@ -15,6 +15,7 @@ import { global } from '../../../global-variables/variable';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-login',
   templateUrl: 'login.html'
@@ -139,7 +140,7 @@ export class LoginPage {
   }*/
 
   register(){
-    this.navCtrl.push(RegisterPage);
+    this.navCtrl.push('RegisterPage');
   }
 
   connexionUlterieur(){

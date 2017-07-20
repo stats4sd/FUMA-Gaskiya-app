@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController, MenuController, Events } from 'ionic-angular';
-import { ModifierEssaiPage } from '../modifier-essai/modifier-essai';
+import { NavController, NavParams, IonicPage, AlertController, ToastController, MenuController, Events } from 'ionic-angular';
+//import { ModifierEssaiPage } from '../modifier-essai/modifier-essai';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -12,6 +12,8 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-detail-essai',
   templateUrl: 'detail-essai.html'
@@ -93,7 +95,7 @@ export class DetailEssaiPage {
   }
 
   editer(essai){
-    this.navCtrl.push(ModifierEssaiPage, {'essai': essai});
+    this.navCtrl.push('ModifierEssaiPage', {'essai': essai});
   }
 
   supprimer(essai){

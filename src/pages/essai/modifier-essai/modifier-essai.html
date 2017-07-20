@@ -75,7 +75,7 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['sex_producteur'].hasError('required') && essaiForm.controls['sex_producteur'].touched">* le sex du producteur est obligatoir!</div>
    
    <ion-item>
-    <ion-label floating>Classe producteur <span class="error-box">*</span></ion-label>
+    <ion-label floating>Classe producteur</ion-label>
     <ion-input type="text" formControlName="classe_producteur" [(ngModel)]="classe_producteur" disabled></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['classe_producteur'].hasError('required') && essaiForm.controls['classe_producteur'].touched">* la classe du producteur est obligatoir!</div>
@@ -135,7 +135,7 @@
 
   <ion-item>
     <ion-label floating>Superficie essai (m²) <span class="error-box">*</span></ion-label>
-    <ion-input type="number" formControlName="superficie_essai"></ion-input>
+    <ion-input type="number" [(ngModel)]="superficie_tr" formControlName="superficie_essai"></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['superficie_essai'].hasError('required') && essaiForm.controls['superficie_essai'].touched">* la superficie de l'essai est obligatoir!</div>
 
@@ -174,9 +174,14 @@
     <ion-label floating>Objectif de l'essai</ion-label>
     <ion-textarea formControlName="objectif_essai" row="6"></ion-textarea>
   </ion-item>
+  
+  <ion-item>
+    <ion-label>Effort personnel ?</ion-label>
+    <ion-checkbox formControlName="effort_personnel" color="dark"></ion-checkbox>
+  </ion-item>
 
   <ion-item>
-    <ion-label>Est Valide</ion-label>
+    <ion-label>Est Valide ?</ion-label>
     <ion-checkbox formControlName="estValide" color="dark"></ion-checkbox>
   </ion-item>
 

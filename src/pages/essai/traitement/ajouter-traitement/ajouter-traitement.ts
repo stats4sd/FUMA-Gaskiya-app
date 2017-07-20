@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController } from 'ionic-angular';
+import { NavController, NavParams, ToastController, IonicPage } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -14,6 +14,7 @@ import { Sim } from '@ionic-native/sim';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-ajouter-traitement',
   templateUrl: 'ajouter-traitement.html'
@@ -52,6 +53,7 @@ export class AjouterTraitementPage {
       code_traitement: ['', Validators.required],
       annee: [maDate.getFullYear()],
       nom_entree: ['', Validators.required],
+      superficie: [''],
       description_entree: [''],
       objectif_traitement: [''],
       today: [today, Validators.required],
@@ -145,11 +147,12 @@ export class AjouterTraitementPage {
       let toast = this.toastCtl.create({
         message: 'Traitement bien enregistré!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
 
-      toast.present();
       this.navCtrl.pop();
+      toast.present();
+      
 
     }
     

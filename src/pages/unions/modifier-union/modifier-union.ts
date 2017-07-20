@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController,IonicPage, NavParams, ToastController, ModalController, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -13,6 +13,7 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-modifier-union',
   templateUrl: 'modifier-union.html'
@@ -38,7 +39,7 @@ export class ModifierUnionPage {
   nom_union: string = '';
   aProfile: boolean = true;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public navCtrl: NavController, public modelCtl: ModalController, public navParams: NavParams, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -212,6 +213,12 @@ export class ModifierUnionPage {
     if(c !== 'AUTRE'){
       this.nom_autre_village = 'NA';
     }else{
+       let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.union.commune, 'nom_commune': this.union.commune_nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerVillages(this.union.commune);
+        this.selectedVillageID = '';
+      })
       this.nom_autre_village = '';
     }
   }
@@ -359,11 +366,12 @@ export class ModifierUnionPage {
       let toast = this.toastCtl.create({
         message: 'Union bien sauvegardée!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
-
-      toast.present();
+      
       this.navCtrl.pop();
+      toast.present();
+     
 
     }
   }

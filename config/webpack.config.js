@@ -1,6 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
-var ionicWebpackFactory = require(process.env.IONIC_WEBPACK_FACTORY);
+import * as ionicWebpackFactory from process.env.IONIC_WEBPACK_FACTORY;
 
 module.exports = {
   entry: process.env.IONIC_APP_ENTRY_POINT,

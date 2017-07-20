@@ -1,10 +1,11 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams,  AlertController, ToastController } from 'ionic-angular';
+import { NavController, NavParams,  AlertController, IonicPage, ToastController } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { ModifierMembrePage } from '../modifier-membre/modifier-membre';
+//import { ModifierMembrePage } from '../modifier-membre/modifier-membre';
 import JsBarcode from 'jsbarcode';
-import { ChampsPage } from  '../../champs/champs';
-import { EssaiPage } from  '../../essai/essai';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+//import { ChampsPage } from  '../../champs/champs';
+//import { EssaiPage } from  '../../essai/essai';
 
 /*
   Generated class for the DetailMembre page.
@@ -12,6 +13,7 @@ import { EssaiPage } from  '../../essai/essai';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-detail-membre',
   templateUrl: 'detail-membre.html'
@@ -28,12 +30,13 @@ export class DetailMembrePage {
 
   @ViewChild('barcode') barcode: ElementRef;
 
-  constructor(public servicePouchdb: PouchdbProvider, public toastCtl: ToastController, public alertCtl: AlertController, public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer, public toastCtl: ToastController, public alertCtl: AlertController, public navCtrl: NavController, public navParams: NavParams) {
     this.membre = this.navParams.data.membre;
     this.selectedSource = this.navParams.data.selectedSource;
     this.membreID = this.membre.doc._id;
     this.prepareMeta();
   }
+
 
   ionViewDidEnter() {
     //console.log('ionViewDidLoad DetailUnionPage');
@@ -43,8 +46,11 @@ export class DetailMembrePage {
       JsBarcode(this.barcode.nativeElement, membreID,{
         width: 1,
         height:50
-      }
-      );
+      });
+      this.membre.doc.data = mbr.data;
+      this.membre.doc._id = mbr._id;
+      this.membre.doc._rev = mbr._rev;
+      this.getPhoto(this.membre)
     }, err => console.log(err))
 
     
@@ -59,6 +65,70 @@ export class DetailMembrePage {
     }
     );
   }*/
+
+ getPhoto(membre) {
+    return new Promise((resolve, reject) => {
+      //var v = true;
+      var photoDocId = '';
+      var filename = '';
+      if(!membre.doc.data.photoID){
+        var profilePhotoId = membre.doc.data["meta/deprecatedID"];
+        photoDocId = 'photos_fuma-op-membre/' + profilePhotoId;
+        filename = profilePhotoId + '.jpeg';
+        //v = false;
+      }else{
+        photoDocId = membre.doc.data.photoID;
+        filename = photoDocId + '.jpeg';
+        //v = true;
+        //alert(v)
+      }
+
+      //var profilePhotoId = membre.doc.data["meta/deprecatedID"]
+      // return 'assets/images/no photo.jpg'
+      //this.servicePouchdb.getAttachment('photos_fuma-op-membre/' + profilePhotoId, filename).then(url => {
+      this.servicePouchdb.getAttachment(photoDocId, filename).then(url => {
+         //membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
+         if(url){
+           if(!membre.doc.data.photoID){
+            membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
+            if (url != "assets/images/no-photo.png") {
+              membre.photoDocId = photoDocId;
+            } 
+
+            this.servicePouchdb.getDocById(photoDocId).then((doc) => {
+              if(doc){
+                membre.photoDocRev = doc._rev;
+              }
+              resolve(membre)
+            }, err => resolve(membre)).catch(() => resolve(membre))
+            
+          }else{
+            //var blobURL = blobUtil.createObjectURL(url);
+            //URL.createObjectURL()
+            membre.photo = this.sanitizer.bypassSecurityTrustUrl(url);
+            if (url != "assets/images/no-photo.png") {
+              membre.photoDocId = photoDocId;
+
+            } 
+
+            this.servicePouchdb.getDocById(photoDocId).then((doc) => {
+              if(doc){
+                membre.photoDocRev = doc._rev;
+              }
+              resolve(membre)
+            }, err => resolve(membre)).catch(() => resolve(membre))
+            //resolve(membre)
+          }
+        
+         }
+      }).catch(err => {
+        console.log('err', err)
+        // profile.photo = 
+        // resolve(profile)
+      })
+    })
+  }
+
 
   prepareMeta() {
     // save all profile data fields in array for repeat. omit doc meta '_' and specific keys
@@ -83,16 +153,16 @@ export class DetailMembrePage {
   }
 
 
-  editer(membre, photo, photoID){
-    this.navCtrl.push(ModifierMembrePage, {'membre': membre, 'photo': photo, 'photoID': photoID});
+  editer(membre, photo, photoID, photoRev){
+    this.navCtrl.push('ModifierMembrePage', {'membre': membre, 'photo': photo, 'photoID': photoID, 'photoRev': photoRev});
   }
 
-  mesChamps(matricule, nom){
-    this.navCtrl.push(ChampsPage, {'matricule_producteur': matricule, 'nom_producteur': nom})
+  mesChamps(matricule, nom, membre){
+    this.navCtrl.push('ChampsPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre})
   }
 
-  mesEssai(matricule, nom){
-    this.navCtrl.push(EssaiPage, {'matricule_producteur': matricule, 'nom_producteur': nom})
+  mesEssai(matricule, nom, membre){
+    this.navCtrl.push('EssaiPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre})
   }
 
   supprimer(membre){

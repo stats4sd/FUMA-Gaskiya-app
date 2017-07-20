@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController, MenuController, ToastController } from 'ionic-angular';
-import { TabsPage } from '../tabs/tabs';
-import { LoginPage } from '../login/login';
+import { NavController, NavParams, LoadingController, IonicPage, MenuController, ToastController } from 'ionic-angular';
+//import { TabsPage } from '../tabs/tabs';
+//import { LoginPage } from '../login/login';
 //import { ConfigBoutiquePage } from '../accueil/config-boutique/config-boutique';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { Validators, FormBuilder } from '@angular/forms';
@@ -15,6 +15,7 @@ import { global } from '../../../global-variables/variable';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-register',
   templateUrl: 'register.html'
@@ -130,7 +131,7 @@ export class RegisterPage {
   }
 
   login(){
-    this.navCtrl.push(LoginPage);
+    this.navCtrl.push('LoginPage');
   }
 
  loginUser(username: any, mdpass: any){

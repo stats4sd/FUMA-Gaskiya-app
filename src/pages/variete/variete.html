@@ -1,0 +1,53 @@
+<!--
+  Generated template for the Variete page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>variete</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list>
+    <ion-item>
+      <ion-label floating>Choisir la culture</ion-label>
+      <ion-select [(ngModel)]="selectedCulture" (ionChange)="choixCulture()" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez la culture</ion-option>
+        <ion-option *ngFor="let culture of cultures" [value]=culture.data.code >{{culture.data.nom}}</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-searchbar placeholder="Rechercher par nom varitété..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-item *ngFor="let variete of varietes" (click)="detail(variete)" >
+      <!--ion-row>
+        <ion-col-->
+           <h6><strong>Culture:</strong> {{variete.data.culture}}</h6>
+           <h6><strong>Code varitété:</strong> {{variete.data.code}}</h6>
+           <h6><strong>Nom varitété:</strong> {{variete.data.nom}}</h6>
+        <!--/ion-col>
+        <ion-col class="aligneDate"-->
+          <p><strong>Date:</strong> {{variete.data.today | date: 'dd-MM-yyyy'}}</p>
+        <!--/ion-col>
+      </ion-row-->
+    </ion-item>
+
+    <ion-item *ngIf="!varietes.length > 0">
+      <div class="message">La liste est vide!</div>
+    </ion-item>    
+  </ion-list>
+
+  <ion-fab bottom right>
+    <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+  </ion-fab>
+</ion-content>

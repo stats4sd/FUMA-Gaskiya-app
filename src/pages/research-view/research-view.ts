@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ModalController } from 'ionic-angular';
-import { VegaLitePage } from '../visualisations/vega-lite/vega-lite';
-import { LeafletPage } from '../visualisations/leaflet/leaflet';
+import { NavController, NavParams, ModalController, IonicPage } from 'ionic-angular';
+//import { VegaLitePage } from '../visualisations/vega-lite/vega-lite';
+//import { LeafletPage } from '../visualisations/leaflet/leaflet';
 import { PouchdbProvider } from '../../providers/pouchdb-provider'
 import { TranslateService  } from '@ngx-translate/core';
 import { global } from '../../global-variables/variable'
 //simple statistics imported in index.html
 declare var ss;
 
+@IonicPage()
 @Component({
   selector: 'page-research-view',
   templateUrl: 'research-view.html'
@@ -76,12 +77,12 @@ export class ResearchViewPage {
         values: this.res.data
       }    
       spec.description = vis.description
-      let modal = this.modalCtrl.create(VegaLitePage, { visSpec: spec });
+      let modal = this.modalCtrl.create('VegaLitePage', { visSpec: spec });
       modal.present();
     }
     if (vis.type == "leaflet") {
       vis.data=this.res.data
-      let modal = this.modalCtrl.create(LeafletPage, vis);
+      let modal = this.modalCtrl.create('LeafletPage', vis);
       modal.present();}  
   }
   calculateSummaries(summaries, data) {

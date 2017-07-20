@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
-import { AjouterChampsPage } from './ajouter-champs/ajouter-champs';
-import { DetailChampsPage } from './detail-champs/detail-champs';
-import { TypeSolePage } from '../type-sole/type-sole';
+//import { AjouterChampsPage } from './ajouter-champs/ajouter-champs';
+//import { DetailChampsPage } from './detail-champs/detail-champs';
+//import { TypeSolePage } from '../type-sole/type-sole';
 import { Storage } from '@ionic/storage';
 
 /*
@@ -12,6 +12,8 @@ import { Storage } from '@ionic/storage';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-champs',
   templateUrl: 'champs.html'
@@ -25,11 +27,14 @@ export class ChampsPage {
   typeSoleTous: any = {'data': {'nom': 'Tous'}};
   matricule_producteur: any;
   nom_producteur: any;
+  membre: any;
+  typeSolesSelected: any = [];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
+  constructor(public navCtrl: NavController, public modelCtl: ModalController,  public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
     if(this.navParams.data.matricule_producteur){
       this.matricule_producteur = this.navParams.data.matricule_producteur;
       this.nom_producteur = this.navParams.data.nom_producteur;
+      this.membre = this.navParams.data.membre
     }
   }
 
@@ -44,10 +49,14 @@ export class ChampsPage {
 
     if(this.selectedTypeSole === 'Tous'){
      // this.unions = [];
-      this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
-        if(c){
+     // this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
+       // if(c){
           if(this.matricule_producteur){
-            let chmps: any = [];
+            this.servicePouchdb.getPlageDocs('fuma:champs:'+this.matricule_producteur, 'fuma:champs:'+this.matricule_producteur+' \uffff').then((c) => {
+              this.champs = c;
+              this.allChamps = c;
+            })
+            /*let chmps: any = [];
             c.forEach((ch, i) => {
               if(ch.data.matricule_producteur === this.matricule_producteur){
                 chmps.push(ch);
@@ -55,13 +64,18 @@ export class ChampsPage {
             });
 
             this.champs = chmps;
-            this.allChamps = chmps;
+            this.allChamps = chmps;*/
           }else {
-            this.champs = c;
-            this.allChamps = c;
+            this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
+              if(c){
+                this.champs = c;
+                this.allChamps = c;
+              }
+            });
+            
           }
-        }
-      });
+     //   }
+     // });
     }else{
      // this.unions = [];
       this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
@@ -93,14 +107,21 @@ export class ChampsPage {
         }
       });
     }
-    
+    this.chergerTypeSole();
+  }
+
+  chergerTypeSole(){
+    this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((ts) => {
+              this.typeSolesSelected = ts;
+    }, err => console.log(err)); 
+
   }
 
   choixTypeSole(){
     if(this.selectedTypeSole === 'Tous'){
      // this.unions = [];
       this.servicePouchdb.getPlageDocs('fuma:champs','fuma:champs:\uffff').then((c) => {
-        if(c){
+        if(c){ 
           if(this.matricule_producteur){
             let chmps: any = [];
             c.forEach((ch, i) => {
@@ -155,9 +176,41 @@ export class ChampsPage {
    ajouter(){
     if(this.typeSoles.length > 0){
       if(this.matricule_producteur){
-        this.navCtrl.push(AjouterChampsPage, {'matricule_producteur': this.matricule_producteur});
-      }else{
-        this.navCtrl.push(AjouterChampsPage);
+        let model = this.modelCtl.create('AjouterChampsPage', {'matricule_producteur': this.matricule_producteur, 'nom':this.nom_producteur, 'membre': this.membre});
+        model.onDidDismiss(champs => {
+        if (champs) {
+          let C: any = this.champs;
+          C = C.concat(champs);
+         // this.allEssais.push(essai);
+         // this.zone.run(() => {
+            this.champs = C;
+            this.allChamps = this.champs;
+            //this.events.publish('ajout-essai', {'essai': essai});
+          //});
+          
+          
+        }
+      });
+      model.present();
+
+     }else{
+         let model = this.modelCtl.create('AjouterChampsPage');
+         model.onDidDismiss(champs => {
+        if (champs) {
+          let C: any = this.champs;
+          C = C.concat(champs);
+         // this.allEssais.push(essai);
+         // this.zone.run(() => {
+            this.champs = C;
+            this.allChamps = this.champs;
+            //this.events.publish('ajout-essai', {'essai': essai});
+          //});
+          
+          
+        }
+      });
+      model.present();
+
       }
       
     }else{
@@ -168,7 +221,7 @@ export class ChampsPage {
           {
             text: 'Définir types soles',
             handler:  () => {
-              this.navCtrl.push(TypeSolePage);
+              this.navCtrl.push('TypeSolePage');
             }        
           },
           {
@@ -184,7 +237,7 @@ export class ChampsPage {
   }
 
   detail(champ){
-    this.navCtrl.push(DetailChampsPage, {'champ': champ});
+    this.navCtrl.push('DetailChampsPage', {'champ': champ});
   }
 
   getItems(ev: any) {

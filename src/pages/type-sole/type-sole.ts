@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
-import { AjouterTypeSolePage } from './ajouter-type-sole/ajouter-type-sole';
-import { DetailTypeSolePage } from './detail-type-sole/detail-type-sole';
+//import { AjouterTypeSolePage } from './ajouter-type-sole/ajouter-type-sole';
+//import { DetailTypeSolePage } from './detail-type-sole/detail-type-sole';
 import { Storage } from '@ionic/storage';
 
 /*
@@ -11,6 +11,7 @@ import { Storage } from '@ionic/storage';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-type-sole',
   templateUrl: 'type-sole.html'
@@ -32,11 +33,11 @@ export class TypeSolePage {
   } 
 
   ajouter(){
-    this.navCtrl.push(AjouterTypeSolePage);
+    this.navCtrl.push('AjouterTypeSolePage');
   }
 
   detail(typeSole){
-    this.navCtrl.push(DetailTypeSolePage, {'typeSole': typeSole});
+    this.navCtrl.push('DetailTypeSolePage', {'typeSole': typeSole});
   }
 
   getItems(ev: any) {

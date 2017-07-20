@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController, ToastController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, IonicPage, ToastController } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { PouchdbProvider } from '../../../../providers/pouchdb-provider';
-import { ProfileUserPage } from '../../profile/profile-user';
+//import { ProfileUserPage } from '../../profile/profile-user';
 import { TranslateService } from '@ngx-translate/core';
 import { global } from '../../../../global-variables/variable';
 import { Storage } from '@ionic/storage';
@@ -13,6 +13,7 @@ import { Storage } from '@ionic/storage';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-modifier-profile',
   templateUrl: 'modifier-profile.html'

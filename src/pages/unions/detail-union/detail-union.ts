@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController, MenuController, Events } from 'ionic-angular';
-import { ModifierUnionPage } from '../modifier-union/modifier-union';
+import { NavController, NavParams, AlertController, IonicPage, ToastController, MenuController, Events } from 'ionic-angular';
+//import { ModifierUnionPage } from '../modifier-union/modifier-union';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-detail-union',
   templateUrl: 'detail-union.html'
@@ -95,7 +96,7 @@ export class DetailUnionPage {
   } 
 
   editer(union){
-    this.navCtrl.push(ModifierUnionPage, {'union': union});
+    this.navCtrl.push('ModifierUnionPage', {'union': union});
   }
 
   opUnion(num_aggrement, nom_union){

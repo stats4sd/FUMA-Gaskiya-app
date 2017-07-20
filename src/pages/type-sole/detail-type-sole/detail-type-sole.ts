@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
-import { ModifierTypeSolePage } from '../modifier-type-sole/modifier-type-sole';
+import { NavController, NavParams, AlertController, ToastController, IonicPage } from 'ionic-angular';
+//import { ModifierTypeSolePage } from '../modifier-type-sole/modifier-type-sole';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -10,6 +10,7 @@ import { Storage } from '@ionic/storage';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-detail-type-sole',
   templateUrl: 'detail-type-sole.html'
@@ -32,7 +33,7 @@ export class DetailTypeSolePage {
   }
 
   editer(typeSole){
-    this.navCtrl.push(ModifierTypeSolePage, {'typeSole': typeSole});
+    this.navCtrl.push('ModifierTypeSolePage', {'typeSole': typeSole});
   }
 
   supprimer(typeSole){

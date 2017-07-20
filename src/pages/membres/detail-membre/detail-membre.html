@@ -21,7 +21,7 @@
   <ion-card>
     <ion-row>
       <ion-col class='meta-key'>
-        <img [src]="membre.photo">
+        <img [src]="membre.photo" style="max-height: 55vh" imageViewer />
       </ion-col>
       <ion-col class='meta-value'>
         <h2>{{membre.doc.data.nom_Membre}}</h2>
@@ -294,9 +294,9 @@
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
       <button ion-fab mini (click)="supprimer(membre.doc)" color="delete" ><ion-icon name="trash"></ion-icon></button>
-      <button ion-fab (click)="mesEssai(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre)"><strong>ES</strong></button>
-      <button ion-fab (click)="mesChamps(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre)"><strong>CH</strong></button>
-      <button ion-fab mini (click)="editer(membre.doc, membre.photo, membre.photoDocId)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+      <button ion-fab (click)="mesEssai(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)"><strong>ES</strong></button>
+      <button ion-fab (click)="mesChamps(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)"><strong>CH</strong></button>
+      <button ion-fab mini (click)="editer(membre.doc, membre.photo, membre.photoDocId, membre.photoDocRev)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab>
 

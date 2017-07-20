@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, ToastController, MenuController, ModalController, Events, IonicPage } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -14,6 +14,7 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-ajouter-union',
   templateUrl: 'ajouter-union.html'
@@ -36,7 +37,7 @@ export class AjouterUnionPage {
   aProfile: boolean = true;
 
 
-  constructor(public sim: Sim, public device: Device, public navCtrl: NavController, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public navParams: NavParams, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public sim: Sim, public device: Device, public modelCtl: ModalController, public navCtrl: NavController, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public navParams: NavParams, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -48,11 +49,13 @@ export class AjouterUnionPage {
           this.aProfile = true;
         }else{
           this.aProfile = false;
-        }
+        } 
       }, err => console.log(err));
     });
+     if(this.navParams.data.confLocaliteEnquete){
+      this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
+     }
     
-    this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
     let maDate = new Date();
     let today = this.createDate(maDate.getDate(), maDate.getMonth(), maDate.getFullYear());
     //this.storage.get('confLocaliteEnquete').then((confLocaliteEnquete) => {
@@ -224,22 +227,29 @@ export class AjouterUnionPage {
  
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
   genererCodeUnion(){
-    let taille_nom = this.nom_union.length;
+    //let taille_nom = this.nom_union.length;
     let nom = this.nom_union;
+    nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '')
+    let an = nom;
+    //nom = nom.replace('  ' || '', '')
+    //nom = nom.replace('  ', '')
+    let taille_nom = nom.length;
     //taille initiale: deux aractères
     let taille_code = 2;
     let code: string = '';
     let p = 0;
     let last_position = 0;
     let trouve: boolean;
+    this.code_union = code.toUpperCase();
 
     if(taille_nom >= 2){
       while(taille_code <= taille_nom){
         last_position = taille_code - 1;
         trouve  = false;
         code = '';
+        
         for(let i = 0; i < taille_code; i++){
-          code += nom.charAt(i).toString() ;
+            code += nom.charAt(i).toString() ;
         }
 
         do{
@@ -289,7 +299,7 @@ export class AjouterUnionPage {
             if(taille_code > taille_nom){
               //non disponible, augmenter la taille et utiliser des chiffres
               taille_code = 3;
-              nom = this.nom_union.toString() + '123456789'.toString();
+              nom = an + '123456789'.toString();
               taille_nom = nom.length;
             }
           }else{
@@ -329,6 +339,13 @@ export class AjouterUnionPage {
     if(c !== 'AUTRE'){
       this.nom_autre_village = 'NA';
     }else{
+
+      let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.confLocaliteEnquete.commune.id, 'nom_commune': this.confLocaliteEnquete.commune.nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerVillages(this.confLocaliteEnquete.commune.id);
+        this.selectedVillage = '';
+      })
       this.nom_autre_village = '';
     }
   }
@@ -379,11 +396,12 @@ export class AjouterUnionPage {
       let toast = this.toastCtl.create({
         message: 'Union bien enregistré!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
 
-      toast.present();
       this.navCtrl.pop();
+      toast.present();
+      
 
     }
 

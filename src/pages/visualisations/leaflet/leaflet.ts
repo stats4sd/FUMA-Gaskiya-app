@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { NavParams, ViewController } from 'ionic-angular';
+import { NavParams, ViewController, IonicPage } from 'ionic-angular';
 import 'leaflet';
 import { TranslateService  } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable'
 declare var L;
 
+@IonicPage()
 @Component({
   selector: 'page-leaflet',
   templateUrl: 'leaflet.html'

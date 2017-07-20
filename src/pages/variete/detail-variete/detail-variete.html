@@ -1,0 +1,42 @@
+<!--
+  Generated template for the DetailVariete page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>detail-variete</ion-title>
+  </ion-navbar>
+
+</ion-header> 
+
+
+<ion-content padding>
+  <ion-card class="info-card"> 
+    <ion-card-header>
+      <strong>Information variété: {{variete.data.code}}</strong>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+            <ion-row> <ion-col class='meta-key'><strong>Culture:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.culture}}</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Code variété:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.code}}</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Nom variété:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.nom}} </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Pays d'origine:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.pays_origine}}</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Région d'origine:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.region_origine}}</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Longueur de tige:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.longeur_tige}}m</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Description/caractéristique:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.description}}</ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{variete.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-fab bottom right >
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini (click)="supprimer(variete)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini (click)="editer(variete)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>
+</ion-content>

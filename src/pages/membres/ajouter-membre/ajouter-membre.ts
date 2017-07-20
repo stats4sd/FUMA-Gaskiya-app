@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, ViewController, MenuController, Events } from 'ionic-angular';
-import { Validators, FormBuilder } from '@angular/forms';
+import { NavController, NavParams, IonicPage, ModalController, ToastController, ViewController, MenuController, Events } from 'ionic-angular';
+import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
@@ -11,9 +11,7 @@ import { Camera } from '@ionic-native/camera';
 import { ImagePicker } from '@ionic-native/image-picker';
 import { global } from '../../../global-variables/variable'
 //import { blob } from 'blob-util'
-//import blobUtil from 'blob-util';
-//import { File } from '@ionic-native/file'
-//import * as fs from 'fs'
+import { File } from '@ionic-native/file'
 
 
 /*
@@ -22,6 +20,7 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-ajouter-membre',
   templateUrl: 'ajouter-membre.html'
@@ -61,54 +60,14 @@ export class AjouterMembrePage {
   aProfile: boolean = true;
   fileName: any;
   imageBlob:any;
+  code_op: any; 
 
-  constructor(public navCtrl: NavController, private sanitizer: DomSanitizer, public file: File, public menuCtl: MenuController, public events: Events, public imagePicker: ImagePicker, public viewCtrl: ViewController, private camera: Camera, public translate: TranslateService, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
-    
-    //this.base64Image(this.photo);
-    this.menuCtl.enable(false, 'options');
-    this.menuCtl.enable(false, 'connexion');
-    this.menuCtl.enable(false, 'profile');
-    
-    events.subscribe('user:login', () => {
-      this.servicePouchdb.remoteSaved.getSession((err, response) => {
-        if (response.userCtx.name) {
-          this.aProfile = true;
-        }else{
-          this.aProfile = false;
-        }
-      }, err => console.log(err));
-    });
-
-    this.translate.setDefaultLang(global.langue)
-    //this.instanceID = this.setInstanceID();
-
-    if(this.navParams.data.num_aggrement_op){
-      this.num_aggrement_op = this.navParams.data.num_aggrement_op;
-      this.nom_op = this.navParams.data.nom_op;
-      this.nom_autre_op= 'NA';
-    }
+  constructor(public navCtrl: NavController, public modelCtl: ModalController, private sanitizer: DomSanitizer, public file: File, public menuCtl: MenuController, public events: Events, public imagePicker: ImagePicker, public viewCtrl: ViewController, private camera: Camera, public translate: TranslateService, public navParams: NavParams, public sim: Sim, public device: Device, public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder, public storage: Storage) {
     this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
-
-    this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((oA) => {
-         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((oK) => {
-          this.ops = oA.concat(oK);
-          this.ops.push(this.autreOP);
-      }, err => console.log(err));
-
-    }, err => console.log(err)); 
-    
-    this.servicePouchdb.getPlageDocs('fuma:classe','fuma:classe:\uffff').then((cA) => {
-         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-classe','koboSubmission_fuma-classe\uffff').then((cK) => {
-          this.classes = cA.concat(cK);
-          this.classes.push(this.autreClasse);
-      }, err => console.log(err)); 
-
-      }, err => console.log(err));
-
     let maDate = new Date();
     let today = this.createDate(maDate.getDate(), maDate.getMonth(), maDate.getFullYear());
     //this.storage.get('confLocaliteEnquete').then((confLocaliteEnquete) => {
-    this.chargerVillages(this.confLocaliteEnquete.commune.id);
+    //this.chargerVillages(this.confLocaliteEnquete.commune.id);
     //});
 
     this.membreForm = this.formBuilder.group({
@@ -146,6 +105,52 @@ export class AjouterMembrePage {
       end: ['']
     });
     
+  }
+
+  pourCreerForm(){
+     //this.base64Image(this.photo);
+    this.menuCtl.enable(false, 'options');
+    this.menuCtl.enable(false, 'connexion');
+    this.menuCtl.enable(false, 'profile');
+    
+    /*events.subscribe('user:login', () => {
+      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+      }, err => console.log(err));
+    });*/
+
+    this.translate.setDefaultLang(global.langue)
+    //this.instanceID = this.setInstanceID();
+
+    if(this.navParams.data.num_aggrement_op){
+      this.num_aggrement_op = this.navParams.data.num_aggrement_op;
+      this.nom_op = this.navParams.data.nom_op;
+      this.code_op  = this.navParams.data.code_op;
+      this.nom_autre_op= 'NA';
+      
+      this.matricule = this.generateId(this.code_op);
+    }
+    
+
+    this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((oA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((oK) => {
+          this.ops = oA.concat(oK);
+          //this.ops.push(this.autreOP);
+      }, err => console.log(err));
+
+    }, err => console.log(err)); 
+    
+    this.servicePouchdb.getPlageDocs('fuma:classe','fuma:classe:\uffff').then((cA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-classe','koboSubmission_fuma-classe\uffff').then((cK) => {
+          this.classes = cA.concat(cK);
+          this.classes.push(this.autreClasse);
+      }, err => console.log(err)); 
+
+      }, err => console.log(err));
   }
 
 getBase64Image(img) {
@@ -220,7 +225,6 @@ getBase64Image(img) {
     }, (err) => console.log(err) );
   }
 
- 
   option(){
     this.menuCtl.enable(true, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -243,13 +247,22 @@ getBase64Image(img) {
   }
 
   sync(){
-    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
+    this.servicePouchdb.syncAvecToast(this.ionViewDidLoad
+    ());
   }
 
 
 
   chargerOp(){
     this.nom_op
+     this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((oA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((oK) => {
+          this.ops = oA.concat(oK);
+          this.ops.push(this.autreOP);
+      }, err => console.log(err));
+
+    }, err => console.log(err)); 
+    
   }
 
   createDate(jour: any, moi: any, annee: any){
@@ -301,12 +314,16 @@ getBase64Image(img) {
 
  
 
-  ionViewDidEnter() {
+  ionViewDidLoad() {
+    this.pourCreerForm()
+    if(this.confLocaliteEnquete.commune.id)    {
+     this.chargerVillages(this.confLocaliteEnquete.commune.id);
+  }
     //this.con(document.getElementById("imageid") , (blo) => {
      // this.imageBlob = blo;
     //})
     //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
-    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+    /*this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
         }else{
@@ -319,7 +336,7 @@ getBase64Image(img) {
         this.aProfile = false;
       }
       //console.log(err)
-    }); 
+    }); */
 
     this.translate.use(global.langue)
 
@@ -365,15 +382,26 @@ getBase64Image(img) {
     this.villages = [];
     if(c !== 'AUTRE')
       {this.servicePouchdb.getDocById('village').then((villages) => {
-        villages.data.forEach((village, index) => {
-          if(village.id_commune === c){
-            this.villages.push(village);
-            
-          }
-        });
-        this.villages.push(this.autreVillage);
-        //this.nom_autre_departement = 'NA';
-      });
+        if(villages){
+        /*  villages.data.forEach((village, index) => {
+            if(village.id_commune === c){
+              this.villages.push(village);
+              
+            }
+          });
+*/
+           villages.data.map((row) => {
+          
+                 if(row.id_commune === c){
+                  this.villages.push(row);
+              
+            }
+            });
+        }
+      this.villages.push(this.autreVillage);
+      //this.nom_autre_departement = 'NA';
+    }, err => console.log(err));
+      
     }else{
       this.villages.push(this.autreVillage);
       //this.nom_autre_departement = '';
@@ -386,6 +414,12 @@ getBase64Image(img) {
     if(v !== 'AUTRE'){
       this.nom_autre_village = 'NA';
     }else{
+       let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.confLocaliteEnquete.commune.id, 'nom_commune': this.confLocaliteEnquete.commune.nom});
+        model.present();
+        model.onDidDismiss(() => {
+          this.chargerVillages(this.confLocaliteEnquete.commune.id);
+          this.selectedVillage = '';
+      })
       this.nom_autre_village = '';
     }
   }
@@ -406,6 +440,12 @@ getBase64Image(img) {
         }
       });*/
     }else{
+      let model = this.modelCtl.create('AjouterOpPage', {'confLocaliteEnquete': this.confLocaliteEnquete});
+        model.present();
+        model.onDidDismiss(() => {
+          this.chargerOp();
+          this.selectedOP = '';
+      })
       this.nom_autre_op = '';
       this.matricule = this.generateId(code_op);
     }
@@ -468,28 +508,43 @@ getBase64Image(img) {
       
       //membre.blob = this.imageBlob;
       membreFinal.data = membre;
-      this.servicePouchdb.createDoc(membreFinal);
+      this.servicePouchdb.createDocReturn(membreFinal).then((res) => {
+        membreFinal._rev = res.rev;
+        let m: any = {}
+        m.doc = membreFinal;
+         if(this.photo){
+            var doc = {
+            // _id: ida,
+              _attachments: {},
+              photoID: ida,
+              timestamp: new Date().toString()
+            }
+
+            //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
+
+            this.fileName = ida + '.jpeg';
+            doc._attachments[this.fileName] = {
+              content_type: 'image/jpeg', 
+              data: this.imageData
+            }
+
+            
+            //this.servicePouchdb.createDoc(doc)
+            this.servicePouchdb.put(doc, ida).then((res) => {
+              m.photo = this.photo;
+              m.photoDocId = ida;
+              m.photoDocRev = res.rev
+
+              this.viewCtrl.dismiss(m)
+            })
+            
       
-      if(this.photo){
-        var doc = {
-        // _id: ida,
-          _attachments: {},
-          photoID: ida,
-          timestamp: new Date().toString()
-        }
-
-        //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
-
-        this.fileName = ida + '.jpeg';
-        doc._attachments[this.fileName] = {
-          content_type: 'image/jpeg', 
-          data: this.imageData
-        }
-
-        //this.servicePouchdb.createDoc(doc)
-        this.servicePouchdb.put(doc, ida)
-  
-      }
+          }else{
+            m.photo = 'assets/images/no-photo.png'
+            this.viewCtrl.dismiss(m)
+          }
+      });
+      
      
       
     
@@ -519,18 +574,24 @@ getBase64Image(img) {
       let toast = this.toastCtl.create({
         message: 'Membre OP bien enregistré!',
         position: 'top',
-        duration: 3000
+        duration: 1500
       });
 
+      //this.navCtrl.pop();
       toast.present();
-      this.navCtrl.pop();
+      
 
     }
 
   }
 
   annuler(){
-    this.navCtrl.pop();
+   // this.viewCtrl.dismiss();
+    this.viewCtrl.dismiss();
+  }
+
+  back(){
+    this.viewCtrl.dismiss();
   }
 
 }

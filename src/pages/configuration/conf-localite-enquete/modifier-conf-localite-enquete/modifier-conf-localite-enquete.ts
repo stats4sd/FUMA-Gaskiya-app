@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, IonicPage, ModalController } from 'ionic-angular';
 import { Validators, FormBuilder, NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -12,6 +12,8 @@ import { Observable } from 'rxjs/Rx';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-modifier-conf-localite-enquete',
   templateUrl: 'modifier-conf-localite-enquete.html'
@@ -39,7 +41,7 @@ export class ModifierConfLocaliteEnquetePage {
   nom_autre_commune: any = '';
  
  
-  constructor(public pouchdbService: PouchdbProvider,  public navCtrl: NavController, public navParams: NavParams , public formBuilder: FormBuilder, public storage: Storage, public translate: TranslateService) {
+  constructor(public pouchdbService: PouchdbProvider, public modelCtl: ModalController,  public navCtrl: NavController, public navParams: NavParams , public formBuilder: FormBuilder, public storage: Storage, public translate: TranslateService) {
 
    this.local  = this.navParams.get('local');
      
@@ -209,6 +211,12 @@ export class ModifierConfLocaliteEnquetePage {
         this.nom_autre_pays = 'NA';
       });
     }else{
+      let model = this.modelCtl.create('AjouterPaysPage');
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerPays();
+        this.selectedPays = '';
+      })
       this.regions.push(this.autreRegion);
       this.nom_autre_pays = '';
     }
@@ -231,6 +239,12 @@ export class ModifierConfLocaliteEnquetePage {
         this.nom_autre_region = 'NA';
       });
     }else{
+      let model = this.modelCtl.create('AjouterRegionPage', {'id_pays':this.selectedPays.id, 'nom_pays': this.selectedPays.nom});
+          model.present();
+          model.onDidDismiss(() => {
+            this.chargerRegions(this.selectedPays.id);
+            this.selectedRegion = '';
+        })
       this.departements.push(this.autreDepartement);
       this.nom_autre_region = '';
     }
@@ -252,6 +266,12 @@ export class ModifierConfLocaliteEnquetePage {
         this.nom_autre_departement = 'NA';
       });
     }else{
+      let model = this.modelCtl.create('AjouterDepartementPage', {'id_region':this.selectedRegion.id, 'nom_region': this.selectedRegion.nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerDepartements(this.selectedRegion.id);
+        this.selectedDepartement = '';
+      })
       this.communes.push(this.autreCommune);
       this.nom_autre_departement = '';
     }
@@ -264,6 +284,12 @@ export class ModifierConfLocaliteEnquetePage {
     if(c !== 'AUTRE'){
       this.nom_autre_commune = 'NA';
     }else{
+      let model = this.modelCtl.create('AjouterCommunePage', {'id_departement':this.selectedDepartement.id, 'nom_departement': this.selectedDepartement.nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerCommunes(this.selectedDepartement.id);
+        this.selectedCommune = '';
+      })
       this.nom_autre_commune = '';
     }
   }

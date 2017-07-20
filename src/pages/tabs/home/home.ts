@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, IonicPage } from 'ionic-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable'
 import { Storage } from '@ionic/storage'
-import { TabsPage } from '../../tabs/tabs'
 
 /*
   Generated class for the Home page.
@@ -11,6 +10,8 @@ import { TabsPage } from '../../tabs/tabs'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -41,7 +42,7 @@ export class HomePage {
   open(){
     this.storage.set('langue', this.selectedLanguage);
     global.langue = this.selectedLanguage;
-    this.navCtrl.setRoot(TabsPage)
+    this.navCtrl.setRoot('TabsPage')
   }
 
 }

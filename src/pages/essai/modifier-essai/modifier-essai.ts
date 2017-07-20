@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, ToastController, MenuController, Events, IonicPage } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -12,6 +12,8 @@ import { global } from '../../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+
+@IonicPage()
 @Component({
   selector: 'page-modifier-essai',
   templateUrl: 'modifier-essai.html'
@@ -54,6 +56,7 @@ export class ModifierEssaiPage {
   nom_champs: any;
   nom_entree: any;
    aProfile: boolean = true;
+   superficie_tr: any;
 
   //annees: any = [];
 
@@ -87,6 +90,7 @@ export class ModifierEssaiPage {
     this.classe_producteur = this.essai.classe_producteur;
     this.village_producteur = this.essai.village_producteur;
     this.superficie = this.essai.superficie;
+    this.superficie_tr = this.essai.superficie_essai;
     this.type_sole = this.essai.type_sole;
     this.longitude = this.essai.longitude;
     this.latitude = this.essai.latitude;
@@ -131,7 +135,7 @@ export class ModifierEssaiPage {
       nom_producteur: [this.essai.nom_producteur, Validators.required],
       sex_producteur: [this.essai.sex_producteur, Validators.required],
       //id_classe_producteur: [''],
-      classe_producteur: [this.essai.classe_producteur, Validators.required],
+      classe_producteur: [this.essai.classe_producteur],
       //id_traitement: [''],
       code_traitement: [this.essai.code_traitement],
       nom_entree: [this.essai.nom_entree],
@@ -150,6 +154,7 @@ export class ModifierEssaiPage {
       observation: [this.essai.observation],
       objectif_essai: [this.essai.objectif_essai],
       estValide: [this.essai.estValide],
+      effort_personnel: [this.essai.effort_personnel],
     });
     
   }
@@ -317,6 +322,7 @@ export class ModifierEssaiPage {
       this.traitements.forEach((t, i) => {
         if(t.data.code_traitement === selectedTraitement){
           this.nom_entree = t.data.nom_entree;
+          this.superficie = t.data.superficie
         }
       })
     }
@@ -382,6 +388,7 @@ export class ModifierEssaiPage {
       this.essai.observation = essai.observation;
       this.essai.objectif_essai = essai.objectif_essai;
       this.essai.estValide = essai.estValide;
+      this.essai.effort_personnel = essai.effort_personnel;
      
       //let essaiFinal: any = {};
       this.grandEssai.data = this.essai
@@ -389,11 +396,12 @@ export class ModifierEssaiPage {
       let toast = this.toastCtl.create({
         message: 'Essai bien enregistré!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
 
-      toast.present();
       this.navCtrl.pop();
+      toast.present();
+      
 
    // }
     

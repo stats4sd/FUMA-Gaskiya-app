@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, AlertController, MenuController, IonicPage, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
-import { AjouterOpPage } from './ajouter-op/ajouter-op';
-import { DetailOpPage } from './detail-op/detail-op';
+//import { AjouterOpPage } from './ajouter-op/ajouter-op';
+//import { DetailOpPage } from './detail-op/detail-op';
 import { Storage } from '@ionic/storage';
-import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete'
+//import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete'
 import { global } from '../../global-variables/variable'
 
 
@@ -14,6 +14,7 @@ import { global } from '../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-op',
   templateUrl: 'op.html'
@@ -320,9 +321,9 @@ export class OpPage {
   ajouter(confLocaliteEnquete){
     if(this.confLocaliteEnquete){
       if(this.num_aggrement_union){
-        this.navCtrl.push(AjouterOpPage, {'confLocaliteEnquete': confLocaliteEnquete, 'num_aggrement_union': this.num_aggrement_union, 'nom_union': this.nom_union});
+        this.navCtrl.push('AjouterOpPage', {'confLocaliteEnquete': confLocaliteEnquete, 'num_aggrement_union': this.num_aggrement_union, 'nom_union': this.nom_union});
       }else{
-        this.navCtrl.push(AjouterOpPage, {'confLocaliteEnquete': confLocaliteEnquete});
+        this.navCtrl.push('AjouterOpPage', {'confLocaliteEnquete': confLocaliteEnquete});
       }
       
     }else{
@@ -333,7 +334,7 @@ export class OpPage {
           {
             text: 'Définir localité',
             handler: () => {
-              this.navCtrl.push(ConfLocaliteEnquetePage);
+              this.navCtrl.push('ConfLocaliteEnquetePage');
             }        
           },
           {
@@ -349,7 +350,10 @@ export class OpPage {
   }
 
   detail(op, selectedSource){
-    this.navCtrl.push(DetailOpPage, {'op': op, 'selectedSource': selectedSource});
+    this.navCtrl.push('DetailOpPage', {'op': op, 'selectedSource': selectedSource});
+  }
+  sync(){
+    this.servicePouchdb.syncAvecToast(this.ionViewDidEnter());
   }
 
   getItems(ev: any) {

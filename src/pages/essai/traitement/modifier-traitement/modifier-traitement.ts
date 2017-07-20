@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController } from 'ionic-angular';
+import { NavController, NavParams, ToastController, IonicPage } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -11,6 +11,7 @@ import { PouchdbProvider } from '../../../../providers/pouchdb-provider';
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */ 
+@IonicPage()
 @Component({
   selector: 'page-modifier-traitement',
   templateUrl: 'modifier-traitement.html'
@@ -43,6 +44,7 @@ export class ModifierTraitementPage {
       nom_traitement: [this.traitement.nom_traitement],
       code_traitement: [this.traitement.code_traitement, Validators.required],
       annee: [this.traitement.annee, Validators.required],
+      superficie: [this.traitement.superficie],
       nom_entree: [this.traitement.nom_entree, Validators.required],
       description_entree: [this.traitement.description_entree],
       objectif_traitement: [this.traitement.objectif_traitement],
@@ -80,6 +82,7 @@ export class ModifierTraitementPage {
     this.traitement.nom_traitement = traitement.nom_traitement;
     this.traitement.code_traitement = traitement.code_traitement;
     this.traitement.annee = traitement.annee;
+    this.traitement.superficie = traitement.superficie;
     this.traitement.nom_entree = traitement.nom_entree;
     this.traitement.description_entree = traitement.description_entree;
     this.traitement.objectif_traitement = traitement.objectif_traitement;
@@ -93,11 +96,12 @@ export class ModifierTraitementPage {
       let toast = this.toastCtl.create({
         message: 'Traitement bien sauvegardée!',
         position: 'top',
-        duration: 3000
+        duration: 2000
       });
 
-      toast.present();
       this.navCtrl.pop();
+      toast.present();
+      
     }
    // }
   }

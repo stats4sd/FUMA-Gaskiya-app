@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, AlertController, IonicPage, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
-import { AjouterUnionPage } from './ajouter-union/ajouter-union';
-import { DetailUnionPage } from './detail-union/detail-union';
+//import { AjouterUnionPage } from './ajouter-union/ajouter-union';
+//import { DetailUnionPage } from './detail-union/detail-union';
 import { Storage } from '@ionic/storage';
-import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete';
-import { ChoixSourceAjoutUnionPage } from './choix-source-ajout-union/choix-source-ajout-union';
-import { CollectPage } from '../tabs/collect/collect';
+//import { ConfLocaliteEnquetePage } from '../configuration/conf-localite-enquete/conf-localite-enquete';
+//import { ChoixSourceAjoutUnionPage } from './choix-source-ajout-union/choix-source-ajout-union';
+//import { CollectPage } from '../tabs/collect/collect';
 import { global } from '../../global-variables/variable'
 
 /*
@@ -15,6 +15,7 @@ import { global } from '../../global-variables/variable'
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
+@IonicPage()
 @Component({
   selector: 'page-unions',
   templateUrl: 'unions.html'
@@ -178,12 +179,12 @@ export class UnionsPage {
   }
 
   collect(){
-    this.navCtrl.push(CollectPage)
+    this.navCtrl.push('CollectPage')
   }
 
   ajouter(confLocaliteEnquete){
     if(this.confLocaliteEnquete){
-      this.navCtrl.push(AjouterUnionPage, {'confLocaliteEnquete': confLocaliteEnquete});
+      this.navCtrl.push('AjouterUnionPage', {'confLocaliteEnquete': confLocaliteEnquete});
     }else{
       let alert = this.alertCtl.create({
         title: 'Erreur',
@@ -192,7 +193,7 @@ export class UnionsPage {
           {
             text: 'Définir localité',
             handler:  () => {
-              this.navCtrl.push(ConfLocaliteEnquetePage);
+              this.navCtrl.push('ConfLocaliteEnquetePage');
             }        
           },
           {
@@ -208,7 +209,7 @@ export class UnionsPage {
   }
 
   detail(union, selectedSource){
-    this.navCtrl.push(DetailUnionPage, {'union': union, 'selectedSource': selectedSource});
+    this.navCtrl.push('DetailUnionPage', {'union': union, 'selectedSource': selectedSource});
   }
 
   getItems(ev: any) {
@@ -223,6 +224,6 @@ export class UnionsPage {
       this.unions = this.unions.filter((item) => {
         return (item.data.nom_union.toLowerCase().indexOf(val.toLowerCase()) > -1);
       });
-    }
+    } 
   }
 }

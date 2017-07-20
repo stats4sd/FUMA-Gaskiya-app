@@ -61,7 +61,8 @@
         <ion-row> <ion-col class='meta-key'><strong>PDE:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE}}kg</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Objectif de l'essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.objectif_essai}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Observation:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Est valide:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.estValide}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Effort personnel ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.effort_personnel == true">Oui</span><span *ngIf="essai.data.effort_personnel == false">Non</span></ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Est valide ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.estValide == true">Oui</span><span *ngIf="essai.data.estValide == false">Non</span></ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
         
       </ion-grid>
