@@ -393,14 +393,17 @@ export class ModifierEssaiPage {
       //let essaiFinal: any = {};
       this.grandEssai.data = this.essai
       this.servicePouchdb.createDoc(this.grandEssai);
-      let toast = this.toastCtl.create({
+      /*let toast = this.toastCtl.create({
         message: 'Essai bien enregistré!',
         position: 'top',
-        duration: 2000
-      });
+        duration: 2000,
+        showCloseButton: true,
+        closeButtonText: 'ok',
+        dismissOnPageChange: true
+      });*/
 
       this.navCtrl.pop();
-      toast.present();
+      //toast.present();
       
 
    // }

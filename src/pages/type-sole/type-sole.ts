@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, IonicPage } from 'ionic-angular';
+import { NavController, NavParams, ViewController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 //import { AjouterTypeSolePage } from './ajouter-type-sole/ajouter-type-sole';
 //import { DetailTypeSolePage } from './detail-type-sole/detail-type-sole';
@@ -21,7 +21,7 @@ export class TypeSolePage {
   typeSoles: any = [];
   allTypeSoles: any = [];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider) {}
+  constructor(public navCtrl: NavController, public viewCtl: ViewController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider) {}
 
   ionViewDidEnter() {
     this.servicePouchdb.getPlageDocs('fuma:type-sole','fuma:type-sole:\uffff').then((typeSoles) => {
@@ -31,6 +31,11 @@ export class TypeSolePage {
         }
       }, err => console.log(err));
   } 
+
+    dismiss(){
+    this.viewCtl.dismiss(this.typeSoles);
+  }
+
 
   ajouter(){
     this.navCtrl.push('AjouterTypeSolePage');

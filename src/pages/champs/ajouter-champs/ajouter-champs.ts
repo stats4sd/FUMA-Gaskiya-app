@@ -111,7 +111,10 @@ export class AjouterChampsPage {
     let toast = this.toastCtl.create({
       message: msg,
       position: 'top',
-      duration: 3000
+      duration: 3000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
     });
 
     toast.present();

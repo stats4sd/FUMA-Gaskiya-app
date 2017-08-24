@@ -7,7 +7,13 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
-    <ion-buttons start>
+    <ion-buttons *ngIf="!ajoutForm" left>
+      <button ion-button icon-only color="royal" (click)="dismiss()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons> 
+    <ion-buttons *ngIf="ajoutForm" left>
+      <button ion-button icon-only color="royal" (click)="annuler()"> <ion-icon name="arrow-back"></ion-icon></button>
+    </ion-buttons> 
+    <ion-buttons *ngIf="!ajoutForm" start>
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{champs.length}}</ion-badge>
       </button>
@@ -15,9 +21,9 @@
 
     <ion-title>champs</ion-title>
 
-    <ion-buttons end>
+    <!--ion-buttons *ngIf="!ajoutForm" end>
       <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
-    </ion-buttons>
+    </ion-buttons-->
   </ion-navbar>
 
 </ion-header>
@@ -25,8 +31,9 @@
 
 <ion-content padding>
 
-  <h5 *ngIf="matricule_producteur" style="text-align: center; color: seagreen">
-    Les champs de M. {{nom_producteur}} - mat. {{matricule_producteur}}
+<div *ngIf="!ajoutForm">
+  <h5 *ngIf="matricule_producteur1" style="text-align: center; color: seagreen">
+    Les champs de M. {{nom_producteur}} - mat. {{matricule_producteur1}}
   </h5>
 
   <ion-list>
@@ -34,28 +41,129 @@
       <ion-label floating>Choisir le type de sole</ion-label>
       <ion-select [(ngModel)]="selectedTypeSole" (ionChange)="choixTypeSole()" cancelText="Annuler" okText="Ok" >
         <ion-option value="" selected disabled>Selectionnez le type de sole</ion-option>
-        <ion-option *ngFor="let typeSole of typeSoles" [value]=typeSole.data.nom>{{typeSole.data.nom}}</ion-option>
+        <ion-option *ngFor="let typeSole of typeSoles" [value]=typeSole.doc.data.nom>{{typeSole.doc.data.nom}}</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item>
-      <ion-searchbar placeholder="Rechercher nom..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-label floating>Type de recherche</ion-label>
+      <ion-select [(ngModel)]="typeRecherche" (ionChange)="typeRechercheChange()" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez le type de recherche</ion-option>
+        <ion-option value="matricule" >Par matricule membre</ion-option>
+        <ion-option value="nom_producteur" >Par nom membre</ion-option>
+        <ion-option value="nom" >Par nom champs</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-searchbar *ngIf="typeRecherche == 'nom'" placeholder="Rechercher par nom champs..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar *ngIf="typeRecherche == 'matricule'" placeholder="Rechercher par matricule producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar *ngIf="typeRecherche == 'nom_producteur'" placeholder="Rechercher par nom producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
     </ion-item>
   </ion-list>
 
+    <!--ion-item>
+      <ion-searchbar placeholder="Rechercher nom..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+  </ion-list-->
+
     <ion-list>
-    <ion-item *ngFor="let champ of champs" (click)="detail(champ)" > 
-      <h6><strong>Id:</strong> {{champ.data.id_champs}}</h6>
-      <h6><strong>Nom:</strong> {{champ.data.nom}}</h6>
-      <p><strong>Date:</strong> {{champ.data.today | date: 'dd-MM-yyyy'}}</p>
+    <ion-item *ngFor="let champ of champs" (click)="detail(champ.doc)" > 
+      <h6><strong>Id:</strong> {{champ.doc.data.id_champs}}</h6>
+      <h6><strong>Nom:</strong> {{champ.doc.data.nom}}</h6>
+      <h6><strong>Matricule producteur:</strong> {{champ.doc.data.matricule_producteur}}</h6>
+      <h6><strong>Nom producteur:</strong> {{champ.doc.data.nom_producteur}}</h6>
+      <p><strong>Date:</strong> {{champ.doc.data.today | date: 'dd-MM-yyyy'}}</p>
     </ion-item>
 
     <ion-item *ngIf="!champs.length > 0">
       <div class="message">La liste est vide!</div>
     </ion-item>    
   </ion-list>
+</div>
 
-  <ion-fab bottom right>
+<div *ngIf="ajoutForm">
+   <h5 *ngIf="champs1.length > 0" style="text-align: center; color: seagreen">
+    Champs: <span *ngFor="let champ of champs1">{{champ.doc.data.nom}} - </span>
+  </h5>
+
+    
+<form [formGroup]="champsForm" (ngSubmit) = "ajouterChamps()">
+
+  <ion-item>
+    <ion-label floating>Date <span class="error-box">*</span></ion-label>
+    <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider"></ion-datetime>
+  </ion-item>
+
+  <ng-template  #withFlags let-attrs="attrs">
+    <span [innerHTML]="attrs.data.matricule_Membre | boldprefix:attrs.keyword"></span> -- <span [innerHTML]="attrs.data.nom_Membre"></span>
+  </ng-template>
+
+  <ion-row *ngIf="!matricule_producteur">
+    <ion-col>
+      
+      <ion-auto-complete [dataProvider]="ServiceAutoCompletion" [template]="withFlags" [options]="{ placeholder : 'Matricule producteur' }" (itemSelected)="itemSelected($event)" ></ion-auto-complete>
+      
+    </ion-col>
+  </ion-row>
+
+
+
+  <ion-item *ngIf="matricule_producteur">
+    <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="matricule_producteur" disabled></ion-input>
+  </ion-item>
+  
+
+  <ion-item>
+    <ion-label floating>Nom producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_producteur" [(ngModel)]="nom_producteur" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['nom_producteur'].hasError('required') && champsForm.controls['nom_producteur'].touched">* le nom du producteur est obligatoir!</div>
+   
+  <ion-item>
+    <ion-label floating>Nom du champs <span class="error-box">*</span></ion-label>
+    <ion-input type="text" [(ngModel)]="nom" formControlName="nom" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['nom'].hasError('required') && champsForm.controls['nom'].touched">* le nom du champs est obligatoir!</div>
+  
+  <ion-item> 
+    <ion-label floating>Selectionnez le type de sole <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="type_sole" [(ngModel)]="type_sole" cancelText="Annuler" okText="Ok">
+      <ion-option value="" selected disabled>Selectionnez le type de sole</ion-option>
+      <ion-option *ngFor="let ts of typeSoles1" [value]=ts.doc.data.nom >{{ts.doc.data.nom}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['type_sole'].hasError('required') && champsForm.controls['type_sole'].touched">* le type du sole est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Superficie (ha) <span class="error-box">*</span></ion-label>
+    <ion-input type="number" [(ngModel)]="superficie" formControlName="superficie" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['superficie'].hasError('required') && champsForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Longitude</ion-label>
+    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label floating>Latitude</ion-label>
+    <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
+  </ion-item>
+
+    <br>
+    <button ion-button type="submit" color="my_secondary" [disabled]="!champsForm.valid" block>Sauvegarder</button>
+  </form>
+  <button ion-button color="my_primary" block (click)="annuler()">Fermer</button>
+
+</div>
+
+  <ion-fab *ngIf="!ajoutForm" bottom right>
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+  </ion-fab>
+
+  <ion-fab *ngIf="ajoutForm" bottom right>
+    <button ion-fab mini (click)="getPosition()"><ion-icon name="pin"></ion-icon></button>
   </ion-fab>
 </ion-content> 

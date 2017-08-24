@@ -27,6 +27,9 @@ export class AjouterTraitementPage {
   allTraitement: any;
   imei: any = '';
   phonenumber: any = '';
+  superficie: any;
+  max_NPR: any;
+  max_NPL: any;
 
   annees: any = [];
 
@@ -49,11 +52,14 @@ export class AjouterTraitementPage {
     this.traitementForm = this.formBuilder.group({
      // _id:[''],
       type:['traitement'],
-      nom_traitement: [''],
+      //nom_traitement: [''],
       code_traitement: ['', Validators.required],
       annee: [maDate.getFullYear()],
       nom_entree: ['', Validators.required],
-      superficie: [''],
+      nom_controle: ['', Validators.required],
+      superficie: ['', Validators.required],
+      max_NPL: ['', Validators.required],
+      max_NPR: ['', Validators.required],
       description_entree: [''],
       objectif_traitement: [''],
       today: [today, Validators.required],
@@ -116,7 +122,7 @@ export class AjouterTraitementPage {
   verifierUniqueNon(traitement){
     let res = 1;
     this.allTraitement.forEach((t, index) => {
-      if((traitement.annee === t.data.annee ) && ((traitement.nom_traitement === t.data.nom_traitement) || (traitement.code_traitement === t.data.code_traitement))){
+      if((traitement.annee === t.data.annee ) && ((traitement.nom_entree === t.data.nom_entree) || (traitement.code_traitement === t.data.code_traitement))){
         res = 0;
       }
     });
@@ -144,14 +150,14 @@ export class AjouterTraitementPage {
       traitementFinal._id = 'fuma'+ id;
       traitementFinal.data = traitement
       this.servicePouchdb.createDoc(traitementFinal);
-      let toast = this.toastCtl.create({
+      /*let toast = this.toastCtl.create({
         message: 'Traitement bien enregistré!',
         position: 'top',
-        duration: 2000
-      });
+        duration: 1000
+      });*/
 
       this.navCtrl.pop();
-      toast.present();
+      //toast.present();
       
 
     }

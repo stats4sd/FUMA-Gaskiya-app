@@ -1,9 +1,14 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, IonicPage, AlertController, ToastController, MenuController, Events } from 'ionic-angular';
+import { NavController, ModalController, LoadingController, NavParams, IonicPage, AlertController, ToastController, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 //import { ModifierOpPage } from '../modifier-op/modifier-op';
 //import { MembresPage } from '../../membres/membres'
-import { global } from '../../../global-variables/variable'
+import { global } from '../../../global-variables/variable';
+import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
+//import { Storage } from '@ionic/storage';
+
+
 /* 
   Generated class for the DetailOp page.
 
@@ -21,9 +26,36 @@ export class DetailOpPage {
   op: any = {};
   selectedSource: any;
   opID: any;
-   aProfile: boolean = true;
+  aProfile: boolean = true;
+  //allOPs1: any = [];
+  //nom_op: string;
+  //nouveauChamps: any = [];
 
-  constructor(public servicePouchdb: PouchdbProvider, public toastCtl: ToastController, public menuCtl: MenuController, public events: Events, public alertCtl: AlertController, public navCtrl: NavController, public navParams: NavParams) {
+
+  op1: any;
+  grandeOP: any;
+  opForm: any;
+  confLocaliteEnquete: any = {};
+  villages: any = [];
+  unions: any = [];
+  selectedVillageID: any;
+  selectedUnionID: any;
+  ancienSelectedUnionID: any;
+  opApplication: any = [];
+  ancien_num_a: any;
+  ancien_code_op: any;
+  opKobo: any = [];
+  allOP: any;
+  autreVillage: any = {'id':'AUTRE', 'nom':'Autre'};
+  nom_autre_village: any = '';
+  autreUnion: any = {"data": {'num_aggrement':'AUTRE', 'nom_union':'Autre'}};
+  nom_autre_union: any = '';
+  nom_op: string = '';
+  code_op: any = '';
+  modifierForm: boolean = false;
+  
+
+  constructor(public servicePouchdb: PouchdbProvider, public loadinCtl: LoadingController, public formBuilder: FormBuilder, public modelCtl: ModalController, public toastCtl: ToastController, public menuCtl: MenuController, public events: Events, public alertCtl: AlertController, public navCtrl: NavController, public navParams: NavParams) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -42,7 +74,668 @@ export class DetailOpPage {
     this.op = this.navParams.data.op;
     this.selectedSource = this.navParams.data.selectedSource;
     this.opID = this.op._id;
+    this.ancien_num_a = this.op.data.num_aggrement;
+    this.ancien_code_op = this.op.data.code_OP;
+    //this.nom_op = this.op.data.nom_OP;
   }
+
+  initForm(){
+    this.grandeOP = this.navParams.data.op;
+    this.op1 = this.grandeOP.data;
+    this.selectedVillageID = this.op1.village;
+    this.selectedUnionID = this.op1.union;
+    this.ancienSelectedUnionID = this.op1.union;
+    this.nom_op = this.op1.nom_OP;
+    this.code_op = this.op1.code_OP
+
+    if(this.op1.village_autre){
+        this.nom_autre_village = this.op1.village_autre;
+      }else{
+        this.nom_autre_village = 'NA';
+    }
+
+    if(this.op1.union_autre) {
+        this.nom_autre_union = this.op1.union_autre;
+    }else{
+      this.nom_autre_union = 'NA';
+    }
+
+    //let maDate = new Date();
+    
+    //this.storage.get('confLocaliteEnquete').then((confLocaliteEnquete) => {
+    this.chargerVillages(this.op1.commune);
+    //});
+
+    this.opForm = this.formBuilder.group({
+      //_id:[''],
+      nom_OP: [this.op1.nom_OP, Validators.required],
+      code_OP: [this.op1.code_OP, Validators.required],
+      num_aggrement: [this.op1.num_aggrement, Validators.required],
+      pays: [this.op1.pays, Validators.required],
+      pays_nom: [this.op1.pays_nom],
+      pays_autre: [this.op1.pays_autre],
+      region: [this.op1.region, Validators.required],
+      region_nom: [this.op1.region_nom],
+      region_autre: [this.op1.region_autre],
+      departement: [this.op1.departement, Validators.required],
+      departement_nom: [this.op1.departement_nom],
+      departement_autre: [this.op1.departement_autre],
+      commune: [this.op1.commune, Validators.required],
+      commune_nom: [this.op1.commune_nom],
+      commune_autre: [this.op1.commune_autre],
+      village: [this.op1.village, Validators.required],
+      village_nom: [this.op1.village_nom],
+      village_autre: [this.op1.village_autre, Validators.required],
+      union: [this.op1.union, Validators.required],
+      union_nom: [this.op1.union_nom],
+      union_code: [this.op1.union_code],
+      union_autre: [this.op1.union_autre, Validators.required],
+      today: [this.op1.today, Validators.required],
+      /*deviceid: [this.op.deviceid],
+      imei: [this.op.imei],
+      phonenumber: [this.op.phonenumber],*/
+      //num_OP: [0],
+      num_membre: [this.op1.num_membre],
+      num_hommes: [this.op1.num_hommes],
+      num_femmes: [this.op1.num_femmes],
+      /*start: [this.op.start],
+      end: [this.op.end],
+      created_at: [this.op.created_at],
+      created_by: [this.op.created_by],*/
+    });
+
+  }
+
+  getAllUnion(){
+    this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
+        this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
+        this.unions = uA.concat(uK);
+        //this.unions.push(this.autreUnion);
+    }, err => console.log(err));
+
+    }, err => console.log(err));
+  }
+
+  Change_num_a_op(ancien_num_a, num_a) {
+    let loadin = this.loadinCtl.create({
+      content: 'Modification en cours....'
+    });
+
+    loadin.present();
+    this.servicePouchdb.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then(((membres) => {
+      membres.forEach((membre) => {
+          //return this.getPhoto(membre)
+          if(membre.doc.data.op === ancien_num_a){
+                membre.doc.data.op = num_a
+                this.servicePouchdb.updateDoc(membre.doc);
+                //mbrs.push(mbr);
+              }
+        });
+
+        loadin.dismissAll();
+          let toast = this.toastCtl.create({
+            message: 'OP bien sauvegardée!',
+            position: 'top',
+            duration: 1000
+          });
+          
+          //this.navCtrl.pop();
+          this.modifierForm = false;
+          toast.present();
+
+          //this.membres = mbrs
+          //this.allMembres=mbrs
+    }))
+    
+          
+  }
+
+  Changer_code_op(num_a, ancien_code_op, nouveau_code_op) {
+    let loadin = this.loadinCtl.create({
+      content: 'Modification en cours....'
+    });
+
+    loadin.present();
+    this.servicePouchdb.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then(((membres) => {
+      membres.forEach((membre) => {
+          //return this.getPhoto(membre)
+          if(membre.doc.data.op === num_a){
+                membre.doc.data.ancien_op_code = membre.doc.data.op_code;
+                membre.doc.data.op_code = nouveau_code_op;
+                //let ancien_m = membre.doc.data.matricule_Membre;
+                membre.doc.data.ancien_matricule_Membre = membre.doc.data.matricule_Membre;
+                membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(5, membre.doc.data.matricule_Membre.length - 4);
+                this.servicePouchdb.updateDocReturn(membre.doc).then((res) => {
+                  this.changerOP(membre.doc.data.ancien_matricule_Membre, membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, nouveau_code_op)
+                });
+
+                //mbrs.push(mbr);
+              }
+        });
+
+        loadin.dismissAll();
+          let toast = this.toastCtl.create({
+            message: 'OP bien sauvegardée!',
+            position: 'top',
+            duration: 1000
+          });
+          
+          //this.navCtrl.pop();
+          this.modifierForm = false;
+          toast.present();
+
+          //this.membres = mbrs
+          //this.allMembres=mbrs
+    }))
+    
+          
+  }
+
+
+  Changer_num_a_et_code_op(ancien_num_a, num_a, ancien_code_op, nouveau_code_op) {
+    let loadin = this.loadinCtl.create({
+      content: 'Modification en cours....'
+    });
+
+    loadin.present();
+    this.servicePouchdb.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then(((membres) => {
+      membres.forEach((membre) => {
+          //return this.getPhoto(membre)
+          if(membre.doc.data.op === ancien_num_a){
+                membre.doc.data.op = num_a;
+                membre.doc.data.ancien_op_code = membre.doc.data.op_code;
+                membre.doc.data.op_code = nouveau_code_op;
+                //let ancien_m = membre.doc.data.matricule_Membre;
+                membre.doc.data.ancien_matricule_Membre = membre.doc.data.matricule_Membre;
+                membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(5, membre.doc.data.matricule_Membre.length - 4);
+                this.servicePouchdb.updateDocReturn(membre.doc).then((res) => {
+                  this.changerOP(membre.doc.data.ancien_matricule_Membre, membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, nouveau_code_op)
+                }) ;
+
+                //mbrs.push(mbr);
+              }
+        });
+
+        loadin.dismissAll();
+          let toast = this.toastCtl.create({
+            message: 'OP bien sauvegardée!',
+            position: 'top',
+            duration: 1000
+          });
+          
+          //this.navCtrl.pop();
+          this.modifierForm = false;
+          toast.present();
+
+          //this.membres = mbrs
+          //this.allMembres=mbrs
+    }))
+    
+          
+  }
+
+
+  changerOP(ancienMatricule, nouveauMatricule, nomProducteur, code_op){
+    let nouveauChamps: any = [];
+    //let nouveauEssai: any = [];
+    let id_champs: any = '';
+    let nChamps: any = {};
+    this.servicePouchdb.getPlageDocsRapide('fuma:champs:'+ancienMatricule, 'fuma:champs:'+ancienMatricule+'\uffff').then((mes_champs) => {
+      if(mes_champs){
+        //nouveauChamps = [];
+        //this.mes_champs = c;
+            mes_champs.map((champs) => {
+            champs = champs.doc;
+            //let code_champs = this.generateIdChamps(nouveauMatricule);    
+            let nouveauChamp: any = {};
+            let data = champs.data;
+            let code_champs = 'FM-'+code_op+ data.id_champs.substr(5, data.id_champs.length - 4);
+            let id = 'fuma'+':champs:'+ code_champs;
+            //nouveauChamp.data = 
+            data.ancien_id_champs = champs.data.id_champs;
+            data.id_champs = code_champs;
+            data.matricule_producteur = nouveauMatricule;
+            data.ancien_matricule_producteur = ancienMatricule;
+            data.nom_producteur = nomProducteur;
+            nouveauChamp._id = id;
+            nouveauChamp.data = data;
+            
+            nouveauChamps.push(nouveauChamp);
+            //alert('champs '+nouveauChamp._id);
+            this.servicePouchdb.remove(champs._id);
+            this.servicePouchdb.createDoc(nouveauChamp);
+            nouveauChamp = {};
+          });
+
+              if(nouveauChamps.length > 0){
+                let nouveauEssai: any = {};
+                this.servicePouchdb.getPlageDocsRapide('fuma:essai:'+ancienMatricule, 'fuma:essai:'+ancienMatricule+'\uffff').then((mes_essais) => {
+                if(mes_essais){
+                  mes_essais.map((essai) => {
+                      essai = essai.doc;
+                      //let code_essai = this.generateIdEssai(nouveauMatricule);
+                      
+                      //let nouveauEssai: any = {};
+                      let data = essai.data;
+                      
+                      let code_essai = 'FM-'+code_op+ data.code_essai.substr(5, data.code_essai.length - 4);
+                      let id = 'fuma'+':essai:'+ code_essai;
+                      //let id_champs = data.id_champs;
+                      data.ancien_code_essai = essai.data.code_essai;
+                      data.code_essai = code_essai
+                      
+                      if(id_champs !== essai.data.id_champs){
+                        nouveauChamps.map((champs) => {
+                          //champs = champs;
+                          if(champs.data.ancien_id_champs === data.id_champs){
+                            id_champs = champs.data.ancien_id_champs;
+                            nChamps = champs;
+                            data.ancien_id_champs = essai.data.id_champs;
+                            data.id_champs = champs.data.id_champs;
+                            //alert(data.id_champs +' !== '+ data.ancien_id_champs)
+                            data.matricule_producteur = nouveauMatricule;
+                            data.ancien_matricule_producteur = ancienMatricule;
+                            data.nom_producteur = nomProducteur;
+
+                            nouveauEssai._id = id;
+                            nouveauEssai.data = data;
+                            
+                            this.servicePouchdb.remove(essai._id);
+                            this.servicePouchdb.createDoc(nouveauEssai);
+                            }
+                          });
+                      }else{
+                        data.ancien_id_champs = essai.data.id_champs;
+                        data.id_champs = nChamps.data.id_champs;
+                        //alert(data.id_champs +' !== '+ data.ancien_id_champs)
+                        data.matricule_producteur = nouveauMatricule;
+                        data.ancien_matricule_producteur = ancienMatricule;
+                        data.nom_producteur = nomProducteur;
+
+                        nouveauEssai._id = id;
+                        nouveauEssai.data = data;
+                        
+                        this.servicePouchdb.remove(essai._id);
+                        this.servicePouchdb.createDoc(nouveauEssai);
+                      }
+                      /*nouveauEssai._id = id;
+                      nouveauEssai.data = data;
+                      
+                      this.servicePouchdb.remove(essai._id);
+                      this.servicePouchdb.createDoc(nouveauEssai);*/
+                      nouveauEssai = {};
+                    });
+                }
+              });
+
+                //this.nouveauChamps = [];
+              }else{
+                alert('Erreur mise à jour des essais, la liste des champs est vide!')
+              }
+      }
+      
+    })
+
+
+
+    
+  }
+
+    //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
+  /*genererCodeOP_Nom(){
+    
+    let nom = this.nom_op;
+     nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '');
+     let taille_nom = nom.length;
+     let an = nom;
+    //taille initiale: deux aractères
+    let taille_code = 2;
+    let code: string = '';
+    this.code_op = code.toUpperCase()
+    let p = 0;
+    let last_position = 0;
+    let trouve: boolean;
+
+    if(taille_nom >= 2){
+      while(taille_code <= taille_nom){
+        last_position = taille_code - 1;
+        trouve  = false;
+        code = '';
+        for(let i = 0; i < taille_code; i++){
+          code += nom.charAt(i).toString() ;
+        }
+
+        do{
+            code = code.substr(0, code.length - 1);
+            code += nom.charAt(last_position).toString() ;
+            p = 0;
+            for(let pos=0; pos < this.allOPs1.length; pos++){
+              let op = this.allOPs1[pos];
+              if(op.doc.data.code_OP === code.toUpperCase()){
+                trouve = true;
+                break ;
+              }else{
+                trouve = false;
+              }
+            }
+            
+            last_position++;
+
+          }while(trouve && last_position < taille_nom);
+          //
+          if(last_position === taille_nom && trouve){
+            //non disponible, augmenter la taille du code
+            taille_code++;
+        
+            //au cas ou on teste toutes les combinaisons, sant trouver de combinaison disponible, on ajoute des chiffre
+            if(taille_code > taille_nom){
+              //non disponible, augmenter la taille et utiliser des chiffres
+              taille_code = 3;
+              nom = an + '123456789'.toString();
+              taille_nom = nom.length;
+            }
+          }else{
+              this.code_op = code.toUpperCase();
+              break;
+            
+          }
+      }
+      
+    }
+    
+  }*/
+
+    getAllOp(){
+    let A = [];
+      let opss: any = [];
+      this.servicePouchdb.getPlageDocsRapide('fuma:op','fuma:op:\uffff').then((opsA) => {
+        if(opsA){
+          //opss = ops;
+          opsA.forEach((o, index) => {
+            if(!o.doc.data.op/* || o.data.op !== ''*/){
+              A.push(o.doc)
+            }
+          })
+        }
+        let k = [];
+         this.servicePouchdb.getPlageDocsRapide('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opsK) => {
+           
+          opsK.forEach((o, i) => {
+            if(!o.doc.data.op){
+             k.push(o.doc) ;
+             //this.allOPs.push(o);
+            }
+          })
+
+          opss = A.concat(k);
+         
+            //this.ops = opss;
+            this.allOP = opss;
+          //this.ops = A.concat(k);
+          //this.allOPs = this.ops
+
+       
+      }, err => console.log(err));
+
+      }, err => console.log(err));
+    }
+
+
+  generateIdEssai(matricule){
+    var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
+    var numbers='0123456789'
+    var randomArray=[]
+    for(let i=0;i<3;i++){
+      var rand = Math.floor(Math.random()*10)
+      randomArray.push(numbers[rand])
+    }
+    //randomArray.push('-')
+    //var rand = Math.floor(Math.random()*24)
+    //randomArray.push(chars[rand])
+    var randomString=randomArray.join("");
+    var Id= matricule+' '+'ES-'+/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    return Id;
+  }
+
+  generateIdChamps(matricule){
+    var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
+    var numbers='0123456789'
+    var randomArray=[]
+    for(let i=0;i<3;i++){
+      var rand = Math.floor(Math.random()*10)
+      randomArray.push(numbers[rand])
+    }
+    //randomArray.push('-')
+    //var rand = Math.floor(Math.random()*24)
+    //randomArray.push(chars[rand])
+    var randomString=randomArray.join("");
+    var Id= matricule+' '+'CH-'+/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    return Id;
+  }
+
+
+
+
+ /* getAllOp(){
+    this.servicePouchdb.getPlageDocs('fuma:op','fuma:op:\uffff').then((opA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op','koboSubmission_fuma-op\uffff').then((opK) => {
+           this.allOP = opA.concat(opK)
+      }, err => console.log(err));
+
+      }, err => console.log(err));
+  }*/
+
+
+  //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
+  genererCodeOP(){
+    let taille_nom = this.nom_op.length;
+    let nom = this.nom_op;
+    //taille initiale: deux aractères
+    let taille_code = 2;
+    let code: string = '';
+    let p = 0;
+    let last_position = 0;
+    let trouve: boolean;
+
+    if(taille_nom >= 2){
+      while(taille_code <= taille_nom){
+        last_position = taille_code - 1;
+        trouve  = false;
+        code = '';
+        for(let i = 0; i < taille_code; i++){
+          code += nom.charAt(i).toString() ;
+        }
+
+        do{
+            code = code.substr(0, code.length - 1);
+            code += nom.charAt(last_position).toString() ;
+            p = 0;
+            for(let pos=0; pos < this.allOP.length; pos++){
+              let op = this.allOP[pos];
+              if((op.data.num_aggrement !== this.ancien_num_a) && (op.data.code_OP === code.toUpperCase())){
+                trouve = true;
+                //alert(op.data.num_aggrement +' !== '+ this.ancien_num_a + '   '+op.data.code_OP)
+                break ;
+              }else{
+                trouve = false;
+              }
+            }
+            
+            last_position++;
+
+          }while(trouve && last_position < taille_nom);
+          //
+          if(last_position === taille_nom && trouve){
+            //non disponible, augmenter la taille du code
+            taille_code++;
+        
+            //au cas ou on teste toutes les combinaisons, sant trouver de combinaison disponible, on ajoute des chiffre
+            if(taille_code > taille_nom){
+              //non disponible, augmenter la taille et utiliser des chiffres
+              taille_code = 3;
+              nom = this.nom_op.toString() + '123456789'.toString();
+              taille_nom = nom.length;
+            }
+          }else{
+              this.code_op = code.toUpperCase();
+              break;
+            
+          }
+      }
+      
+    }
+    
+  }
+
+  chargerVillages(c){
+    this.villages = [];
+    if(c !== 'AUTRE')
+      {this.servicePouchdb.getDocById('village').then((villages) => {
+        villages.data.forEach((village, index) => {
+          if(village.id_commune === c){
+            this.villages.push(village);
+            
+          }
+        });
+        this.villages.push(this.autreVillage);
+        //this.nom_autre_departement = 'NA';
+      });
+    }else{
+      this.villages.push(this.autreVillage);
+      //this.nom_autre_departement = '';
+    }
+
+    //this.selectedVillage = '';
+  } 
+
+  chargerAutreNomVillage(v){
+    if(v !== 'AUTRE'){
+      this.nom_autre_village = 'NA';
+    }else{
+       let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.op.commune, 'nom_commune': this.op.commune_nom});
+      model.present();
+      model.onDidDismiss(() => {
+        this.chargerVillages(this.op.commune);
+        this.selectedVillageID = '';
+      })
+      this.nom_autre_village = '';
+    }
+  }
+
+  chargerUnion(){
+    this.servicePouchdb.getPlageDocs('fuma:union','fuma:union:\uffff').then((uA) => {
+         this.servicePouchdb.getPlageDocs('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((uK) => {
+          this.unions = uA.concat(uK);
+          this.unions.push(this.autreUnion);
+      }, err => console.log(err));
+
+      }, err => console.log(err)); 
+  }
+
+  chargerAutreNomUnion(u){
+    if(u !== 'AUTRE'){
+      this.nom_autre_union = 'NA';
+    }else{
+      let model = this.modelCtl.create('AjouterUnionPage', {'confLocaliteEnquete': this.confLocaliteEnquete});
+        model.present();
+        model.onDidDismiss(() => {
+          this.chargerUnion();
+          this.selectedUnionID = '';
+      })
+      this.nom_autre_union = '';
+    }
+  }
+
+   verifierUniqueNon(op){
+    let res = 1;
+    this.allOP.forEach((o, index) => {
+      if((o._id !== this.grandeOP._id) && (/*(op.nom_OP === o.data.nom_OP) || */(op.num_aggrement === o.data.num_aggrement) && (op.code_OP !== o.data.code_OP))){
+        res = 0;
+      }
+    });
+    return res;
+  }
+
+
+  modifierOP(){
+      //  let date = new Date();
+    let op = this.opForm.value;
+
+    this.op1.nom_OP = op.nom_OP;
+    this.op1.code_OP = op.code_OP;
+    this.op1.num_aggrement = op.num_aggrement;
+    this.op1.village = op.village;
+    this.op1.village_nom = op.village_nom;
+    this.op1.village_autre = op.village_autre;
+    this.op1.union = op.union;
+    this.op1.union_nom = op.union_nom;
+    this.op1.union_autre = op.union_autre;
+    this.op1.num_membre = op.num_membre;
+    this.op1.num_hommes = op.num_hommes;
+    this.op1.num_femmes = op.num_femmes;
+
+    this.villages.forEach((v, i) => {
+      if(v.id === this.selectedVillageID){
+        this.op1.village = v.id;
+        this.op1.village_nom = v.nom;
+      }
+    })
+
+    if(this.selectedUnionID !== 'AUTRE'){
+      this.unions.forEach((u, i) => {
+        if(u.data.num_aggrement === this.selectedUnionID){
+          this. op1.union = u.data.num_aggrement;
+          this.op1.union_nom = u.data.nom_union;
+        }
+      });
+    }else{
+      this.op1.union = this.autreUnion.data.num_aggrement;
+      this.op1.union_nom = this.autreUnion.data.nom_union;
+    }
+    
+    //union.village = this.selectedVillage.id;
+    //union.village_nom = this.selectedVillage.nom;
+    //let id = this.servicePouchdb.generateId('union', union.pays, union.region, union.departement,union.commune, union.village);
+    //union._id = 'fuma'+ id;
+    //union.end = date.toJSON();
+
+    if(this.verifierUniqueNon(op) === 0){
+      alert('L\'aggrément de l\'OP doit être unique!');
+    }else{
+      this.grandeOP.data = this.op1
+      this.servicePouchdb.updateDocReturn(this.grandeOP).then((res) => {
+        this.grandeOP._rev = res.rev;
+        this.op = this.grandeOP;
+        //alert(this.ancien_num_a +' !== '+this.op1.code_OP)
+        if(this.ancien_num_a !== this.op1.num_aggrement && this.ancien_code_op !== this.op1.code_OP){
+          this.Changer_num_a_et_code_op(this.ancien_num_a, op.num_aggrement, this.ancien_code_op, this.op1.code_OP);
+        }else if(this.ancien_num_a !== this.op1.num_aggrement && this.ancien_code_op === this.op1.code_OP){
+          this.Change_num_a_op(this.ancien_num_a, op.num_aggrement);
+        }else if(this.ancien_code_op !== this.op1.code_OP){
+          this.Changer_code_op(this.op1.num_aggrement, this.ancien_code_op, this.op1.code_OP);
+        }else{
+           let toast = this.toastCtl.create({
+            message: 'OP bien sauvegardée!',
+            position: 'top',
+            duration: 1000
+          });
+          
+          //this.navCtrl.pop();
+          this.modifierForm = false;
+          toast.present();
+            }
+
+      
+      }) ;
+
+    }
+  }
+
+  annuler(){
+    //this.navCtrl.pop();
+    this.modifierForm = false;
+  }
+
 
   option(){
     this.menuCtl.enable(true, 'options');
@@ -87,13 +780,19 @@ export class DetailOpPage {
     }); 
 
     //console.log('ionViewDidLoad DetailUnionPage');
-    this.servicePouchdb.getDocById(this.opID).then((o) => {
+    /*this.servicePouchdb.getDocById(this.opID).then((o) => {
       this.op = o;
-    }, err => console.log(err))
+    }, err => console.log(err))*/
+
+    this.initForm();
+    this.getAllUnion();
+    this.getAllOp();
   }
 
   editer(op){
-    this.navCtrl.push('ModifierOpPage', {'op': op});
+    //this.navCtrl.push('ModifierOpPage', {'op': op});
+    this.modifierForm = true;
+    //this.getAllOPs();
   }
 
   membresOP(num_aggrement, nom_OP, code_OP){

@@ -42,6 +42,28 @@ $colors: (
   my_secondary:  #32db64,
 );
 
+.modal-wrapper{
+    position: absolute !important;
+    /*overflow: hidden;
+    max-width: 100vw;
+    border-radius: 2px;*/
+    min-width: 98vw !important;
+    min-height: 97vh !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: auto !important;
+    /*border: 0;
+    box-shadow: 0 16px 20px rgba(0,0,0,4);
+    background-color: #fafafa;*/
+    }
+
+    .modal .backdrop {
+      display: block !important;
+    }
+
+
 
 // App iOS Variables
 // --------------------------------------------------

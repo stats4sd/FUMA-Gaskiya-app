@@ -1,6 +1,9 @@
 <ion-header>
 
   <ion-navbar color="primary">
+     <ion-buttons left>
+      <button ion-button icon-only color="royal" (click)="dismiss()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons> 
     <ion-title>{{'ADMIN' | translate}}</ion-title>
   </ion-navbar>
 
@@ -35,6 +38,11 @@
 
   <ion-card (click)="calculNbMembreOP()">
     <ion-item style="text-align: center">Calculer nombre de membres par OP
+    </ion-item>
+  </ion-card>
+
+  <ion-card (click)="fusionnerEssais()">
+    <ion-item style="text-align: center">Fusionner les essais
     </ion-item>
   </ion-card>
 

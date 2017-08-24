@@ -6,8 +6,10 @@ import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
 import { Geolocation} from '@ionic-native/geolocation'
 import { AutoCompleteModule } from 'ionic2-auto-complete';
+import { DatePickerModule } from 'datepicker-ionic2';
 import { File } from '@ionic-native/file';
-import { Printer } from '@ionic-native/printer'
+import { Printer } from '@ionic-native/printer';
+import { DatePicker } from '@ionic-native/date-picker';
 //import { FileService } from '../providers/file.service';
 
 //native components
@@ -235,6 +237,7 @@ export function createTranslateLoader(http: Http) {
     IonicModule.forRoot(MyApp),
     BrowserModule,
     AutoCompleteModule,
+    DatePickerModule,
     IonicImageViewerModule,
     FormsModule,
     ReactiveFormsModule,
@@ -344,6 +347,6 @@ export function createTranslateLoader(http: Http) {
     DetailCulturePage,*/
 
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, PouchdbProvider, File, Printer, ImagePicker, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen,]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, DatePicker, PouchdbProvider, File, Printer, ImagePicker, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen,]
 })
 export class AppModule { }

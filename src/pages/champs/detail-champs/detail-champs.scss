@@ -17,7 +17,6 @@ page-detail-champs {
         h2{
             font-weight:700
             }
-    
     }
     .delete-button{
         margin-top:12px
@@ -62,5 +61,18 @@ page-detail-champs {
             display: block;
             text-align: left;
         }
+    }
+
+     .error-box {
+        color: red;
+    }
+     
+    .error-border {
+        color: red;
+    }
+
+    ion-auto-complete {
+        width: 100%;
+        //z-index: -100px;
     }
 }

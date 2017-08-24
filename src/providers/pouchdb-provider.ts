@@ -9,11 +9,22 @@ import { global } from '../global-variables/variable'
 import PouchDB from 'pouchdb';
 import * as pouchdbAuthentication from 'pouchdb-authentication';
 import * as pouchdbQuickSearch from 'pouchdb-quick-search';
-import * as pouchdbFind from 'pouchdb-find';
+//import * as pouchdbFind from 'pouchdb-find';
 //var PouchDB = require("pouchdb");
+//import * as PouchFind from 'pouchdb-find';
+//PouchDB.plugin(PouchFind);
 PouchDB.plugin(pouchdbAuthentication);
 PouchDB.plugin(pouchdbQuickSearch); 
-PouchDB.plugin(pouchdbFind);
+//declare var require: any;
+//PouchDB.debug.enable('pouchdb:find');
+//PouchDB.plugin(pouchdbFind);
+//PouchDB.plugin(require('pouchdb-find').default);
+//import findPlugin from 'pouchdb-find';
+//import PouchDBFind from 'pouchdb-find';
+import PouchFind from 'pouchdb-find';
+PouchDB.plugin(PouchFind);
+
+
 
 
 @Injectable()
@@ -37,11 +48,12 @@ export class PouchdbProvider {
 
     constructor(public http: Http, public toastCtl: ToastController, public pl: Platform, public events: Events, public loadingCtrl: LoadingController, public storage: Storage) {
         
+        //PouchDB.plugin(pouchdbFind);
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
         //this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4sd.org/fuma_frn_app");//, this.pouchOpts);//base production
         //this.remoteSaved = new PouchDB("http://"+ global.info_db.ip +"/"+global.info_db.nom_db);//, this.pouchOpts);//base production
-        //this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4sd.org/test");//, this.pouchOpts);
+        //this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4s d.org/test");//, this.pouchOpts);
         //this.remoteSaved = new PouchDB("http://192.168.43.53:5984/fuma_frn_app");//, this.pouchOpts); prod local
         //this.remoteSaved = new PouchDB("http://127.0.0.1:5984/app_fuma")
     
@@ -52,9 +64,10 @@ export class PouchdbProvider {
                 global.info_db.nom_db =  info_db.nom_db.toString();
                 //alert("http://"+ info_db.ip +"/"+info_db.nom_db)
                 this.remoteSaved = new PouchDB('http://'+ info_db.ip.toString() +'/'+ info_db.nom_db.toString());
-                this.database = new PouchDB('app-database');
+                //this.database = new PouchDB('app-database');
                 //this.sync()
-                //this.database = new PouchDB("fuma-frn-app-db");////base production
+                this.database = new PouchDB("fuma-frn-app-db");////base production
+                //this.database = new PouchDB("moriben-frn-app-db");////base production moriben
                 //this.sync()
                 /*this.database.changes({
                     live: true,
@@ -68,11 +81,15 @@ export class PouchdbProvider {
               }else{
                 this.remoteSaved = new PouchDB('http://'+ global.info_db.ip +'/'+ global.info_db.nom_db);
                 this.database = new PouchDB("fuma-frn-app-db");
+                //this.database = new PouchDB("moriben-frn-app-db");////base production moriben
+                //this.database = new PouchDB('app-database');
               }
             }).catch((err) => {
               console.log(err)
               this.remoteSaved = new PouchDB('http://'+ global.info_db.ip +'/'+ global.info_db.nom_db);
               this.database = new PouchDB("fuma-frn-app-db");
+              //this.database = new PouchDB("moriben-frn-app-db");////base production moriben
+              //this.database = new PouchDB('app-database');
             });
 
             //this.sync();
@@ -239,7 +256,10 @@ public syncIinfoDB(ip, nom) {
     let toast = this.toastCtl.create({
       message: msg,
       position: 'top',
-      duration: 1500
+      duration: 1500,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
         });
 
         toast.present();
@@ -252,7 +272,10 @@ public syncIinfoDB(ip, nom) {
     let toast = this.toastCtl.create({
       message: 'Synchronisation en cours...',
       position: 'top',
-      duration: 1000
+      duration: 1000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
         });
 
         toast.present();
@@ -433,6 +456,35 @@ public syncIinfoDB(ip, nom) {
     } );
   }
 
+  getPlageDocsRapide(startkey, endkey){
+
+    //si non vide
+    let data: any;
+    if(data){
+      return data
+    }
+ 
+    
+    return new Promise ( resolve => {
+      this.database.allDocs({
+        include_docs: true,
+        startkey: startkey,
+        endkey: endkey
+      }).then((result) => {
+        data = result.rows;
+        /*let doc = result.rows.map((row) => {
+          
+            data.push(row.doc);
+        });*/
+
+        resolve(data);
+
+        this.database.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => this.handleChange(change));
+      }).catch((err) => console.log(err));
+    } );
+  }
+
+
    getPlageDocsAvecLimit(startkey, endkey, limit){
 
     //si non vide
@@ -454,6 +506,35 @@ public syncIinfoDB(ip, nom) {
           
             data.push(row.doc);
         });
+
+        resolve(data);
+
+        this.database.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => this.handleChange(change));
+      }).catch((err) => console.log(err));
+    } );
+  }
+
+   getPlageDocsRapideAvecLimit(startkey, endkey, limit){
+
+    //si non vide
+    let data: any;
+    if(data){
+      return data
+    }
+ 
+    
+    return new Promise ( resolve => {
+      this.database.allDocs({
+        include_docs: true,
+        startkey: startkey,
+        endkey: endkey,
+        limit: limit,
+      }).then((result) => {
+        data = result.rows;
+        /*let doc = result.rows.map((row) => {
+          
+            data.push(row.doc);
+        });*/
 
         resolve(data);
 
@@ -497,6 +578,18 @@ public syncIinfoDB(ip, nom) {
     //this.db.put(doc).catch((err) => console.log(err));
   }
 
+  deleteDocReturn(doc){
+    /*let dat = new Date();
+    doc.data.deleted_at = dat.toJSON();
+    if(global.info_user !== null){
+      doc.data.deleted_by = global.info_user.name;
+    }else{
+      doc.data.deleted_by = '';
+    }
+    doc.data.deleted = true;*/
+    return this.database.remove(doc);//.catch((err) => console.log(err));
+  }
+
   updateDoc(doc){
     let dat = new Date();
     doc.data.updatet_at = dat.toJSON();
@@ -528,6 +621,20 @@ public syncIinfoDB(ip, nom) {
     
     this.database.put(doc).catch((err) => console.log(err));
   }
+
+    updateDocReturn(doc){
+    let dat = new Date();
+    doc.data.updatet_at = dat.toJSON();
+    if(global.info_user !== null){
+      doc.data.updated_by = global.info_user.name;
+    }else{
+      doc.data.updated_by = '';
+    }
+    
+    doc.data.deleted = false;
+      return this.database.put(doc);
+  }
+
 
   updateLocalite(doc){
     /*let dat = new Date();
@@ -599,6 +706,7 @@ public syncIinfoDB(ip, nom) {
       let load = this.loadingCtrl.create({
         content: 'Réinialisation en cours...'
       });
+
       load.present();
   
       this.database.destroy().then(() => {
@@ -611,7 +719,10 @@ public syncIinfoDB(ip, nom) {
         let toast = this.toastCtl.create({
           message:'Base de données bien réinitialiser',
           position: 'top',
-          duration: 1000
+          duration: 1000,
+          showCloseButton: true,
+        closeButtonText: 'ok',
+        dismissOnPageChange: true
         });
 
         toast.present();
@@ -831,4 +942,17 @@ public syncIinfoDB(ip, nom) {
     });
   }
 
+  updateAtachementReturn(docId, attachmentId, rev, attachment, type){
+    return this.database.putAttachment(docId, attachmentId, rev, attachment, type);
+  }
+  ///*************************************   Find plugon   *************************************************** */////
+
+  findByTypeData(){
+   this.database.createIndex({
+      index: {fields: ['_id']}
+    }).then((res) => {
+      alert(res)
+    }/*, err => alert('err')*/)
+
+  }
 }

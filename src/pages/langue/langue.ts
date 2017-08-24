@@ -43,7 +43,9 @@ export class LanguePage {
     //this.navCtrl.pop();
     //window.location.reload();
   }
-
+    dismiss(){
+    this.viewCtl.dismiss();
+  }
   change(){
     this.storage.set('langue', this.selectedLanguage);
     this.navCtrl.pop();

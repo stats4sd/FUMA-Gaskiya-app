@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, ToastController, IonicPage } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, ToastController, ViewController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { OpPage } from '../../op/op';
 import { TranslateService } from '@ngx-translate/core';
@@ -26,8 +26,12 @@ export class AdminPage {
   membres:any = [];
   //toast: any;
 
-  constructor(public translate: TranslateService, public storage: Storage, public alertCtl: AlertController, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
+  constructor(public translate: TranslateService, public loadtingCtl: LoadingController, public viewCtl: ViewController, public storage: Storage, public alertCtl: AlertController, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
+  }
+
+  dismiss(){
+    this.viewCtl.dismiss();
   }
 
   ionViewDidEnter() {
@@ -82,11 +86,204 @@ export class AdminPage {
     this.navCtrl.push('VarietePage')
   }
 
+  fusionnerEssais(){
+    let loading = this.loadtingCtl.create({
+      content: 'Application des changeme,ts sur les essais en cours...'
+    });
+    loading.present();
+
+    let tous_essais: any = [];
+    let tous_essais2: any = [];
+    //let tous_membres: any = [];
+    let essais_membre: any = [];
+    //let nb_essais_membres: any;
+    //let nbm: any = 0;
+    let essai1: any = {};
+    let essai2: any = {};
+    this.database.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then((membres) => {
+      if(membres){
+        //tous_membres = membres;
+        //this.servicePouchdb.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+        //  if(essais){
+          //  tous_essais = essais;
+            //tous_essais2 = essais;
+            //alert('nbm l '+membres.length)
+            //alert('nbe l '+essais.length)
+            membres.map((membre) => {
+              essais_membre = [];
+              //nb_essais_membres = 0;
+              this.database.getPlageDocsRapide('fuma:essai:'+membre.doc.data.matricule_Membre, 'fuma:essai:'+membre.doc.data.matricule_Membre+' \uffff').then((essais_mb) => {
+                if(essais_mb){
+                  essais_membre = essais_mb;
+
+                  //if(essais_membre.length){
+                  let nb_essais_membres: any = essais_membre.length;
+                  //tous_essais = tous_essais2;
+                  //}else{
+                  //  nb_essais_membres = 0;
+                  //}
+                  
+                  //if(nb_essais_membres > 1){
+                    //alert('nb_essais_membres = '+nb_essais_membres)
+                    while(nb_essais_membres > 1){
+                      essai1 = essais_membre[0].doc;
+                      //essai2 = '';
+                      essais_membre.splice(0, 1);
+                      nb_essais_membres--;
+                      
+                      if(essai1.data.nom_entree ===  'Boule NPK'){
+                        for(let ii = 0; ii < essais_membre.length; ii++) {
+                          //alert(essai1.data.nom_entree +' '+ essais_membre[ii].data.nom_entree)
+                          if(essais_membre[ii].doc.data.nom_entree ===  'Semis ordinaire '){
+                            //alert(essai1.data.nom_entree + '===> '+essais_membre[ii].data.nom_entree);
+                            essai2 = essais_membre[ii].doc;
+                            
+                            essai1.data.NPL_controle = essai2.data.NPL;
+                            essai1.data.NPR_controle = essai2.data.NPR;
+                            essai1.data.PDE_controle = essai2.data.PDE;
+
+                            this.database.updateDoc(essai1);
+                            this.database.deleteDoc(essai2)
+                            essais_membre.splice(ii, 1);
+                            nb_essais_membres--;
+
+                            //essai2 = '';
+
+                            //ii = essais_membre.length;
+                            break;
+                          }
+                        }
+
+                      }else if(essai1.data.nom_entree ===  'Boule cendre'){
+                        for(let ii = 0; ii < essais_membre.length; ii++) {
+                          if(essais_membre[ii].doc.data.nom_entree ===  'Semis ordinaire '){
+                           // alert(essai1.data.nom_entree + '===> '+essais_membre[ii].data.nom_entree)
+                            essai2 = essais_membre[ii].doc;
+                          
+                            essai1.data.NPL_controle = essai2.data.NPL;
+                            essai1.data.NPR_controle = essai2.data.NPR;
+                            essai1.data.PDE_controle = essai2.data.PDE;
+
+                            this.database.updateDoc(essai1);
+                            this.database.deleteDoc(essai2);
+
+                            essais_membre.splice(ii, 1);
+                            nb_essais_membres--;
+
+                            //essai2 = '';
+
+                            //ii = essais_membre.length;
+                            break;
+                          }
+                        }
+
+                      
+                      }else if(essai1.data.nom_entree ===  'Semis ordinaire '){
+                        for(let ii = 0; ii < essais_membre.length; ii++) {
+                          if(essais_membre[ii].doc.data.nom_entree ===  'Boule cendre' || essais_membre[ii].doc.data.nom_entree ===  'Boule NPK'){
+                            essai2 = essais_membre[ii].doc;
+                            //alert(essai1.data.nom_entree + '===> '+essais_membre[ii].data.nom_entree)
+                            
+                            essai2.data.NPL_controle = essai1.data.NPL;
+                            essai2.data.NPR_controle = essai1.data.NPR;
+                            essai2.data.PDE_controle = essai1.data.PDE;
+
+                            this.database.updateDoc(essai2);
+                            this.database.deleteDoc(essai1)
+                            essais_membre.splice(ii, 1);
+                            nb_essais_membres--;
+
+
+                            //ii = essais_membre.length;
+                            break;
+                          }
+                        }
+                      }else if(essai1.data.nom_entree ===  'OGA'){
+                        for(let ii = 0; ii < essais_membre.length; ii++) {
+                          if(essais_membre[ii].doc.data.nom_entree ===  'SANS OGA'){
+                            essai2 = essais_membre[ii].doc;
+                            //alert(essai1.data.nom_entree + '===> '+essais_membre[ii].data.nom_entree)
+                            
+                            essai1.data.NPL_controle = essai2.data.NPL;
+                            essai1.data.NPR_controle = essai2.data.NPR;
+                            essai1.data.PDE_controle = essai2.data.PDE;
+
+                            this.database.updateDoc(essai1);
+                            this.database.deleteDoc(essai2);
+
+                            essais_membre.splice(ii, 1);
+                            nb_essais_membres--;
+
+
+                            //ii = essais_membre.length;
+                            break;
+                          }
+                        }                  
+                      }else if(essai1.data.nom_entree ===  'SANS OGA'){
+                        for(let ii = 0; ii < essais_membre.length; ii++) {
+                          if(essais_membre[ii].doc.data.nom_entree ===  'OGA'){
+                            essai2 = essais_membre[ii].doc;
+                            //alert(essai1.data.nom_entree + '===> '+essais_membre[ii].data.nom_entree)
+                            essai2.data.NPL_controle = essai1.data.NPL;
+                            essai2.data.NPR_controle = essai1.data.NPR;
+                            essai2.data.PDE_controle = essai1.data.PDE;
+
+                            this.database.updateDoc(essai2);
+                            this.database.deleteDoc(essai1);
+
+                            essais_membre.splice(ii, 1);
+                            nb_essais_membres--;
+
+                            //ii = essais_membre.length;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                    }
+              });
+
+              
+             /* tous_essais.forEach((e, i) => {
+                if(e.doc.data.matricule_producteur === membre.doc.data.matricule_Membre){
+                  essais_membre.push(e.doc);
+                  tous_essais2.splice(i, 1);
+                }
+              });*/
+             
+
+                
+             // }
+            // nbm++;
+            });
+
+
+            loading.dismissAll();
+
+            //alert('nbm '+nbm)
+
+             let toast = this.toastCtl.create({
+                message: 'Changement bien appliqué!',
+                position: 'top',
+                duration: 3000
+              });
+
+              toast.present();
+         // }
+      //  });
+      }
+    });
+  }
+
+
   affichierMsg(msg = 'Enregistrement mis à jour'){
     let toast = this.toastCtl.create({
       message: msg,
       position: 'top',
-      duration: 3000
+      duration: 2000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
     });
 
     toast.present();
@@ -152,7 +349,10 @@ export class AdminPage {
      let toast = this.toastCtl.create({
       message: 'Calcul du nombre d\'OPs par union encours...',
       position: 'top',
-      duration: 10000
+      duration: 2000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
     });
 
     toast.present();
@@ -174,11 +374,14 @@ export class AdminPage {
       });
       //this.affichierMsg('Calcul du nombre d\'OPs par union terminé avec succes!');
       
-      toast.dismiss();
+      //toast.dismiss();
       let toast1 = this.toastCtl.create({
         message: 'Calcul du nombre d\'OPs par union terminé avec succes!',
         position: 'top',
-        duration: 2000
+        duration: 2000,
+        showCloseButton: true,
+        closeButtonText: 'ok',
+        dismissOnPageChange: true
       });
     toast1.present();
   }
@@ -188,7 +391,10 @@ export class AdminPage {
      let toast = this.toastCtl.create({
       message: 'Calcul du nombre de membre par OPs et par union encours...',
       position: 'top',
-      duration: 10000
+      duration: 2000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
     });
 
     toast.present();               
@@ -240,11 +446,14 @@ export class AdminPage {
     });
     //fin union
     //this.affichierMsg('Calcul du nombre de membre apr OPs et par union terminé avec succes!');
-    toast.dismiss()
+    //toast.dismiss()
     let toast1 = this.toastCtl.create({
       message: 'Calcul du nombre de membre apr OPs et par union terminé avec succes!',
       position: 'top',
-      duration: 2000
+      duration: 2000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
     });
     toast1.present();
   }
@@ -358,7 +567,10 @@ export class AdminPage {
               let toast = this.toastCtl.create({
                 message: 'Info DB mises à jour avec succes...',
                 duration: 2000,
-                position: 'top'
+                position: 'top',
+                showCloseButton: true,
+                closeButtonText: 'ok',
+                dismissOnPageChange: true
               });
               toast.present();
               

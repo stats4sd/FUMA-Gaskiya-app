@@ -54,6 +54,10 @@ export class LoginPage {
     });
   } 
 
+     dismiss(){
+    this.viewCtl.dismiss();
+  }
+
   ionViewWillEnter() {
     this.translate.use(global.langue);
     //console.log('ionViewDidLoad LoginPage');

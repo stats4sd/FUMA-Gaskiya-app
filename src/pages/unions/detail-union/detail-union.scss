@@ -27,6 +27,7 @@ page-detail-union {
         width:320px;
         height:200px;
         overflow-x: auto;
+    }
         img{
             // max-height:120px;
             // width:120px;
@@ -62,5 +63,23 @@ page-detail-union {
             display: block;
             text-align: left;
         }
+
+        
+  
+
+      .error-box {
+        color: red;
     }
+     
+    .error-border {
+        color: red;
+    }
+
+    ion-auto-complete {
+        width: 100%;
+        //z-index: -100px;
+
+    }
+
+
 }

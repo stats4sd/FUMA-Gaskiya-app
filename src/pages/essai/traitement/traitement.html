@@ -7,6 +7,9 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
+    <ion-buttons left>
+      <button ion-button icon-only color="royal" (click)="dismiss()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons> 
     <ion-buttons start>
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{traitements.length}}</ion-badge>
@@ -39,11 +42,12 @@
   </ion-list>
 
     <ion-list>
-    <ion-item *ngFor="let traitement of traitements" (click)="detail(traitement)" > 
-      <h6><strong>Code:</strong> {{traitement.data.code_traitement}}</h6>
-      <h6><strong>Nom:</strong> {{traitement.data.nom_traitement}}</h6>
-      <h6><strong>Superficie:</strong> {{traitement.data.superficie}}</h6>
-      <p><strong>Année:</strong> {{traitement.data.annee}}</p>
+    <ion-item *ngFor="let traitement of traitements" (click)="detail(traitement.doc)" > 
+      <h6><strong>Code:</strong> {{traitement.doc.data.code_traitement}}</h6>
+      <h6><strong>Nom entrée:</strong> {{traitement.doc.data.nom_entree}}</h6>
+      <h6><strong>Nom controle:</strong> {{traitement.doc.data.nom_controle}}</h6>
+      <h6><strong>Superficie:</strong> {{traitement.doc.data.superficie}}</h6>
+      <p><strong>Année:</strong> {{traitement.doc.data.annee}}</p>
     </ion-item>
 
     <ion-item *ngIf="!traitements.length > 0">

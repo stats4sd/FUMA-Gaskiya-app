@@ -4,7 +4,7 @@ import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
-import { Geolocation } from '@ionic-native/geolocation'
+import { Geolocation } from '@ionic-native/geolocation';
 
 /*
   Generated class for the ModifierChamps page.
@@ -91,7 +91,10 @@ export class ModifierChampsPage {
     let toast = this.toastCtl.create({
       message: msg,
       position: 'top',
-      duration: 3000
+      duration: 1000,
+      showCloseButton: true,
+      closeButtonText: 'ok',
+      dismissOnPageChange: true
     });
 
     toast.present();
@@ -151,14 +154,17 @@ export class ModifierChampsPage {
       this.grandChamps.data = this.champs;
       this.servicePouchdb.updateDoc(this.grandChamps);
     
-      let toast = this.toastCtl.create({
+      /*let toast = this.toastCtl.create({
         message: 'Champs bien sauvegardée!',
         position: 'top',
-        duration: 2000
-      });
+        duration: 1000,
+        showCloseButton: true,
+        closeButtonText: 'ok',
+        dismissOnPageChange: true
+      });*/
 
       this.navCtrl.pop();
-      toast.present();
+      //toast.present();
       
 
    // }

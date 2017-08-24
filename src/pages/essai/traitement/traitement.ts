@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, IonicPage } from 'ionic-angular';
+import { NavController, NavParams, ViewController, AlertController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 //import { AjouterTraitementPage } from './ajouter-traitement/ajouter-traitement';
 //import { DetailTraitementPage } from './detail-traitement/detail-traitement';
@@ -26,21 +26,31 @@ export class TraitementPage {
 
   annees: any = [];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
+  constructor(public navCtrl: NavController, public viewCtl: ViewController, public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
     //générer des années de 2000 à 2050
     for(let i=0; i<=50; i++){
       this.annees.push(2000 + i)
     }
     this.annees.push('Tous');
 
-    let date = new Date();
-    this.selectedAnnee = date.getFullYear();
+    
+    if(this.navParams.data.annee){
+      this.selectedAnnee = this.navParams.data.annee;
+    }else{
+      let date = new Date();
+      this.selectedAnnee = date.getFullYear();
+    }
+    
+  }
+
+  dismiss(){
+    this.viewCtl.dismiss(this.traitements);
   }
 
    ionViewDidEnter() {
 
     if(this.selectedAnnee === 'Tous'){
-      this.servicePouchdb.getPlageDocs('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
+      this.servicePouchdb.getPlageDocsRapide('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
           if(t){
             this.traitements = t;
             this.allTraitements = t;
@@ -48,10 +58,10 @@ export class TraitementPage {
         });
     }else{
       let trm: any = [];
-      this.servicePouchdb.getPlageDocs('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
+      this.servicePouchdb.getPlageDocsRapide('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
           if(t){
             t.forEach((tr, i) => {
-              if(tr.data.annee === this.selectedAnnee){
+              if(tr.doc.data.annee === this.selectedAnnee){
                 trm.push(tr);
               }
             })
@@ -64,7 +74,7 @@ export class TraitementPage {
 
   choixAnneeTraitement(){
     if(this.selectedAnnee === 'Tous'){
-      this.servicePouchdb.getPlageDocs('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
+      this.servicePouchdb.getPlageDocsRapide('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
           if(t){
             this.traitements = t;
             this.allTraitements = t;
@@ -72,10 +82,10 @@ export class TraitementPage {
         });
     }else{
       let trm: any = [];
-      this.servicePouchdb.getPlageDocs('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
+      this.servicePouchdb.getPlageDocsRapide('fuma:traitement', 'fuma:traitement:\uffff').then((t) => {
           if(t){
             t.forEach((tr, i) => {
-              if(tr.data.annee === this.selectedAnnee){
+              if(tr.doc.data.annee === this.selectedAnnee){
                 trm.push(tr);
               }
             })
@@ -87,7 +97,12 @@ export class TraitementPage {
   }
 
    ajouter(){
-      this.navCtrl.push('AjouterTraitementPage');  
+     if(this.selectedAnnee !== 'Tous'){
+      this.navCtrl.push('AjouterTraitementPage', {'annee': this.selectedAnnee});
+     }else{
+      this.navCtrl.push('AjouterTraitementPage');
+     }
+        
   }
 
   detail(traitement){
@@ -104,7 +119,7 @@ export class TraitementPage {
     // if the value is an empty string don't filter the items
     if (val && val.trim() != '') {
       this.traitements = this.traitements.filter((item) => {
-        return (item.data.nom_traitement.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        return (item.doc.data.nom_traitement.toLowerCase().indexOf(val.toLowerCase()) > -1);
       });
     }
   }

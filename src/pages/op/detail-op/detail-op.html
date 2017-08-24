@@ -28,104 +28,221 @@
 
 
 <ion-content padding>
-  <ion-card class="info-card">
-    <ion-card-header>
-      <strong>Information op: {{op.data.num_aggrement}}</strong>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-            <ion-row>           
-              <ion-col class='meta-key'><strong>Numéro aggrément:</strong></ion-col>          
-              <ion-col class='meta-value'> {{op.data.num_aggrement}}</ion-col>          
-            </ion-row>
-            <ion-row>           
-              <ion-col class='meta-key'><strong>Code:</strong></ion-col>        
-              <ion-col class='meta-value'>{{op.data.code_OP}} </ion-col>         
-            </ion-row>
-            <ion-row>           
-              <ion-col class='meta-key'><strong>Nom:</strong></ion-col>        
-              <ion-col class='meta-value'>{{op.data.nom_OP}} </ion-col>         
-            </ion-row>
-            <ion-row>           
-              <ion-col class='meta-key'><strong>Nombre membres:</strong></ion-col>           
-              <ion-col class='meta-value'> {{op.data.num_membre}}</ion-col>          
-            </ion-row>
-            <ion-row>          
-               <ion-col class='meta-key'><strong>Nombre hommes:</strong></ion-col>           
-               <ion-col class='meta-value'> {{op.data.num_hommes}}</ion-col>          
-               </ion-row>
-            <ion-row>           
-              <ion-col class='meta-key'><strong>Nombre femmes:</strong></ion-col>           
-              <ion-col class='meta-value'> {{op.data.num_femmes}}</ion-col>          
-            </ion-row>
-            <ion-row *ngIf="op.data.union != 'AUTRE' && !op.data.union_nom">           
-              <ion-col class='meta-key'><strong>Union:</strong></ion-col>           
-              <ion-col class='meta-value'> {{op.data.union}}</ion-col>          
+  <div *ngIf="!modifierForm">
+    <ion-card class="info-card">
+      <ion-card-header>
+        <strong>Information op: {{op.data.num_aggrement}}</strong>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Numéro aggrément:</strong></ion-col>          
+                <ion-col class='meta-value'> {{op.data.num_aggrement}}</ion-col>          
               </ion-row>
-            <ion-row *ngIf="op.data.union != 'AUTRE' && op.data.union_nom">           
-              <ion-col class='meta-key'><strong>Union:</strong></ion-col>           
-              <ion-col class='meta-value'> {{op.data.union_nom}}</ion-col>          
-            </ion-row>
-            <ion-row *ngIf="op.data.union == 'AUTRE'">           
-              <ion-col class='meta-key'><strong>Union:</strong></ion-col>          
-              <ion-col class='meta-value'> {{op.data.union_autre}}</ion-col>          
-            </ion-row>
-            <ion-row>           
-              <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col>           
-              <ion-col class='meta-value'> {{op.data.today | date: 'dd-MM-yyyy'}}</ion-col>          
-            </ion-row>
-            <ion-row *ngIf="op.data.pays != 'AUTRE' && !op.data.pays_nom">           <ion-col class='meta-key'><strong>Pays:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.pays}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.pays != 'AUTRE' && op.data.pays_nom">           <ion-col class='meta-key'><strong>Pays:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.pays_nom}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.pays == 'AUTRE'">           <ion-col class='meta-key'><strong>Pays:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.pays_autre}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.region != 'AUTRE' && !op.data.region_nom">           <ion-col class='meta-key'><strong>Région:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.region}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.region != 'AUTRE' && op.data.region_nom">           <ion-col class='meta-key'><strong>Région:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.region_nom}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.region == 'AUTRE'">           <ion-col class='meta-key'><strong>Région:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.region_autre}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.departement != 'AUTRE' && !op.data.departement_nom">           <ion-col class='meta-key'><strong>Departement:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.departement}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.departement != 'AUTRE' && op.data.departement_nom">           <ion-col class='meta-key'><strong>Departement:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.departement_nom}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.departement == 'AUTRE'">           <ion-col class='meta-key'><strong>Departement:</strong></ion-col>          
-             <ion-col class='meta-value'> {{op.data.departement_autre}} </ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.commune != 'AUTRE' && !op.data.commune_nom">           <ion-col class='meta-key'><strong>Commune:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.commune}}</ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.commune != 'AUTRE' && op.data.commune_nom">           <ion-col class='meta-key'><strong>Commune:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.commune_nom}}</ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.commune == 'AUTRE'">           <ion-col class='meta-key'><strong>Commune:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.commune_autre}}</ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.village != 'AUTRE' && !op.data.village_nom">           <ion-col class='meta-key'><strong>Village:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.village}}</ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.village != 'AUTRE' && op.data.village_nom">           <ion-col class='meta-key'><strong>Village:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.village_nom}}</ion-col>          </ion-row>
-            <ion-row *ngIf="op.data.village == 'AUTRE'">           <ion-col class='meta-key'><strong>Village:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.village_autre}}</ion-col>          </ion-row>
-            <!--ion-row>           <ion-col class='meta-key'><strong>deviceid:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.deviceid}}</ion-col>          </ion-row>
-            <ion-row>           <ion-col class='meta-key'><strong>imei:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.imei}}</ion-col>          </ion-row>
-            <ion-row>           <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.phonenumber}}</ion-col>          </ion-row>
-            <ion-row>           <ion-col class='meta-key'><strong>start:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.start | date: 'dd-MM-yyyy'}} à {{op.data.start | date: 'HH:mm:ss'}}</ion-col>          </ion-row>
-            <ion-row>           <ion-col class='meta-key'><strong>end:</strong></ion-col>           
-            <ion-col class='meta-value'> {{op.data.end | date: 'dd-MM-yyyy'}} à {{op.data.end | date: 'HH:mm:ss'}}</ion-col>          </ion-row-->
-      </ion-grid>
-    </ion-card-content> 
-  </ion-card>
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Code:</strong></ion-col>        
+                <ion-col class='meta-value'>{{op.data.code_OP}} </ion-col>         
+              </ion-row>
 
-  <ion-fab bottom right >
+              <ion-row *ngIf="op.data.ancien_code_OP" >           
+                <ion-col class='meta-key'><strong>Ancien code:</strong></ion-col>        
+                <ion-col class='meta-value'>{{op.data.ancien_code_OP}} </ion-col>         
+              </ion-row>
+
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Nom:</strong></ion-col>        
+                <ion-col class='meta-value'>{{op.data.nom_OP}} </ion-col>         
+              </ion-row>
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Nombre membres:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.num_membre}}</ion-col>          
+              </ion-row>
+              <ion-row>          
+                <ion-col class='meta-key'><strong>Nombre hommes:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.num_hommes}}</ion-col>          
+                </ion-row>
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Nombre femmes:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.num_femmes}}</ion-col>          
+              </ion-row>
+              <ion-row *ngIf="op.data.union != 'AUTRE' && !op.data.union_nom">           
+                <ion-col class='meta-key'><strong>Union:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.union}}</ion-col>          
+                </ion-row>
+              <ion-row *ngIf="op.data.union != 'AUTRE' && op.data.union_nom">           
+                <ion-col class='meta-key'><strong>Union:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.union_nom}}</ion-col>          
+              </ion-row>
+              <ion-row *ngIf="op.data.union == 'AUTRE'">           
+                <ion-col class='meta-key'><strong>Union:</strong></ion-col>          
+                <ion-col class='meta-value'> {{op.data.union_autre}}</ion-col>          
+              </ion-row>
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Code union:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.union_code}}</ion-col>          
+              </ion-row>
+              <ion-row>           
+                <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col>           
+                <ion-col class='meta-value'> {{op.data.today | date: 'dd-MM-yyyy'}}</ion-col>          
+              </ion-row>
+              <ion-row *ngIf="op.data.pays != 'AUTRE' && !op.data.pays_nom">           <ion-col class='meta-key'><strong>Pays:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.pays}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.pays != 'AUTRE' && op.data.pays_nom">           <ion-col class='meta-key'><strong>Pays:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.pays_nom}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.pays == 'AUTRE'">           <ion-col class='meta-key'><strong>Pays:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.pays_autre}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.region != 'AUTRE' && !op.data.region_nom">           <ion-col class='meta-key'><strong>Région:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.region}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.region != 'AUTRE' && op.data.region_nom">           <ion-col class='meta-key'><strong>Région:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.region_nom}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.region == 'AUTRE'">           <ion-col class='meta-key'><strong>Région:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.region_autre}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.departement != 'AUTRE' && !op.data.departement_nom">           <ion-col class='meta-key'><strong>Departement:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.departement}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.departement != 'AUTRE' && op.data.departement_nom">           <ion-col class='meta-key'><strong>Departement:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.departement_nom}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.departement == 'AUTRE'">           <ion-col class='meta-key'><strong>Departement:</strong></ion-col>          
+              <ion-col class='meta-value'> {{op.data.departement_autre}} </ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.commune != 'AUTRE' && !op.data.commune_nom">           <ion-col class='meta-key'><strong>Commune:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.commune}}</ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.commune != 'AUTRE' && op.data.commune_nom">           <ion-col class='meta-key'><strong>Commune:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.commune_nom}}</ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.commune == 'AUTRE'">           <ion-col class='meta-key'><strong>Commune:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.commune_autre}}</ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.village != 'AUTRE' && !op.data.village_nom">           <ion-col class='meta-key'><strong>Village:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.village}}</ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.village != 'AUTRE' && op.data.village_nom">           <ion-col class='meta-key'><strong>Village:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.village_nom}}</ion-col>          </ion-row>
+              <ion-row *ngIf="op.data.village == 'AUTRE'">           <ion-col class='meta-key'><strong>Village:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.village_autre}}</ion-col>          </ion-row>
+              <!--ion-row>           <ion-col class='meta-key'><strong>deviceid:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.deviceid}}</ion-col>          </ion-row>
+              <ion-row>           <ion-col class='meta-key'><strong>imei:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.imei}}</ion-col>          </ion-row>
+              <ion-row>           <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.phonenumber}}</ion-col>          </ion-row>
+              <ion-row>           <ion-col class='meta-key'><strong>start:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.start | date: 'dd-MM-yyyy'}} à {{op.data.start | date: 'HH:mm:ss'}}</ion-col>          </ion-row>
+              <ion-row>           <ion-col class='meta-key'><strong>end:</strong></ion-col>           
+              <ion-col class='meta-value'> {{op.data.end | date: 'dd-MM-yyyy'}} à {{op.data.end | date: 'HH:mm:ss'}}</ion-col>          </ion-row-->
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+  </div>
+
+  <div *ngIf="modifierForm">
+
+    <form [formGroup]="opForm" (ngSubmit) = "modifierOP()">
+
+      <ion-item>
+        <ion-label floating>Date <span class="error-box">*</span></ion-label>
+        <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider" disabled></ion-datetime>
+      </ion-item>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Pays <span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="op1.pays_nom && op1.pays != 'AUTRE'" type="text" formControlName="pays_nom" disabled></ion-input>
+            <ion-input *ngIf="!op1.pays_nom && op1.pays != 'AUTRE'" type="text" formControlName="pays" disabled></ion-input>
+            <ion-input *ngIf="op1.pays == 'AUTRE'" type="text" formControlName="pays_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Région<span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="op1.region_nom && op1.region != 'AUTRE'" type="text" formControlName="region_nom" disabled></ion-input>
+            <ion-input *ngIf="!op1.region_nom && op1.region != 'AUTRE'" type="text" formControlName="region" disabled></ion-input>
+            <ion-input *ngIf="op1.region == 'AUTRE'" type="text" formControlName="region_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Departement <span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="op1.departement_nom && op1.departement != 'AUTRE'" type="text" formControlName="departement_nom" disabled></ion-input>
+            <ion-input *ngIf="!op1.departement_nom && op1.departement != 'AUTRE'" type="text" formControlName="departement" disabled></ion-input>
+            <ion-input *ngIf="op1.departement == 'AUTRE'" type="text" formControlName="departement_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Commune<span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="op1.commune_nom && op1.commune != 'AUTRE'" type="text" formControlName="commune_nom" disabled></ion-input>
+            <ion-input *ngIf="!op1.commune_nom && op1.commune != 'AUTRE'" type="text" formControlName="commune" disabled></ion-input>
+            <ion-input *ngIf="op1.commune == 'AUTRE'" type="text" formControlName="commune_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-item>
+        <ion-label floating>Selectionnez le village <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="village" [(ngModel)]="selectedVillageID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(selectedVillageID)" >
+          <ion-option value="" selected disabled>Selectionnez le village</ion-option>
+          <ion-option *ngFor="let villag of villages" [value]=villag.id >{{villag.nom}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['village'].hasError('required') && opForm.controls['village'].touched">* le village est obligatoir!</div>
+      
+      <ion-item *ngIf="selectedVillageID" [hidden]="selectedVillageID != 'AUTRE'">
+        <ion-label floating>Nom village <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="village_autre" type="text"  [(ngModel)]="nom_autre_village" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['village_autre'].hasError('required') && opForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
+
+      <ion-item> 
+        <ion-label floating>Selectionnez l'union <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="union" [(ngModel)]="selectedUnionID" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomUnion(selectedUnionID)" >
+          <ion-option value="" selected disabled>Selectionnez l'union</ion-option>
+          <ion-option *ngFor="let u of unions" [value]=u.data.num_aggrement >{{u.data.code_union}} - {{u.data.nom_union}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['village'].hasError('required') && opForm.controls['village'].touched">* l'union est obligatoir!</div>
+      
+      <ion-item *ngIf="selectedUnionID" [hidden]="selectedUnionID != 'AUTRE'">
+        <ion-label floating>Nom union <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="union_autre" type="text"  [(ngModel)]="nom_autre_union" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union_autre'].hasError('required') && opForm.controls['union_autre'].touched">* Le nom de l'union est obligatoire</div>
+
+      <ion-item>
+        <ion-label floating>Numéro d'aggrément <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="num_aggrement"></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['num_aggrement'].hasError('required') && opForm.controls['num_aggrement'].touched">* le numéro d'aggrément est obligatoir!</div>
+      
+      <ion-item>
+        <ion-label floating>Code de l'OP <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="code_OP" [(ngModel)]="code_op" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['code_OP'].hasError('required') && opForm.controls['code_OP'].touched">* le code de l'OP des est obligatoir!</div>
+
+
+      <ion-item>
+        <ion-label floating>Nom de l'OP <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="nom_OP" [(ngModel)]="nom_op" (keyup)="genererCodeOP()"></ion-input> 
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['nom_OP'].hasError('required') && opForm.controls['nom_OP'].touched">* le nom de l'OP des est obligatoir!</div>
+      
+        <br>
+        <button ion-button type="submit" color="my_secondary" [disabled]="!opForm.valid" block>Sauvegarder</button>
+      </form>
+      <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+  </div>
+
+  <ion-fab bottom right *ngIf="!modifierForm" >
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
       <button ion-fab mini (click)="supprimer(op)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab (click)="membresOP(op.data.num_aggrement, op.data.nom_OP, op.data.code_OP)"><ion-icon name="people"></ion-icon></button>
       <button ion-fab mini (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
-  </ion-fab>
+  </ion-fab> 
 
   <!--ion-fab bottom right>
     <button ion-fab mini (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>

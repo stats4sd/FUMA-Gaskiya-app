@@ -18,40 +18,115 @@
 
 
 <ion-content padding>
+ <div *ngIf="!modifierForm">
+    <ion-card class="info-card"> 
+      <ion-card-header>
+        <strong>Information champs: {{champ.data.nom}}</strong>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row> <ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.id_champs}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Type de sole:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.type_sole}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.longitude}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Latitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.latitude}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.superficie}}ha </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.matricule_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom_producteur}} </ion-col> </ion-row>
+          
+          <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
+          
+          <!--ion-row> <ion-col class='meta-key'><strong>deviceid:</strong></ion-col> <ion-col class='meta-value'> {{union.data.deviceid}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>imei:</strong></ion-col> <ion-col class='meta-value'> {{union.data.imei}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col> <ion-col class='meta-value'> {{union.data.phonenumber}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>start:</strong></ion-col> <ion-col class='meta-value'> {{union.data.start | date: 'dd-MM-yyyy'}} à {{union.data.start | date: 'HH:mm:ss'}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>end:</strong></ion-col> <ion-col class='meta-value'> {{union.data.end | date: 'dd-MM-yyyy'}} à {{union.data.end | date: 'HH:mm:ss'}}</ion-col> </ion-row-->
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+ </div>
 
-  <ion-card class="info-card"> 
-    <ion-card-header>
-      <strong>Information champs: {{champ.data.nom}}</strong>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row> <ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.id_champs}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Type de sole:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.type_sole}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.longitude}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Latitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.latitude}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.superficie}}ha </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.matricule_producteur}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom_producteur}} </ion-col> </ion-row>
-        
-        <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
-        
-        <!--ion-row> <ion-col class='meta-key'><strong>deviceid:</strong></ion-col> <ion-col class='meta-value'> {{union.data.deviceid}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>imei:</strong></ion-col> <ion-col class='meta-value'> {{union.data.imei}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col> <ion-col class='meta-value'> {{union.data.phonenumber}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>start:</strong></ion-col> <ion-col class='meta-value'> {{union.data.start | date: 'dd-MM-yyyy'}} à {{union.data.start | date: 'HH:mm:ss'}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>end:</strong></ion-col> <ion-col class='meta-value'> {{union.data.end | date: 'dd-MM-yyyy'}} à {{union.data.end | date: 'HH:mm:ss'}}</ion-col> </ion-row-->
-      </ion-grid>
-    </ion-card-content> 
-  </ion-card>
+ <div *ngIf="modifierForm">
+
+       
+<form [formGroup]="champsForm" (ngSubmit) = "modifierChamps()">
+
+    <ion-item>
+      <ion-label floating>Id champs <span class="error-box">*</span></ion-label>
+      <ion-input type="text" formControlName="id_champs" [(ngModel)]="id_champs" disabled></ion-input>
+    </ion-item>
+
+   <!--ion-item> 
+    <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="matricule_producteur" [(ngModel)]="selectedProducteur" cancelText="Annuler" (ionChange)="getNomProducteur()" okText="Ok">
+      <ion-option value="" selected disabled>Selectionnez le matricule du producteur</ion-option>
+      <ion-option *ngFor="let p of producteurs" [value]=p.data.matricule_Membre >{{p.data.matricule_Membre}} - {{p.data.nom_Membre}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['matricule_producteur'].hasError('required') && champsForm.controls['matricule_producteur'].touched">* le ùatricule du producteur est obligatoir!</div-->
+
+  <ion-item> 
+    <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="selectedProducteur" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['matricule_producteur'].hasError('required') && champsForm.controls['matricule_producteur'].touched">* le ùatricule du producteur est obligatoir!</div> 
+
+  <ion-item> 
+    <ion-label floating>Nom producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_producteur" [(ngModel)]="nom_producteur" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['nom_producteur'].hasError('required') && champsForm.controls['nom_producteur'].touched">* le nom du producteur est obligatoir!</div>
+   
+  <ion-item>
+    <ion-label floating>Nom du champs <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['nom'].hasError('required') && champsForm.controls['nom'].touched">* le nom du champs est obligatoir!</div>
+  
+  <ion-item> 
+    <ion-label floating>Modifier le type de sole <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="type_sole" cancelText="Annuler" okText="Ok">
+      <ion-option value="" selected disabled>Selectionnez le type de sole</ion-option>
+      <ion-option *ngFor="let ts of typeSoles" [value]=ts.data.nom >{{ts.data.nom}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['type_sole'].hasError('required') && champsForm.controls['type_sole'].touched">* le type du sole est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Superficie (ha) <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="superficie" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['superficie'].hasError('required') && champsForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Longitude</ion-label>
+    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label floating>Latitude</ion-label>
+    <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
+  </ion-item>
 
 
-  <ion-fab bottom right >
+    <br>
+    <button ion-button type="submit" color="my_secondary" [disabled]="!champsForm.valid" block>Sauvegarder</button>
+  </form>
+  <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+
+ </div>
+
+  <ion-fab bottom right *ngIf="!modifierForm" >
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
       <button ion-fab mini (click)="supprimer(champ)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab mini (click)="editer(champ)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
+  </ion-fab>
+
+  <ion-fab bottom right *ngIf="modifierForm">
+    <button ion-fab mini (click)="getPosition()"><ion-icon name="pin"></ion-icon></button>
   </ion-fab>
 
 

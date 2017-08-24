@@ -7,7 +7,11 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
-    <ion-buttons start>
+    <ion-buttons *ngIf="ajoutForm" left>
+      <button ion-button icon-only color="royal" (click)="annuler()"> <ion-icon name="arrow-back"></ion-icon></button>
+    </ion-buttons>
+
+    <ion-buttons *ngIf="!ajoutForm" start>
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{unions.length}}</ion-badge>
       </button>
@@ -23,8 +27,9 @@
         <ion-icon name="unlock"></ion-icon>
       </button>
     </ion-buttons>
-    <ion-title>unions</ion-title>
-    <ion-buttons end>
+    <ion-title *ngIf="!ajoutForm">unions</ion-title>
+    <ion-title *ngIf="ajoutForm">unions</ion-title>
+    <ion-buttons *ngIf="!ajoutForm" end>
        <button ion-button icon-only color="royal" (click)="option()"><ion-icon name="options"></ion-icon></button>
     </ion-buttons>
   </ion-navbar>
@@ -33,42 +38,130 @@
 
 
 <ion-content padding>
-  <ion-list>
-    <ion-item>
-      <ion-label floating>Choisir la source</ion-label>
-      <ion-select [(ngModel)]="selectedSource" (ionChange)="choixSource()" cancelText="Annuler" okText="Ok" >
-        <ion-option value="" selected disabled>Selectionnez la source</ion-option>
-        <ion-option value="application">Application</ion-option>
-        <ion-option value="kobo">Kobo</ion-option>
-        <ion-option value="tous">Tous</ion-option>
-      </ion-select>
-    </ion-item>
+  <div *ngIf="!ajoutForm">
+    <ion-list>
+      <ion-item>
+        <ion-label floating>Choisir la source</ion-label>
+        <ion-select [(ngModel)]="selectedSource" (ionChange)="choixSource()" cancelText="Annuler" okText="Ok" >
+          <ion-option value="" selected disabled>Selectionnez la source</ion-option>
+          <ion-option value="application">Application</ion-option>
+          <ion-option value="kobo">Kobo</ion-option>
+          <ion-option value="tous">Tous</ion-option>
+        </ion-select>
+      </ion-item>
 
-    <ion-item>
-      <ion-searchbar placeholder="Rechercher par nom union..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
-    </ion-item>
-  </ion-list>
+      <ion-item>
+        <ion-searchbar placeholder="Rechercher par nom union..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      </ion-item>
+    </ion-list>
 
-  <ion-list>
-    <ion-item *ngFor="let union of unions" (click)="detail(union, selectedSource)" >
-      <!--ion-row>
-        <ion-col-->
-           <h6><strong>Numéro d'aggrément:</strong> {{union.data.num_aggrement}}</h6>
-           <h6><strong>Code union:</strong> {{union.data.code_union}}</h6>
-           <h6><strong>Nom union:</strong> {{union.data.nom_union}}</h6>
-        <!--/ion-col>
-        <ion-col class="aligneDate"-->
-          <p><strong>Date:</strong> {{union.data.today | date: 'dd-MM-yyyy'}}</p>
-        <!--/ion-col>
-      </ion-row-->
-    </ion-item>
+    <ion-list>
+      <ion-item *ngFor="let union of unions" (click)="detail(union.doc, selectedSource)" >
+        <!--ion-row>
+          <ion-col-->
+              <h6><strong>Numéro d'aggrément:</strong> {{union.doc.data.num_aggrement}}</h6>
+              <h6><strong>Code union:</strong> {{union.doc.data.code_union}}</h6>
+              <h6><strong>Nom union:</strong> {{union.doc.data.nom_union}}</h6>
+          <!--/ion-col>
+          <ion-col class="aligneDate"-->
+            <p><strong>Date:</strong> {{union.doc.data.today | date: 'dd-MM-yyyy'}}</p>
+          <!--/ion-col>
+        </ion-row-->
+      </ion-item>
 
-    <ion-item *ngIf="!unions.length > 0">
-      <div class="message">La liste est vide!</div>
-    </ion-item>    
-  </ion-list>
+      <ion-item *ngIf="!unions.length > 0">
+        <div class="message">La liste est vide!</div>
+      </ion-item>    
+    </ion-list>
+  </div>
 
-  <ion-fab bottom right>
+
+  <div *ngIf="ajoutForm">
+    <form [formGroup]="unionForm" (ngSubmit) = "ajouterUnion()">
+
+      <ion-item>
+        <ion-label floating>Date <span class="error-box">*</span></ion-label>
+        <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider"></ion-datetime>
+      </ion-item>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Pays <span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.pays_autre == 'NA'" type="text" formControlName="pays_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.pays_autre != 'NA'" type="text" formControlName="pays_autre" disabled></ion-input>
+
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Région<span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.region_autre == 'NA'" type="text" formControlName="region_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.region_autre != 'NA'" type="text" formControlName="region_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Departement <span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.departement_autre == 'NA'" type="text" formControlName="departement_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.departement_autre != 'NA'" type="text" formControlName="departement_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Commune<span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.commune_autre == 'NA'" type="text" formControlName="commune_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.commune_autre != 'NA'" type="text" formControlName="commune_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row> 
+
+      <ion-item>
+        <ion-label floating>Selectionnez le village <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="village" [(ngModel)]="selectedVillage" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(selectedVillage.id)" >
+          <ion-option value="" selected disabled>Selectionnez le village</ion-option>
+          <ion-option *ngFor="let villag of villages" [value]=villag >{{villag.nom}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['village'].hasError('required') && unionForm.controls['village'].touched">* le village est obligatoir!</div>
+      
+      <ion-item *ngIf="selectedVillage" [hidden]="selectedVillage.id != 'AUTRE'">
+        <ion-label floating>Nom village <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="village_autre" type="text"  [(ngModel)]="nom_autre_village" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['village_autre'].hasError('required') && unionForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
+
+      <ion-item>
+        <ion-label floating>Numéro d'aggrément <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="num_aggrement" [(ngModel)]="num_aggrement" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['num_aggrement'].hasError('required') && unionForm.controls['num_aggrement'].touched">* le numéro d'aggrément est obligatoir!</div>
+
+      <ion-item>
+        <ion-label floating>Nom de l'union <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="nom_union" [(ngModel)]="nom_union" (keyup)="genererCodeUnion()" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['nom_union'].hasError('required') && unionForm.controls['nom_union'].touched">* le nom de l'union des est obligatoir!</div>
+      
+      <ion-item>
+        <ion-label floating>Code de l'union <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="code_union" [(ngModel)]="code_union" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="unionForm.controls['code_union'].hasError('required') && unionForm.controls['code_union'].touched">* le code de l'union des est obligatoir!</div>
+      
+        <br>
+        <button ion-button type="submit" color="my_secondary" [disabled]="!unionForm.valid" block>Sauvegarder</button>
+      </form>
+      <button ion-button color="my_primary" block (click)="annuler()">Fermer</button>
+
+  </div>
+
+  <ion-fab *ngIf="!ajoutForm" bottom right>
     <button ion-fab mini (click)="ajouter(confLocaliteEnquete)" color="my_primary"><ion-icon name="add"></ion-icon></button>
   </ion-fab>
 </ion-content>

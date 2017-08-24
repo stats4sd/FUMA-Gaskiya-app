@@ -43,23 +43,42 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['code_traitement'].hasError('required') && traitementForm.controls['code_traitement'].touched">* le code du traitement est obligatoir!</div>
    
-  <ion-item>
+  <!--ion-item>
     <ion-label floating>Nom traitement</ion-label>
     <ion-input type="text" formControlName="nom_traitement" ></ion-input>
   </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_traitement'].hasError('required') && traitementForm.controls['nom_traitement'].touched">* le nom du traitement est obligatoir!</div>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_traitement'].hasError('required') && traitementForm.controls['nom_traitement'].touched">* le nom du traitement est obligatoir!</div-->
   
   <ion-item>
     <ion-label floating>Nom d'entrée <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="nom_entree" ></ion-input>
   </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_entree'].hasError('required') && traitementForm.controls['nom_entree'].touched">* le nom de l'entrée' est obligatoir!</div>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_entree'].hasError('required') && traitementForm.controls['nom_entree'].touched">* le nom de l'entrée est obligatoir!</div>
 
   <ion-item>
-    <ion-label floating>Superficie (m²)</ion-label>
+    <ion-label floating>Nom controle <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_controle" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_controle'].hasError('required') && traitementForm.controls['nom_controle'].touched">* le nom du controle  est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Superficie (m²) <span class="error-box">*</span></ion-label>
     <ion-input type="number" formControlName="superficie"></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['superficie'].hasError('required') && traitementForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Max NPL <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="max_NPL"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['max_NPL'].hasError('required') && traitementForm.controls['max_NPL'].touched">* le max NPL est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Max NPR <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="max_NPR"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['max_NPR'].hasError('required') && traitementForm.controls['max_NPR'].touched">* le max NPR est obligatoir!</div>
+    
 
   <ion-item>
     <ion-label floating>Description de l'entrée</ion-label>

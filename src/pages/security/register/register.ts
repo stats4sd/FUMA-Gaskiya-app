@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController, IonicPage, MenuController, ToastController } from 'ionic-angular';
+import { NavController, ViewController, NavParams, LoadingController, IonicPage, MenuController, ToastController } from 'ionic-angular';
 //import { TabsPage } from '../tabs/tabs';
 //import { LoginPage } from '../login/login';
 //import { ConfigBoutiquePage } from '../accueil/config-boutique/config-boutique';
@@ -29,7 +29,7 @@ export class RegisterPage {
   confmdpass: string;
   registerForm: any;
 
-  constructor(public translate: TranslateService, public toastCtl: ToastController, public navCtrl: NavController, public storage: Storage, public menuCtrl: MenuController, public formBuilder: FormBuilder, public navParams: NavParams, public loadinCtl: LoadingController, public gestionService: PouchdbProvider) {
+  constructor(public translate: TranslateService, public viewCtl:ViewController, public toastCtl: ToastController, public navCtrl: NavController, public storage: Storage, public menuCtrl: MenuController, public formBuilder: FormBuilder, public navParams: NavParams, public loadinCtl: LoadingController, public gestionService: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
     let d: Date = new Date();
     let s = this.createDate(d.getDate(), d.getMonth(), d.getFullYear());
@@ -48,6 +48,10 @@ export class RegisterPage {
         //deleted_at: [d.toJSON()],
         //deleted_by: [d.toJSON()],
     });
+  }
+
+     dismiss(){
+    this.viewCtl.dismiss();
   }
 
   afficheMsg(msg: string){

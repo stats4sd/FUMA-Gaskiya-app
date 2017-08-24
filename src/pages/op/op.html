@@ -7,7 +7,12 @@
 <ion-header>
 
   <ion-navbar color="fuma_primary">
-    <ion-buttons start>
+    
+    <ion-buttons *ngIf="ajoutForm" left>
+      <button ion-button icon-only color="royal" (click)="annuler()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons>
+
+    <ion-buttons *ngIf="!ajoutForm" start>
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{ops.length}}</ion-badge>
       </button>
@@ -24,7 +29,7 @@
       </button>
     </ion-buttons>
     <ion-title>op</ion-title>
-    <ion-buttons end>
+    <ion-buttons *ngIf="!ajoutForm" end>
       <button ion-button icon-only color="royal" (click)="option()"><ion-icon name="options"></ion-icon></button>
     </ion-buttons>
   </ion-navbar>
@@ -34,6 +39,8 @@
 
 <ion-content padding>
 
+ <div *ngIf="!ajoutForm">
+   
   <h5 *ngIf="num_aggrement_union" style="text-align: center; color: seagreen">
     Les OP de l'union: {{nom_union}} - N.A: {{num_aggrement_union}}
   </h5>
@@ -50,20 +57,32 @@
     </ion-item>
 
     <ion-item>
-      <ion-searchbar placeholder="Rechercher par nom OP..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-label floating>Type de recherche</ion-label>
+      <ion-select [(ngModel)]="typeRecherche" (ionChange)="typeRechercheChange()" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez le type de recherche</ion-option>
+        <ion-option value="nom" >Par nom op</ion-option>
+        <ion-option value="code" >Par code op</ion-option>
+        <ion-option value="aggrement" >Par numéro d'aggrement</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-searchbar *ngIf="typeRecherche == 'nom'" placeholder="Rechercher par nom OP..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar *ngIf="typeRecherche == 'code'" placeholder="Rechercher par code OP..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar *ngIf="typeRecherche == 'aggrement'" placeholder="Rechercher par num. aggrément OP..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
     </ion-item>
   </ion-list>
 
   <ion-list>
-    <ion-item *ngFor="let op of ops" (click)="detail(op, selectedSource)" >
+    <ion-item *ngFor="let op of ops" (click)="detail(op.doc, selectedSource)" >
       <!--ion-row>
         <ion-col-->
-           <h6><strong>Numéro d'aggrément:</strong> {{op.data.num_aggrement}}</h6>
-           <h6><strong>Code OP:</strong> {{op.data.code_OP}}</h6>
-           <h6><strong>Nom OP:</strong> {{op.data.nom_OP}}</h6>
+           <h6><strong>Numéro d'aggrément:</strong> {{op.doc.data.num_aggrement}}</h6>
+           <h6><strong>Code OP:</strong> {{op.doc.data.code_OP}}</h6>
+           <h6><strong>Nom OP:</strong> {{op.doc.data.nom_OP}}</h6>
         <!--/ion-col>
         <ion-col class="aligneDate"-->
-          <p><strong>Date:</strong> {{op.data.today | date: 'dd-MM-yyyy'}}</p>
+          <p><strong>Date:</strong> {{op.doc.data.today | date: 'dd-MM-yyyy'}}</p>
         <!--/ion-col>
       </ion-row-->
     </ion-item>
@@ -72,8 +91,121 @@
       <div class="message">La liste est vide!</div>
     </ion-item>    
   </ion-list>
+ </div>
 
-  <ion-fab bottom right>
+  <div *ngIf="ajoutForm" >
+    <form [formGroup]="opForm" (ngSubmit) = "ajouterOP()">
+
+      <ion-item>
+        <ion-label floating>Date <span class="error-box">*</span></ion-label>
+        <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider"></ion-datetime>
+      </ion-item>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Pays <span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.pays_autre == 'NA'" type="text" formControlName="pays_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.pays_autre != 'NA'" type="text" formControlName="pays_autre" disabled></ion-input>
+
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Région<span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.region_autre == 'NA'" type="text" formControlName="region_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.region_autre != 'NA'" type="text" formControlName="region_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Departement <span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.departement_autre == 'NA'" type="text" formControlName="departement_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.departement_autre != 'NA'" type="text" formControlName="departement_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Commune<span class="error-box">*</span></ion-label>
+            <ion-input *ngIf="confLocaliteEnquete.commune_autre == 'NA'" type="text" formControlName="commune_nom" disabled></ion-input>
+            <ion-input *ngIf="confLocaliteEnquete.commune_autre != 'NA'" type="text" formControlName="commune_autre" disabled></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-item>
+        <ion-label floating>Selectionnez le village <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="village" [(ngModel)]="selectedVillage" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(selectedVillage.id)" >
+          <ion-option value="" selected disabled>Selectionnez le village</ion-option>
+          <ion-option *ngFor="let villag of villages" [value]=villag >{{villag.nom}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['village'].hasError('required') && opForm.controls['village'].touched">* le village est obligatoir!</div>
+      
+      <ion-item *ngIf="selectedVillage" [hidden]="selectedVillage.id != 'AUTRE'">
+        <ion-label floating>Nom village <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="village_autre" type="text"  [(ngModel)]="nom_autre_village" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['village_autre'].hasError('required') && opForm.controls['village_autre'].touched">* Le nom du village est obligatoire</div>
+
+      <ion-item *ngIf="!num_aggrement_union"> 
+        <ion-label floating>Selectionnez l'union <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="union" [(ngModel)]="selectedUnion" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomUnion(selectedUnion.doc.data.num_aggrement)" >
+          <ion-option value="" selected disabled>Selectionnez l'union</ion-option>
+          <ion-option *ngFor="let u of unions" [value]=u >{{u.doc.data.code_union}} - {{u.doc.data.nom_union}}</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union'].hasError('required') && opForm.controls['union'].touched">* l'union est obligatoir!</div>
+      
+      <ion-item *ngIf="num_aggrement_union">
+        <ion-label floating>Num. aggrément union <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="union" type="text"  [(ngModel)]="num_aggrement_union" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union'].hasError('required') && opForm.controls['union'].touched">* Le num. aggrément de l'union est obligatoire</div>
+
+      <ion-item *ngIf="num_aggrement_union">
+        <ion-label floating>Nom union <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="union_nom" type="text"  [(ngModel)]="nom_union" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union_nom'].hasError('required') && opForm.controls['union_nom'].touched">* Le nom de l'union est obligatoire</div>
+
+      <ion-item *ngIf="selectedUnion" [hidden]="selectedUnion.doc.data.num_aggrement != 'AUTRE'">
+        <ion-label floating>Nom union <span class="error-box">*</span></ion-label>
+        <ion-input formControlName="union_autre" type="text"  [(ngModel)]="nom_autre_union" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['union_autre'].hasError('required') && opForm.controls['union_autre'].touched">* Le nom de l'union est obligatoire</div>
+
+      <ion-item>
+        <ion-label floating>Numéro d'aggrément <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="num_aggrement" [(ngModel)]="num_aggrement" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['num_aggrement'].hasError('required') && opForm.controls['num_aggrement'].touched">* le numéro d'aggrément est obligatoir!</div>
+
+      <ion-item>
+        <ion-label floating>Nom de l'OP <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="nom_OP" [(ngModel)]="nom_op" (keyup)="genererCodeOP()" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['nom_OP'].hasError('required') && opForm.controls['nom_OP'].touched">* le nom de l'OP des est obligatoir!</div>
+ 
+      <ion-item>
+        <ion-label floating>Code de l'OP <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="code_OP" [(ngModel)]="code_op" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['code_OP'].hasError('required') && opForm.controls['code_OP'].touched">* le code de l'OP des est obligatoir!</div>
+
+        <br>
+        <button ion-button type="submit" color="my_secondary" [disabled]="!opForm.valid" block>Sauvegarder</button>
+      </form>
+      <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+  </div>
+
+  <ion-fab *ngIf="!ajoutForm" bottom right>
     <button ion-fab mini (click)="ajouter(confLocaliteEnquete)" color="my_primary"><ion-icon name="add"></ion-icon></button>
   </ion-fab>
 </ion-content>

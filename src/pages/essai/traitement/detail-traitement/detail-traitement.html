@@ -26,10 +26,12 @@
       <ion-grid>
         <ion-row> <ion-col class='meta-key'><strong>Année:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.annee}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>code:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.code_traitement}} </ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.nom_traitement}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Nom d'entrée:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.nom_entree}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Nom controle:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.nom_controle}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.superficie}} </ion-col> </ion-row>
-      
+        <ion-row> <ion-col class='meta-key'><strong>Max NPL:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.max_NPL}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Max NPR:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.max_NPR}} </ion-col> </ion-row>
+  
         <ion-row> <ion-col class='meta-key'><strong>Description de l'entrée:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.description_entree}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Objectif:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.objectif_traitement}} </ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{traitement.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, IonicPage } from 'ionic-angular';
+import { NavController, ViewController, NavParams, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 //import { ModifierProfilePage } from './modifier-profile/modifier-profile';
 import { Storage } from '@ionic/storage';
@@ -22,8 +22,12 @@ export class ProfileUserPage {
   user: any = {} ; 
   estAdmin: any = false;
  
-  constructor(public translate: TranslateService, public storage:Storage, public navCtrl: NavController, public navParams: NavParams, public gestionService: PouchdbProvider) {
+  constructor(public translate: TranslateService, public viewCtl: ViewController, public storage:Storage, public navCtrl: NavController, public navParams: NavParams, public gestionService: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
+  }
+
+       dismiss(){
+    this.viewCtl.dismiss();
   }
   
   ionViewDidLoad() {

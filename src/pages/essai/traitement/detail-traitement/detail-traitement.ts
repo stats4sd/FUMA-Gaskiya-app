@@ -54,7 +54,7 @@ export class DetailTraitementPage {
             let toast = this.toastCtl.create({
               message:'Traitement bien supprié',
               position: 'top',
-              duration: 3000
+              duration: 1000
             });
 
             toast.present();

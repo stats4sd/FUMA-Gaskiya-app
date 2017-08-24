@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController, IonicPage } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ViewController, ToastController, IonicPage } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
@@ -22,8 +22,13 @@ export class ConfLocaliteEnquetePage {
 
   confLocaliteEnquete: any;
 
-  constructor(public pouchdbService: PouchdbProvider, public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController, public toastCtl: ToastController, public translate: TranslateService, public formBuilder: FormBuilder, public storage: Storage) {
+  constructor(public pouchdbService: PouchdbProvider, public viewCtl: ViewController, public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController, public toastCtl: ToastController, public translate: TranslateService, public formBuilder: FormBuilder, public storage: Storage) {
     //this.storage.remove('confLocaliteEnquete');
+  }
+
+   dismiss(){
+    this.viewCtl.dismiss(this.confLocaliteEnquete);
+    //this.a_matricule = false;
   }
 
   ionViewDidEnter() {
