@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, AlertController, MenuController, ModalController, ToastController, IonicPage, Events } from 'ionic-angular';
+import { NavController, NavParams, ViewController, Platform, AlertController, MenuController, ModalController, ToastController, IonicPage, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 //import { AjouterOpPage } from './ajouter-op/ajouter-op';
 //import { DetailOpPage } from './detail-op/detail-op';
@@ -9,6 +9,10 @@ import { global } from '../../global-variables/variable'
 import { Validators, FormBuilder } from '@angular/forms';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import { File } from '@ionic-native/file';
+import * as FileSaver from 'file-saver';
+import { Printer, PrintOptions } from '@ionic-native/printer';
+declare var cordova: any;
 
 /*
   Generated class for the Op page.
@@ -30,12 +34,14 @@ export class OpPage {
   allOPs: any = [];
   allOPs1: any = [];
   confLocaliteEnquete: any;
+   selectedStyle: any = 'liste';
 
   num_aggrement_union: any;
   num_aggrement_union1: any;
   num_aggrement: any;
   nom_union: any;
   aProfile: boolean = true;
+  rechercher: any = false;
 
   opForm: any;
   villages: any = [];
@@ -54,10 +60,10 @@ export class OpPage {
   nom_op: string = '';
   code_op: any = '';
   ajoutForm: boolean = false;
-  typeRecherche: any = 'nom';
+  typeRecherche: any = 'code';
 
 
-  constructor(public navCtrl: NavController, public viewCtl:ViewController, public sim: Sim, public modelCtl: ModalController, public device: Device, public toastCtl: ToastController, public formBuilder: FormBuilder, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider) {
+  constructor(public navCtrl: NavController, public platform: Platform, public viewCtl:ViewController, public printer: Printer, public file: File, public sim: Sim, public modelCtl: ModalController, public device: Device, public toastCtl: ToastController, public formBuilder: FormBuilder, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -82,6 +88,45 @@ export class OpPage {
       //this.viewCtl.showBackButton(false)
     }
   }
+
+  exportExcel(){
+
+    let date = new Date();
+    //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
+    let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
+
+    let blob = new Blob([document.getElementById('tableau').innerHTML], {
+      //type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+      type: "text/plain;charset=utf-8"
+      //type: 'application/vnd.ms-excel;charset=utf-8'
+      //type: "application/vnd.ms-excel;charset=utf-8"
+    });
+
+    if(!this.platform.is('android')){
+      FileSaver.saveAs(blob, 'OPs_'+nom+'.xls');
+    }else{
+
+      let fileDestiny: string = cordova.file.externalRootDirectory;
+      this.file.writeFile(fileDestiny, 'OPs_'+nom+'.xls', blob).then(()=> {
+          alert("Fichier créé dans: " + fileDestiny);
+      }).catch(()=>{
+          alert("Erreur de création du fichier dans: " + fileDestiny);
+      })
+    }
+  }
+
+  onPrint(){
+    let options: PrintOptions = {
+        //name: 'Rapport',
+        //printerId: 'printer007',
+        duplex: true,
+        landscape: true,
+        grayscale: true
+    };
+    let content = document.getElementById('tableau').innerHTML;
+    this.printer.print(content, options);
+  }
+
 
   initForm(){
     //this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
@@ -139,7 +184,14 @@ export class OpPage {
   genererCodeOP(){
     
     let nom = this.nom_op;
-     nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '');
+    let nom1: any = '';
+    for(let i = 0; i < nom.length; i++){
+      if(nom.charAt(i) !== ' '){
+        nom1 += nom.charAt(i).toString();
+      }
+    }
+     //let nom1 = nom.replace(/ /g,"");
+     nom = nom1;
      let taille_nom = nom.length;
      let an = nom;
     //taille initiale: deux aractères
@@ -195,6 +247,8 @@ export class OpPage {
           }
       }
       
+    }else{
+      this.code_op = '';
     }
     
   }
@@ -392,6 +446,7 @@ export class OpPage {
 
   ionViewDidLoad(){
 
+    this.rechercher = true;
     if(this.selectedSource === 'application'){
       let opss: any = [];
       this.servicePouchdb.getPlageDocsRapide('fuma:op:','fuma:op:\uffff').then((ops) => {
@@ -412,10 +467,12 @@ export class OpPage {
            });
            this.ops = opu;
            this.allOPs = opu;
+           this.rechercher = false;
 
           }else{
             this.ops = opss;
             this.allOPs = opss;
+            this.rechercher = false;
           }
           //this.ops = opss;
           //this.allOPs = opss;
@@ -441,10 +498,12 @@ export class OpPage {
            });
            this.ops = opu;
            this.allOPs = opu;
+           this.rechercher = false;
 
           }else{
             this.ops = opss;
             this.allOPs = opss;
+            this.rechercher = false;
           }
           //this.ops = opss ;
           //this.allOPs = opss;
@@ -484,10 +543,12 @@ export class OpPage {
            });
            this.ops = opu;
            this.allOPs = opu;
+           this.rechercher = false;
 
           }else{
             this.ops = opss;
             this.allOPs = opss;
+            this.rechercher = false;
           }
 
           //this.ops = A.concat(k);
@@ -580,11 +641,11 @@ export class OpPage {
         this.initForm();*/
       }
       //this.chargerVillages(this.confLocaliteEnquete.commune.id);
-    }, err => alert('Une erreur c\est produite lors du chergement de la localité de l\'enquette '));
+    }, err => alert('Une erreur c\'est produite lors du chergement de la localité de l\'enquette '));
   }
 
   choixSource(){
-
+      this.rechercher = true;
      if(this.selectedSource === 'application'){
     
       let opss: any = [];
@@ -606,10 +667,12 @@ export class OpPage {
            });
            this.ops = opu;
            this.allOPs = opu;
+           this.rechercher = false;
 
           }else{
             this.ops = opss;
             this.allOPs = opss;
+            this.rechercher = false;
           }
           //this.ops = opss;
           //this.allOPs = opss;
@@ -638,10 +701,12 @@ export class OpPage {
            });
            this.ops = opu;
            this.allOPs = opu;
+           this.rechercher = false;
 
           }else{
             this.ops = opss;
             this.allOPs = opss;
+            this.rechercher = false;
           }
         }
       });
@@ -676,10 +741,12 @@ export class OpPage {
            });
            this.ops = opu;
            this.allOPs = opu;
+           this.rechercher = false;
 
           }else{
             this.ops = opss;
             this.allOPs = opss;
+            this.rechercher = false;
           }
           //this.ops = A.concat(k);
           //this.allOPs = this.ops
@@ -752,7 +819,18 @@ export class OpPage {
           return (item.doc.data.code_OP.toLowerCase().indexOf(val.toLowerCase()) > -1);
         }else if(this.typeRecherche === 'aggrement'){
           return (item.doc.data.num_aggrement.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }else if(this.typeRecherche === 'union'){
+          return (item.doc.data.union_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }else if(this.typeRecherche === 'site'){
+          if(item.doc.data.commune_nom){
+            return (item.doc.data.commune_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
+        }else if(this.typeRecherche === 'village'){
+          if(item.doc.data.village_nom){
+            return (item.doc.data.village_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
         }
+
         
       });
     }

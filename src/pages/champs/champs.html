@@ -69,11 +69,11 @@
 
     <ion-list>
     <ion-item *ngFor="let champ of champs" (click)="detail(champ.doc)" > 
-      <h6><strong>Id:</strong> {{champ.doc.data.id_champs}}</h6>
-      <h6><strong>Nom:</strong> {{champ.doc.data.nom}}</h6>
+      <!--h6><strong>Id:</strong> {{champ.doc.data.id_champs}}</h6-->
+      <h6><strong>Nom du champ:</strong> {{champ.doc.data.nom}}</h6>
       <h6><strong>Matricule producteur:</strong> {{champ.doc.data.matricule_producteur}}</h6>
-      <h6><strong>Nom producteur:</strong> {{champ.doc.data.nom_producteur}}</h6>
-      <p><strong>Date:</strong> {{champ.doc.data.today | date: 'dd-MM-yyyy'}}</p>
+      <h6><strong>Nom producteur:</strong> {{champ.doc.data.nom_producteur}} <span *ngIf="champ.doc.data.surnom_producteur">({{champ.doc.data.surnom_producteur}})</span> </h6>
+      <!--p><strong>Date:</strong> {{champ.doc.data.today | date: 'dd-MM-yyyy'}}</p-->
     </ion-item>
 
     <ion-item *ngIf="!champs.length > 0">
@@ -122,6 +122,11 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['nom_producteur'].hasError('required') && champsForm.controls['nom_producteur'].touched">* le nom du producteur est obligatoir!</div>
    
   <ion-item>
+    <ion-label floating>Nom producteur</ion-label>
+    <ion-input type="text" formControlName="surnom_producteur" [(ngModel)]="surnom_producteur" disabled></ion-input>
+  </ion-item>
+
+  <ion-item>
     <ion-label floating>Nom du champs <span class="error-box">*</span></ion-label>
     <ion-input type="text" [(ngModel)]="nom" formControlName="nom" ></ion-input>
   </ion-item>
@@ -143,13 +148,13 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['superficie'].hasError('required') && champsForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
 
   <ion-item>
-    <ion-label floating>Longitude</ion-label>
-    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
+    <ion-label floating>Latitude</ion-label>
+    <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
   </ion-item>
 
   <ion-item>
-    <ion-label floating>Latitude</ion-label>
-    <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
+    <ion-label floating>Longitude</ion-label>
+    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
   </ion-item>
 
     <br>

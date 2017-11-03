@@ -19,12 +19,6 @@
   
   <!-- cordova.js required for cordova apps -->
   <script src="cordova.js"></script>
-  <script>
-    //const electron = require('electron')
-    //var path = require('path');
-    //var webpack = require('webpack');    
-    //var ionicWebpackFactory = require(process.env.IONIC_WEBPACK_FACTORY);
-  </script>
 
   <!-- un-comment this code to enable service worker
   <script>
@@ -46,6 +40,9 @@
   <!-- The polyfills js is generated during the build process -->
   <script src="build/polyfills.js"></script>
 
+  <!-- all code from node_modules directory is here -->
+  <script src="build/vendor.js"></script>
+
   <!-- The bundle js is generated during the build process -->
   <script src="build/main.js"></script>
 
@@ -57,7 +54,7 @@
   <!--important to make sure embed called after vega to add on top-->
   <script src="assets/external-packages/Vega/vega-embed.js"></script>
   <script src="assets/external-packages/simple-statistics.min.js"></script>
-  <script src="assets/external-packages/pouchdb.find.js"></script>
+  
 
 </body>
 </html>

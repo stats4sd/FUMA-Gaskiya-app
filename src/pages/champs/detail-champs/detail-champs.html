@@ -19,7 +19,7 @@
 
 <ion-content padding>
  <div *ngIf="!modifierForm">
-    <ion-card class="info-card"> 
+    <ion-card class="info-card" (dblclick)="editer(champ)"> 
       <ion-card-header>
         <strong>Information champs: {{champ.data.nom}}</strong>
       </ion-card-header>
@@ -28,11 +28,12 @@
           <ion-row> <ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.id_champs}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Type de sole:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.type_sole}} </ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.longitude}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Latitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.latitude}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.longitude}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.superficie}}ha </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.matricule_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Surnom producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.surnom_producteur}} </ion-col> </ion-row>
           
           <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
           
@@ -41,6 +42,28 @@
           <ion-row> <ion-col class='meta-key'><strong>phonenumber:</strong></ion-col> <ion-col class='meta-value'> {{union.data.phonenumber}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>start:</strong></ion-col> <ion-col class='meta-value'> {{union.data.start | date: 'dd-MM-yyyy'}} à {{union.data.start | date: 'HH:mm:ss'}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>end:</strong></ion-col> <ion-col class='meta-value'> {{union.data.end | date: 'dd-MM-yyyy'}} à {{union.data.end | date: 'HH:mm:ss'}}</ion-col> </ion-row-->
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+
+    <ion-card class="info-card" (dblclick)="editer(champ)"> 
+      <ion-card-header>
+        <strong>Plus d'informations</strong>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.created_at | date: 'dd-MM-yyyy'}} à {{champ.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.created_by}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.deviceid}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.imei}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.phonenumber}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date dernière mise à jour:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.updatet_at | date: 'dd-MM-yyyy'}}  à {{champ.data.updatet_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Dernière mise à jour par:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.updated_by}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.update_deviceid}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.update_imei}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.update_phonenumber}} </ion-col> </ion-row>
+          <ion-row *ngIf="champ.data.deleted"> <ion-col class='meta-key'><strong>Date suppression:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.deleted_at | date: 'dd-MM-yyyy'}}  à {{champ.data.deleted_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+          <ion-row *ngIf="champ.data.deleted"> <ion-col class='meta-key'><strong>Supprimé par:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.deleted_by}} </ion-col> </ion-row>
         </ion-grid>
       </ion-card-content> 
     </ion-card>
@@ -76,7 +99,12 @@
     <ion-input type="text" formControlName="nom_producteur" [(ngModel)]="nom_producteur" disabled></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['nom_producteur'].hasError('required') && champsForm.controls['nom_producteur'].touched">* le nom du producteur est obligatoir!</div>
-   
+  
+  <ion-item> 
+    <ion-label floating>Surnom producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="surnom_producteur" [(ngModel)]="surnom_producteur" disabled></ion-input>
+  </ion-item>
+
   <ion-item>
     <ion-label floating>Nom du champs <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="nom" ></ion-input>
@@ -99,13 +127,13 @@
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['superficie'].hasError('required') && champsForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
 
   <ion-item>
-    <ion-label floating>Longitude</ion-label>
-    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
-  </ion-item>
-
-  <ion-item>
     <ion-label floating>Latitude</ion-label>
     <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
+  </ion-item>
+  
+  <ion-item>
+    <ion-label floating>Longitude</ion-label>
+    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" ></ion-input>
   </ion-item>
 
 

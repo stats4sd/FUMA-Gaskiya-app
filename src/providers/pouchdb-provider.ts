@@ -2,27 +2,32 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { ToastController, LoadingController, Platform, Events } from 'ionic-angular';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs/Rx';
 import { Storage } from '@ionic/storage';
 import { global } from '../global-variables/variable'
 //pouchDB made available to compiler through  @types/pouchdb (npm install @types/pouchdb --save --save-exact)
 //import PouchDB from 'pouchdb'
 import PouchDB from 'pouchdb';
 import * as pouchdbAuthentication from 'pouchdb-authentication';
-import * as pouchdbQuickSearch from 'pouchdb-quick-search';
+//import * as pouchdbQuickSearch from 'pouchdb-quick-search';
 //import * as pouchdbFind from 'pouchdb-find';
+import PouchFind from 'pouchdb-find';
+import * as pouchdbdesign from 'pouchdb-design';
 //var PouchDB = require("pouchdb");
 //import * as PouchFind from 'pouchdb-find';
 //PouchDB.plugin(PouchFind);
 PouchDB.plugin(pouchdbAuthentication);
-PouchDB.plugin(pouchdbQuickSearch); 
+PouchDB.plugin(PouchFind);
+PouchDB.plugin(pouchdbdesign);
+//PouchDB.plugin(pouchdbQuickSearch); 
 //declare var require: any;
 //PouchDB.debug.enable('pouchdb:find');
 //PouchDB.plugin(pouchdbFind);
 //PouchDB.plugin(require('pouchdb-find').default);
 //import findPlugin from 'pouchdb-find';
 //import PouchDBFind from 'pouchdb-find';
-import PouchFind from 'pouchdb-find';
-PouchDB.plugin(PouchFind);
+//import PouchFind from 'pouchdb-find';
+//PouchDB.plugin(PouchFind);
 
 
 
@@ -51,9 +56,7 @@ export class PouchdbProvider {
         //PouchDB.plugin(pouchdbFind);
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
-        //this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4sd.org/fuma_frn_app");//, this.pouchOpts);//base production
         //this.remoteSaved = new PouchDB("http://"+ global.info_db.ip +"/"+global.info_db.nom_db);//, this.pouchOpts);//base production
-        //this.remoteSaved = new PouchDB("http://fumagaskiya-db.stats4s d.org/test");//, this.pouchOpts);
         //this.remoteSaved = new PouchDB("http://192.168.43.53:5984/fuma_frn_app");//, this.pouchOpts); prod local
         //this.remoteSaved = new PouchDB("http://127.0.0.1:5984/app_fuma")
     
@@ -428,6 +431,29 @@ public syncIinfoDB(ip, nom) {
     return this.database.put(doc);
   }
 
+   updateDocReturn(doc){
+    let dat = new Date();
+    //doc.data.created_at = dat.toJSON();
+    doc.data.updatet_at = dat.toJSON();
+    //doc.data.created_by = '';
+    /*if(global.info_user !== null){
+      doc.data.created_by = global.info_user.name;
+    }else{
+      doc.data.created_by = '';
+    }*/
+    //doc.data.updated_by = '';
+    if(global.info_user !== null){
+      doc.data.updated_by = global.info_user.name;
+    }else{
+      doc.data.updated_by = '';
+    }
+    
+    doc.data.deleted = false;
+    
+    return this.database.put(doc);
+  }
+
+
   getPlageDocs(startkey, endkey){
 
     //si non vide
@@ -471,12 +497,16 @@ public syncIinfoDB(ip, nom) {
         startkey: startkey,
         endkey: endkey
       }).then((result) => {
-        data = result.rows;
-        /*let doc = result.rows.map((row) => {
-          
-            data.push(row.doc);
-        });*/
+        //data = result.rows;
+        data = [];
+        let doc = result.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            data.push(row);
+          }
+            
+        });
 
+        
         resolve(data);
 
         this.database.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => this.handleChange(change));
@@ -530,11 +560,15 @@ public syncIinfoDB(ip, nom) {
         endkey: endkey,
         limit: limit,
       }).then((result) => {
-        data = result.rows;
-        /*let doc = result.rows.map((row) => {
-          
-            data.push(row.doc);
-        });*/
+        data = [];
+        //data = result.rows;
+
+        let doc = result.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            data.push(row);
+          }
+            
+        });
 
         resolve(data);
 
@@ -542,6 +576,38 @@ public syncIinfoDB(ip, nom) {
       }).catch((err) => console.log(err));
     } );
   }
+
+    getPlageDocsRapideAvecLimitO(startkey, endkey, limit):Observable<any> {
+
+    //si non vide
+    let data: any;
+    if(data){
+      return data
+    }
+ 
+    
+    return Observable.fromPromise (
+      this.database.allDocs({
+        include_docs: true,
+        startkey: startkey,
+        endkey: endkey,
+        limit: limit,
+      }).then((result) => {
+        data = result.rows;
+        /*let doc = result.rows.map((row) => {
+          
+            data.push(row.doc);
+        });*/
+
+       
+
+        this.database.changes({live: true, since: 'now', include_docs: true}).on('change', (change) => this.handleChange(change));
+      
+        return data;
+      })//.catch((err) => console.log(err));
+     );
+  }
+
 
 
   deleteDoc(doc){
@@ -579,15 +645,21 @@ public syncIinfoDB(ip, nom) {
   }
 
   deleteDocReturn(doc){
-    /*let dat = new Date();
+    let dat = new Date();
     doc.data.deleted_at = dat.toJSON();
     if(global.info_user !== null){
       doc.data.deleted_by = global.info_user.name;
     }else{
       doc.data.deleted_by = '';
     }
-    doc.data.deleted = true;*/
-    return this.database.remove(doc);//.catch((err) => console.log(err));
+    doc.data.deleted = true;
+    //let newDoc: any = {};
+    //newDoc.data = doc.data;
+    //newDoc._id = 'deleted:doc:'+doc._id;
+
+    //newDoc._rev = doc._rev;
+    //this.database.put(newDoc);
+    return  this.database.put(doc);//this.database.remove(doc);//.catch((err) => console.log(err));
   }
 
   updateDoc(doc){
@@ -622,19 +694,7 @@ public syncIinfoDB(ip, nom) {
     this.database.put(doc).catch((err) => console.log(err));
   }
 
-    updateDocReturn(doc){
-    let dat = new Date();
-    doc.data.updatet_at = dat.toJSON();
-    if(global.info_user !== null){
-      doc.data.updated_by = global.info_user.name;
-    }else{
-      doc.data.updated_by = '';
-    }
-    
-    doc.data.deleted = false;
-      return this.database.put(doc);
-  }
-
+   
 
   updateLocalite(doc){
     /*let dat = new Date();
@@ -947,12 +1007,27 @@ public syncIinfoDB(ip, nom) {
   }
   ///*************************************   Find plugon   *************************************************** */////
 
-  findByTypeData(){
-   this.database.createIndex({
+  createIdex(){
+   /*this.database.createIndex({
       index: {fields: ['_id']}
     }).then((res) => {
       alert(res)
-    }/*, err => alert('err')*/)
+    }, err => alert('err'))*/
+
+    
+
+    this.database.createIndex({
+      index: {
+        fields: ['_id']
+      }
+    }).then(function (result) {
+      alert(result)
+    }).catch(function (err) {
+      ///alert('err => '+ err)
+      console.log(err);
+    });
+
 
   }
+  
 }

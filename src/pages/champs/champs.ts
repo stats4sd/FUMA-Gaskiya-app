@@ -35,6 +35,7 @@ export class ChampsPage {
   matricule_producteur: any;
   matricule_producteur1: any;
   nom_producteur: any;
+  surnom_producteur: any;
   membre: any;
   typeSolesSelected: any = [];
   typeRecherche: any = 'matricule';
@@ -60,6 +61,7 @@ export class ChampsPage {
       this.matricule_producteur1 = this.navParams.data.matricule_producteur;
       this.nom_producteur = this.navParams.data.nom_producteur;
       this.membre = this.navParams.data.membre;
+      
       //this.viewCtl.showBackButton(false)
       
       this.selectedProducteur = this.navParams.data.membre
@@ -112,6 +114,7 @@ initForm(){
       type_sole: ['', Validators.required],
       matricule_producteur: [''],
       nom_producteur: ['', Validators.required],
+      surnom_producteur: [''],
       today: [today, Validators.required],
       deviceid: [''],
       imei: [''],
@@ -225,6 +228,7 @@ initForm(){
       if(prod.doc.data.matricule_Membre === ev.matricule_Membre){
         this.selectedProducteur = prod.doc;
         this.nom_producteur = prod.doc.data.nom_Membre;
+        this.surnom_producteur = prod.doc.data.surnom_Membre;
         this.generecodeChamps(this.selectedProducteur.data.matricule_Membre)
       }
     });

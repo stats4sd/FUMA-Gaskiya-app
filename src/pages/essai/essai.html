@@ -10,18 +10,24 @@
     <ion-buttons *ngIf="a_matricule && !ajoutForm && !modifierFrom && !detailEssai" left>
       <button ion-button icon-only color="royal" (click)="dismiss()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
     </ion-buttons> 
-    <ion-buttons *ngIf="ajoutForm || modifierFrom" left>
+    <ion-buttons *ngIf="ajoutForm || modifierFrom || statistique" left>
       <button ion-button icon-only color="royal" (click)="annuler()"> <ion-icon name="arrow-back"></ion-icon></button>
     </ion-buttons> 
     <ion-buttons *ngIf="detailEssai" left>
       <button ion-button icon-only color="royal" (click)="fermerDetail()"><ion-icon name="arrow-back"></ion-icon></button>
     </ion-buttons> 
     <ion-buttons *ngIf="!ajoutForm && !detailEssai && !modifierFrom"  start>
+
+      <button ion-button *ngIf="rechercher" icon-only>
+          <ion-spinner></ion-spinner>
+      </button>
+
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{essais.length}}</ion-badge>
       </button>
+
       <button ion-button icon-only color="royal" (click) = "sync()" >
-        <ion-icon name="sync"></ion-icon>
+         <ion-icon name="sync"></ion-icon>
       </button>
 
       <button *ngIf="aProfile == true" ion-button icon-only color="royal" (click)="profile()">
@@ -49,10 +55,10 @@
 
 <ion-content padding>
 
-<div *ngIf="!ajoutForm && !detailEssai">
+<div *ngIf="!ajoutForm && !detailEssai && !statistique">
 
   <h5 *ngIf="matricule_producteur1 && selectedStyle == 'liste'" style="text-align: center; color: seagreen">
-    Les essai de M. {{nom_producteur}} - mat. {{matricule_producteur1}}
+    Les essai de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
   </h5>
 
   <ion-list>
@@ -88,30 +94,62 @@
     <ion-item>
       <ion-label floating>Type de recherche</ion-label>
       <ion-select [(ngModel)]="typeRecherche" (ionChange)="typeRechercheChange()" cancelText="Annuler" okText="Ok" >
-        <ion-option value="" selected disabled>Selectionnez le type de recherche</ion-option>
         <ion-option value="matricule" >Par matricule membre</ion-option>
+        <ion-option value="nom_membre" >Par nom membre</ion-option>
+        <ion-option value="surnom_membre" >Par surnom membre</ion-option>
         <ion-option value="nom_entree" >Par nom entrée</ion-option>
+        <ion-option value="type_sole" >Par type sole</ion-option>
+        <ion-option value="site" >Par site</ion-option>
+        <ion-option value="village" >Par village</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item *ngIf="typeRecherche == 'matricule'">
-      <ion-searchbar placeholder="Rechercher mat. producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar placeholder="Rechercher mat. producteur..." [(ngModel)]="recherche" [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'nom_membre'">
+      <ion-searchbar placeholder="Rechercher nom producteur..."  [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'surnom_membre'">
+      <ion-searchbar placeholder="Rechercher surnom producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'type_sole'">
+      <ion-searchbar placeholder="Rechercher type sole..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'site'">
+      <ion-searchbar placeholder="Rechercher site..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'village'">
+      <ion-searchbar placeholder="Rechercher village..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
     </ion-item>
 
     <ion-item *ngIf="typeRecherche == 'nom_entree'">
-      <ion-searchbar placeholder="Rechercher mat. producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+      <ion-searchbar placeholder="Rechercher nom entrée..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
     </ion-item>
   </ion-list>
- 
+
     <ion-list *ngIf="essais.length > 0 && selectedStyle === 'liste'">
+    <!--ion-list *ngIf="selectedStyle === 'liste'" [virtualScroll]="essais" [headerFn]="myHeaderFn"-->
       <br>
       <ion-list-header>
         <h2 style="width: 100%"><strong style="width: 100%">Essais {{selectedAnnee}}</strong></h2>
       </ion-list-header>
-    <ion-item *ngFor="let ess of essais" (click)="detail(ess.doc)" > 
-      <h6><strong>Code essai:</strong> {{ess.doc.data.code_essai}}</h6>
+
+      <!--ion-item-divider *virtualHeader="let header" class="message">
+        <strong style="width: 100%" >Essais {{selectedAnnee}}: {{header}}</strong>
+      </ion-item-divider-->
+
+
+    <ion-item *ngFor="let ess of essais; let i = index" (click)="detail(ess.doc)"> 
+    <!--ion-item *virtualItem="let ess" (click)="detail(ess.doc)" --> 
+      <!--h6><strong>Code essai:</strong> {{ess.doc.data.code_essai}}</h6-->
       <h6><strong>Mat. producteur:</strong> {{ess.doc.data.matricule_producteur}}</h6>
-      <h6><strong>Nom producteur:</strong> {{ess.doc.data.nom_producteur}}</h6>
+      <h6><strong>Nom producteur:</strong> {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span> </h6>
       <h6><strong>Nom d'entrée:</strong> {{ess.doc.data.nom_entree}}</h6>
     </ion-item>
     </ion-list>
@@ -119,8 +157,8 @@
   <ion-card style="height: 80vh" *ngIf="essais.length > 0 && selectedStyle === 'tableau'">
     <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
     <ion-card-header  style="width: 100vw">
-      <h2><strong>Essais {{selectedAnnee}} <span *ngIf="matricule_producteur">
-    de M. {{nom_producteur}} - mat. {{matricule_producteur}}
+      <h2><strong>Essais {{selectedAnnee}} <span *ngIf="matricule_producteur1">
+    de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
   </span></strong></h2>
     </ion-card-header> 
     <table class="table table-striped table-bordered">
@@ -139,7 +177,7 @@
           <strong>Matricule producteur</strong>
         </th>
         <th style="min-width: 130px" >
-          <strong>Nom producteur</strong>
+          <strong>Nom producteur (surnom)</strong>
         </th>
         <th  >
           <strong>Sex</strong>
@@ -147,8 +185,17 @@
         <th  >
           <strong>Classes</strong>
         </th>
-        <th  >
+        <th  style="min-width: 100px">
+          <strong>Nom du champs</strong>
+        </th>
+        <th style="min-width: 100px" >
           <strong>Type de sole</strong>
+        </th>
+        <th  >
+          <strong>Latitude</strong>
+        </th>
+        <th  >
+          <strong>Longitude</strong>
         </th>
         <th  style="min-width: 100px">
           <strong>Nom d'entrée</strong>
@@ -164,6 +211,9 @@
         <th style="min-width: 90px">
           <strong>Date de sémis</strong>
         </th>
+        <th style="min-width: 90px">
+          <strong>Date de sémis controle</strong>
+        </th>
         <th  >
           <strong>NPL</strong>
         </th>
@@ -173,10 +223,16 @@
         </th>
 
         <th  >
-          <strong>Gestion 1 ou 2</strong> 
+          <strong>Gestion</strong> 
+        </th>
+        <th  >
+          <strong>Gestion controle</strong> 
         </th>
         <th  >
           <strong>Mode de sémis</strong>
+        </th>
+        <th  >
+          <strong>Mode de sémis controle</strong>
         </th>
         <th style="min-width: 90px" >
           <strong>Date récolte</strong>
@@ -221,16 +277,25 @@
             {{ess.doc.data.matricule_producteur}}
           </td>
           <td  >
-            {{ess.doc.data.nom_producteur}}
+            {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
           </td>
           <td  >
-            {{ess.doc.data.sex_producteur}}
+            <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
           </td>
           <td  >
             {{ess.doc.data.classe_producteur}}
           </td>
           <td  >
+            {{ess.doc.data.nom_champs}}
+          </td>
+          <td  >
             {{ess.doc.data.type_sole}}
+          </td>
+          <td  >
+            {{ess.doc.data.latitude}}
+          </td>
+          <td  >
+            {{ess.doc.data.longitude}}
           </td>
           <td  >
             {{ess.doc.data.nom_entree}}
@@ -243,6 +308,9 @@
           </td>
           <td  >
             {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
+          </td>
+          <td  >
+            {{ess.doc.data.date_semis_controle | date: 'dd-MM-yyyy'}}
           </td>
 
           <td *ngIf="!ess.doc.data.NPL || (ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 40) ">
@@ -277,7 +345,13 @@
             {{ess.doc.data.gestion}}
           </td>
           <td  >
+            {{ess.doc.data.gestion_controle}}
+          </td>
+          <td  >
             {{ess.doc.data.mode_semis}}
+          </td>
+          <td  >
+            {{ess.doc.data.mode_semis_controle}}
           </td>
           <td  >
             {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
@@ -306,7 +380,9 @@
   </ion-scroll>
 </ion-card>
 
-
+<div *ngIf="essais.length > 0">
+  <br><br><br>
+</div>
    <ion-list *ngIf="!essais.length > 0">
     <ion-item>
       <div class="message">La liste est vide!</div>
@@ -321,7 +397,7 @@
 </div>
 
 <div *ngIf="detailEssai">
-    <ion-card class="info-card"> 
+    <ion-card class="info-card" (dblclick)="editer(essai)"> 
       <ion-card-header>
         <strong>Information Essai: {{essai.data.code_essai}}</strong>
       </ion-card-header>
@@ -331,7 +407,8 @@
           <ion-row> <ion-col class='meta-key'><strong>Code essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.code_essai}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.matricule_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_producteur}} </ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Sex producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.sex_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Surnom producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.surnom_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Sex producteur:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.sex_producteur == 'male'">Homme</span><span *ngIf="essai.data.sex_producteur == 'female'">Femme</span> </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Classe producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.classe_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Site:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.site_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Village:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.village_producteur}}</ion-col> </ion-row>
@@ -339,18 +416,21 @@
           <ion-row> <ion-col class='meta-key'><strong>Nom champs:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_champs}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Type de sole:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.type_sole}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie}}ha</ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.longitude}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Latitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.latitude}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.longitude}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Code traitement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.code_traitement}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom d'entrée:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_entree}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_controle}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Superficie essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie_essai}}m²</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date sémis:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_semis | date: 'dd-MM-yyyy'}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date sémis controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_semis_controle | date: 'dd-MM-yyyy'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPL:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPL}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPL controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPL_controle}}</ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Gesion 1 ou 2:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.gestion}}</ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Mode de semis:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.mode_semis}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Gesion:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.gestion}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Gesion controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.gestion_controle}}</ion-col> </ion-row>
           
+          <ion-row> <ion-col class='meta-key'><strong>Mode de semis:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.mode_semis}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Mode de semis controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.mode_semis_controle}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date récolte:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_recolte | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPR:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPR}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPR controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPR_controle}}</ion-col> </ion-row>
@@ -358,6 +438,7 @@
           <ion-row> <ion-col class='meta-key'><strong>PDE controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE_controle}}kg</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Objectif de l'essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.objectif_essai}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Observation:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Observation controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation_controle}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Effort personnel ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.effort_personnel == true">Oui</span><span *ngIf="essai.data.effort_personnel == false">Non</span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Est valide ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.estValide == true">Oui</span><span *ngIf="essai.data.estValide == false">Non</span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
@@ -365,6 +446,48 @@
         </ion-grid>
       </ion-card-content> 
     </ion-card>
+
+    <ion-card class="info-card" (dblclick)="editer(essai)"> 
+      <ion-card-header>
+        <strong>Plus d'informations</strong>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.created_at | date: 'dd-MM-yyyy'}} à {{essai.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.created_by}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.deviceid}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.imei}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.phonenumber}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date dernière mise à jour:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.updatet_at | date: 'dd-MM-yyyy'}}  à {{essai.data.updatet_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Dernière mise à jour par:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.updated_by}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.update_deviceid}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.update_imei}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.update_phonenumber}} </ion-col> </ion-row>
+          <ion-row *ngIf="essai.data.deleted"> <ion-col class='meta-key'><strong>Date suppression:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.deleted_at | date: 'dd-MM-yyyy'}}  à {{essai.data.deleted_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+          <ion-row *ngIf="essai.data.deleted"> <ion-col class='meta-key'><strong>Supprimé par:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.deleted_by}} </ion-col> </ion-row>
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+
+  </div>
+
+  <div *ngIf="statistique">
+    
+    <ion-card class="info-card"> 
+      <ion-card-header>
+        <strong>Statistique Essais {{selectedAnnee}}</strong>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row> <ion-col class='meta-key'><strong>Nombre producteurs total:</strong></ion-col> <ion-col class='meta-value'> {{producteurs.length}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nombre producteurs ayant conduit des essais:</strong></ion-col> <ion-col class='meta-value'> {{uniqueMembres.length}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nombre essais total:</strong></ion-col> <ion-col class='meta-value'> {{nbTotalEssa}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nombre OP total:</strong></ion-col> <ion-col class='meta-value'> {{allOP.length}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nombre OP ayant fait des essais:</strong></ion-col> <ion-col class='meta-value'> {{opEssai.length}} </ion-col> </ion-row> 
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+
   </div>
 
 
@@ -378,7 +501,7 @@
   <ion-item>
     <ion-label floating>Date d'ajout <span class="error-box">*</span></ion-label>
     <!--ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" doneText="Valider"></ion-datetime-->
-    <ion-datetime ion-datepicker  (ionChanged)="setDate($event);" [value]="dateAjout" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" okText="Valider"></ion-datetime>
+    <ion-datetime ion-datepicker  (ionChanged)="setDate($event);" [value]="dateAjout" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" okText="Valider" disabled></ion-datetime>
   </ion-item>
 
   <!--span ion-datepicker  (ionChanged)="setDate($event);" [value]="local" full="false" calendar="true" locale="fr-FR" clear class="ScheduleDate" >
@@ -403,13 +526,18 @@
   <span [innerHTML]="attrs.data.matricule_Membre | boldprefix:attrs.keyword"></span> -- <span [innerHTML]="attrs.data.nom_Membre"></span>
 </ng-template>
 
-  <ion-row *ngIf="!matricule_producteur1">
+  <ion-row *ngIf="!matricule_producteur1 && !modifierFrom">
     <ion-col>
       <ion-auto-complete [dataProvider]="ServiceAutoCompletion" [template]="withFlags" [options]="{ placeholder : 'Matricule producteur' }" (itemSelected)="itemSelected($event)" ></ion-auto-complete>  
     </ion-col>
   </ion-row>
 
-  <ion-item *ngIf="matricule_producteur1">
+  <!--ion-item *ngIf="matricule_producteur1">
+    <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="matricule_producteur" disabled></ion-input>
+  </ion-item--> 
+
+  <ion-item *ngIf="(matricule_producteur1 && ajoutForm) || modifierFrom">
     <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="matricule_producteur" disabled></ion-input>
   </ion-item> 
@@ -419,7 +547,12 @@
     <ion-input type="text" formControlName="nom_producteur" [(ngModel)]="nom_producteur" disabled></ion-input>
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['nom_producteur'].hasError('required') && essaiForm.controls['nom_producteur'].touched">* le nom du producteur est obligatoir!</div>
-   
+  
+  <ion-item>
+    <ion-label floating>Surnom producteur</ion-label>
+    <ion-input type="text" formControlName="surnom_producteur" [(ngModel)]="surnom_producteur" disabled></ion-input>
+  </ion-item>
+
   <ion-item>
     <ion-label floating>Sex producteur <span class="error-box">*</span></ion-label>
     <ion-input type="text" formControlName="sex_producteur" [(ngModel)]="sex_producteur" disabled></ion-input>
@@ -461,52 +594,74 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['id_champs'].hasError('required') && essaiForm.controls['id_champs'].touched">* le champs est obligatoir!</div>
 
+<ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Type de sole <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="type_sole" [(ngModel)]="type_sole" disabled ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['type_sole'].hasError('required') && essaiForm.controls['type_sole'].touched">* le type de sole du champs est obligatoir!</div>
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Superficie (ha) <span class="error-box">*</span></ion-label>
+        <ion-input type="number" formControlName="superficie" [(ngModel)]="superficie" disabled ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['superficie'].hasError('required') && essaiForm.controls['superficie'].touched">* la superficie du champs est obligatoir!</div>
+    </ion-col>
+</ion-row>
 
-  <ion-item>
-    <ion-label floating>Type de sole <span class="error-box">*</span></ion-label>
-    <ion-input type="text" formControlName="type_sole" [(ngModel)]="type_sole" disabled ></ion-input>
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['type_sole'].hasError('required') && essaiForm.controls['type_sole'].touched">* le type de sole du champs est obligatoir!</div>
-  
-  <ion-item>
-    <ion-label floating>Superficie (ha) <span class="error-box">*</span></ion-label>
-    <ion-input type="number" formControlName="superficie" [(ngModel)]="superficie" disabled ></ion-input>
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['superficie'].hasError('required') && essaiForm.controls['superficie'].touched">* la superficie du champs est obligatoir!</div>
+<ion-row>
+  <ion-col>
+    <ion-item>
+      <ion-label floating>Latitude</ion-label>
+      <ion-input type="text" formControlName="latitude" [(ngModel)]="latitude" disabled></ion-input>
+    </ion-item>
+  </ion-col>
+  <ion-col>
+    <ion-item>
+      <ion-label floating>Longitude</ion-label>
+      <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" disabled ></ion-input>
+    </ion-item>
+  </ion-col>
+</ion-row>
 
-  <ion-item>
-    <ion-label floating>Longitude</ion-label>
-    <ion-input type="text" formControlName="longitude" [(ngModel)]="longitude" disabled ></ion-input>
-  </ion-item>
-
-  <ion-item>
-    <ion-label floating>Latitude</ion-label>
-    <ion-input type="text" formControlName="latitude" [(ngModel)]="latitude" disabled></ion-input>
-  </ion-item>
-
-  <ion-item *ngIf="!modifierFrom"> 
+  <!--ion-item *ngIf="!modifierFrom"> 
     <ion-label floating>Selectionnez l'entrée <span class="error-box">*</span></ion-label>
-    <ion-select formControlName="nom_entree" [(ngModel)]="selectedTraitement" cancelText="Annuler" okText="Ok" (ionChange)="chargerT(selectedTraitement)">
-      <ion-option value="" selected disabled>Selectionnez l'entrée</ion-option>
+    <!--ion-select formControlName="nom_entree" multiple="true" [(ngModel)]="selectedTraitement" cancelText="Annuler" okText="Ok" (ionChange)="chargerT(selectedTraitement)">
+    <ion-select formControlName="nom_entree" multiple="true" [(ngModel)]="selectedTraitement" cancelText="Annuler" okText="Ok">
+      <!--ion-option value="" selected disabled>Selectionnez l'entrée</ion-option>
       <ion-option *ngFor="let t of traitements" [value]=t.doc >{{t.doc.data.nom_entree}}</ion-option>
     </ion-select> 
-  </ion-item>
-  
-   <ion-item *ngIf="modifierFrom"> 
-    <ion-label floating>Modifier l'entrée <span class="error-box">*</span></ion-label>
-    <ion-select formControlName="nom_entree" [(ngModel)]="selectedTraitement" cancelText="Annuler" okText="Ok" (ionChange)="chargerInfoTraitement(selectedTraitement)" >
-      <ion-option value="" selected disabled>Selectionnez l'entrée</ion-option>
-      <ion-option *ngFor="let t of traitements" [value]=t.doc.data.code_traitement >{{t.doc.data.nom_entree}}</ion-option>
-    </ion-select> 
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['nom_entree'].hasError('required') && essaiForm.controls['nom_entree'].touched">* le nom de l'entrée est obligatoir!</div>
+  </ion-item-->
 
-  <ion-item>
-    <ion-label floating>Nom controle <span class="error-box">*</span></ion-label>
-    <ion-input type="text" [(ngModel)]="nom_controle" formControlName="nom_controle" disabled></ion-input>
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['nom_controle'].hasError('required') && essaiForm.controls['nom_controle'].touched">* le nom du controle est obligatoir!</div>
-
+  <ion-row>
+    <ion-col>
+      <ion-item *ngIf="!modifierFrom"> 
+        <ion-label floating>Selectionnez l'entrée <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="nom_entree" [(ngModel)]="selectedTraitement" cancelText="Annuler" okText="Ok" (ionChange)="chargerT(selectedTraitement)">
+          <ion-option value="" selected disabled>Selectionnez l'entrée</ion-option>
+          <ion-option *ngFor="let t of traitements" [value]=t.doc >{{t.doc.data.nom_entree}}</ion-option>
+        </ion-select> 
+      </ion-item>
+      
+      <ion-item *ngIf="modifierFrom"> 
+        <ion-label floating>Modifier l'entrée <span class="error-box">*</span></ion-label>
+        <ion-select formControlName="nom_entree" [(ngModel)]="selectedTraitement" cancelText="Annuler" okText="Ok" (ionChange)="chargerInfoTraitement(selectedTraitement)" >
+          <ion-option value="" selected disabled>Selectionnez l'entrée</ion-option>
+          <ion-option *ngFor="let t of traitements" [value]=t.doc.data.code_traitement >{{t.doc.data.nom_entree}}</ion-option>
+        </ion-select> 
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['nom_entree'].hasError('required') && essaiForm.controls['nom_entree'].touched">* le nom de l'entrée est obligatoir!</div>
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Nom controle <span class="error-box">*</span></ion-label>
+        <ion-input type="text" [(ngModel)]="nom_controle" formControlName="nom_controle" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['nom_controle'].hasError('required') && essaiForm.controls['nom_controle'].touched">* le nom du controle est obligatoir!</div>
+    </ion-col>
+  </ion-row>
 
    <ion-item>
     <ion-label floating>Superficie essai (m²) <span class="error-box">*</span></ion-label>
@@ -514,11 +669,22 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['superficie_essai'].hasError('required') && essaiForm.controls['superficie_essai'].touched">* la superficie est obligatoir!</div>
 
-  <ion-item>
-    <ion-label floating>Date sémi</ion-label>
-    <!--ion-datetime displayFormat="DD/MM/YYYY" formControlName="date_semis" [(ngModel)]="date_semis" cancelText="Annuler" doneText="Valider"></ion-datetime-->
-    <ion-datetime ion-datepicker  (ionChanged)="setDateSemis($event);" (ionCanceled)="autreActionSemis();" [value]="dateSemis" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="date_semis" [(ngModel)]="date_semis" cancelText="Autres actions" okText="Valider"></ion-datetime>
-  </ion-item>
+  <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Date sémi</ion-label>
+        <!--ion-datetime displayFormat="DD/MM/YYYY" formControlName="date_semis" [(ngModel)]="date_semis" cancelText="Annuler" doneText="Valider"></ion-datetime-->
+        <ion-datetime ion-datepicker  (ionChanged)="setDateSemis($event);" (ionCanceled)="autreActionSemis();" [value]="dateSemis" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="date_semis" [(ngModel)]="date_semis" cancelText="Autres actions" okText="Valider"></ion-datetime>
+      </ion-item>
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Date sémi controle</ion-label>
+        <!--ion-datetime displayFormat="DD/MM/YYYY" formControlName="date_semis" [(ngModel)]="date_semis" cancelText="Annuler" doneText="Valider"></ion-datetime-->
+        <ion-datetime ion-datepicker  (ionChanged)="setDateSemisControle($event);" (ionCanceled)="autreActionSemisControle();" [value]="dateSemisControle" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="date_semis_controle" [(ngModel)]="date_semis_controle" cancelText="Autres actions" okText="Valider"></ion-datetime>
+      </ion-item>
+    </ion-col>
+  </ion-row>
   
   <ion-row>
     <ion-col>
@@ -537,20 +703,42 @@
     </ion-col>
   </ion-row>
 
-  <ion-item>
-    <ion-label floating>Gesion 1 ou 2</ion-label>
-    <ion-input type="text" formControlName="gestion" [(ngModel)]="gestion" ></ion-input>
-  </ion-item>
+  <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Gesion</ion-label>
+        <ion-input type="number" formControlName="gestion" [(ngModel)]="gestion" (keyup)="setGestionControle(gestion)" ></ion-input>
+      </ion-item>
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Gesion controle</ion-label>
+        <ion-input type="number" formControlName="gestion_controle" [(ngModel)]="gestion_controle" ></ion-input>
+      </ion-item>
+    </ion-col>
+  </ion-row>
 
-  <ion-item> 
-    <ion-label floating>Selectionnez le mode de sémis</ion-label>
-    <ion-select formControlName="mode_semis" [(ngModel)]="mode_semi"  cancelText="Annuler" okText="Ok">
-      <ion-option value="">aucun</ion-option>
-      <ion-option *ngFor="let s of mode_semis" [value]=s >{{s}}</ion-option>
-    </ion-select> 
-  </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['mode_semis'].hasError('required') && essaiForm.controls['mode_semis'].touched">* le champs est obligatoir!</div>
-
+  <ion-row>
+    <ion-col>
+      <ion-item> 
+        <ion-label floating>Mode de sémis</ion-label>
+        <ion-select formControlName="mode_semis" [(ngModel)]="mode_semi" (ionChange)="setModeSemiControl(mode_semi)"  cancelText="Annuler" okText="Ok">
+          <ion-option value="">aucun</ion-option>
+          <ion-option *ngFor="let s of mode_semis" [value]=s >{{s}}</ion-option>
+        </ion-select> 
+      </ion-item>
+    </ion-col>
+    <ion-col>
+      <ion-item> 
+        <ion-label floating>Mode de sémis controle</ion-label>
+        <ion-select formControlName="mode_semis_controle" [(ngModel)]="mode_semi_controle"  cancelText="Annuler" okText="Ok">
+          <ion-option value="">aucun</ion-option>
+          <ion-option *ngFor="let s of mode_semis" [value]=s >{{s}}</ion-option>
+        </ion-select> 
+      </ion-item>
+    </ion-col>
+  </ion-row>
+  
 
   <ion-item>
     <ion-label floating>Date récolte</ion-label>
@@ -595,21 +783,31 @@
     <ion-textarea formControlName="objectif_essai" [(ngModel)]="objectif_essai" row="6"></ion-textarea>
   </ion-item>
 
-  <ion-item>
-    <ion-label>Effort personnel ?</ion-label>
-    <ion-checkbox formControlName="effort_personnel" [(ngModel)]="effort_personnel" color="dark"></ion-checkbox>
-  </ion-item>
-
-  <ion-item>
-    <ion-label>Est Valide ?</ion-label>
-    <ion-checkbox formControlName="estValide" [(ngModel)]="estValide" color="dark"></ion-checkbox>
-  </ion-item>
+  <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label>Effort personnel ?</ion-label>
+        <ion-checkbox formControlName="effort_personnel" [(ngModel)]="effort_personnel" color="dark"></ion-checkbox>
+      </ion-item>
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label>Est Valide ?</ion-label>
+        <ion-checkbox formControlName="estValide" [(ngModel)]="estValide" color="dark"></ion-checkbox>
+      </ion-item>
+    </ion-col>
+  </ion-row>
 
   <ion-item>
     <ion-label floating>Observation</ion-label>
     <ion-textarea formControlName="observation" [(ngModel)]="observation" row="6"></ion-textarea>
   </ion-item>
 
+  <ion-item>
+    <ion-label floating>Observation controle</ion-label>
+    <ion-textarea formControlName="observation_controle" [(ngModel)]="observation_controle" row="6"></ion-textarea>
+  </ion-item>
+    
     <br>
     <button ion-button type="submit" color="my_secondary" [disabled]="!essaiForm.valid" block>Sauvegarder</button>
   </form>
@@ -617,16 +815,20 @@
 
 </div>
 
-  <ion-fab bottom right *ngIf="!ajoutForm && selectedStyle != 'tableau'">
+  <ion-fab bottom right *ngIf="!ajoutForm && !statistique && selectedStyle != 'tableau'" bottom>
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+    <button ion-fab mini *ngIf="statistiqueOk" (click)="calculerMembreAyantFaitUnEssai(allEssais)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
     <!--button ion-fab mini (click)="fusionnerEssais()" color="my_primary">FUS</button-->
   </ion-fab>
+  
 
-  <ion-fab bottom right *ngIf="!ajoutForm && essais.length > 0 && selectedStyle == 'tableau'">
+
+  <ion-fab bottom right *ngIf="!ajoutForm && !statistique && selectedStyle == 'tableau'">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
-    <ion-fab-list side="top">
-      <button ion-fab mini (click)="onPrint()"><ion-icon name="print"></ion-icon></button>
-      <button ion-fab mini (click)="exportExcel()"><ion-icon name="logo-windows"></ion-icon></button>
+    <ion-fab-list side="top"> 
+      <button ion-fab mini *ngIf="essais.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
+      <button ion-fab mini *ngIf="essais.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
+      <button ion-fab mini *ngIf="statistiqueOk" (click)="calculerMembreAyantFaitUnEssai(allEssais)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
       <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
       
     </ion-fab-list>

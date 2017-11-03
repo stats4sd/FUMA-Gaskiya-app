@@ -1,5 +1,5 @@
 import { Component, NgZone, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams, ViewController, AlertController, MenuController, ToastController, ModalController, Events, IonicPage } from 'ionic-angular';
+import { NavController, NavParams, ViewController, Platform, AlertController, MenuController, ToastController, ModalController, Events, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 //import { AjouterMembrePage } from './ajouter-membre/ajouter-membre';
 //import { DetailMembrePage } from './detail-membre/detail-membre';
@@ -14,6 +14,9 @@ import { Camera } from '@ionic-native/camera';
 import { ImagePicker } from '@ionic-native/image-picker';
 import { File } from '@ionic-native/file';
 import JsBarcode from 'jsbarcode';
+import * as FileSaver from 'file-saver';
+import { Printer, PrintOptions } from '@ionic-native/printer';
+declare var cordova: any;
 
 /* 
   Generated class for the Membres page.
@@ -36,12 +39,14 @@ export class MembresPage {
   allMembres1: any = [];
   confLocaliteEnquete: any;
   num_aggrement_op: any;
+  selectedStyle: any = 'liste';
   nom_op: any;
   code_op: any;
   aProfile: boolean = true;
   typeRecherche: any = 'matricule';
   selectedLimit: any = 10;
   limits: any = [10, 25, 50, 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 'Tous'];
+  recherche: any = 'FM-';
 
   membreForm: any;
   villages: any = [];
@@ -75,8 +80,10 @@ export class MembresPage {
   ajoutForm: boolean = false;
   estInitForm: boolean = false;
   today: any;
+  rechercher: any = false;
 
   nom_Membre: string = '';
+  surnom_Membre: string = '';
   genre: any;
   modifierForm: boolean = false;
   detailMembre: boolean = false;
@@ -112,6 +119,7 @@ export class MembresPage {
   selectedClasseID: any;
   ancien_matricule: any = '';
   ancien_nom:any = '';
+  ancien_surnom:any = '';
 
   ancien_OP: any;
   ancien_nom_op: any;
@@ -127,7 +135,7 @@ export class MembresPage {
 
 
 
-  constructor(public navCtrl: NavController, public viewCtl: ViewController, public file: File, public imagePicker: ImagePicker, private camera: Camera, public sim: Sim, public device: Device, public toastCtl: ToastController, public formBuilder: FormBuilder, public modelCtl: ModalController, public zone: NgZone, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
+  constructor(public navCtrl: NavController,  public viewCtl: ViewController, public platform: Platform, public printer: Printer, public file: File, public imagePicker: ImagePicker, private camera: Camera, public sim: Sim, public device: Device, public toastCtl: ToastController, public formBuilder: FormBuilder, public modelCtl: ModalController, public zone: NgZone, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -158,6 +166,48 @@ export class MembresPage {
     //this.initForm();
   } 
 
+
+    onPrint(){
+    let options: PrintOptions = {
+        //name: 'Rapport',
+        //printerId: 'printer007',
+        duplex: true,
+        landscape: true,
+        grayscale: true
+    };
+    let content = document.getElementById('tableau').innerHTML;
+    this.printer.print(content, options);
+  }
+
+
+  exportExcel(){
+
+    let date = new Date();
+    //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
+    let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
+
+    let blob = new Blob([document.getElementById('tableau').innerHTML], {
+      //type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+      type: "text/plain;charset=utf-8"
+      //type: 'application/vnd.ms-excel;charset=utf-8'
+      //type: "application/vnd.ms-excel;charset=utf-8"
+    });
+
+    if(!this.platform.is('android')){
+      FileSaver.saveAs(blob, 'Membres_'+nom+'.xls');
+    }else{
+
+      let fileDestiny: string = cordova.file.externalRootDirectory;
+      this.file.writeFile(fileDestiny, 'Membres_'+nom+'.xls', blob).then(()=> {
+          alert("Fichier créé dans: " + fileDestiny);
+      }).catch(()=>{
+          alert("Erreur de création du fichier dans: " + fileDestiny);
+      })
+    }
+  }
+
+
+
   chargerConfLocaliter(loc){
     this.pays = loc.pays.id;
     this.pays_nom = loc.pays.nom;
@@ -184,6 +234,7 @@ export class MembresPage {
       //_id:[''],
       type:['membre_op'],
       nom_Membre: ['', Validators.required],
+      surnom_Membre: [''],
       matricule_Membre: ['', Validators.required],
       genre: ['', Validators.required],
       //classe: [''],
@@ -388,7 +439,9 @@ export class MembresPage {
     randomArray.push(chars[rand])
     var randomString=randomArray.join("");
     //var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    
     var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    //var Id= 'MR-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     
     return Id
   }
@@ -458,12 +511,12 @@ export class MembresPage {
           membre.imei = this.imei;
           membre.file_name = this.fileName;
           
-          let id = this.servicePouchdb.generateId('op:membre', membre.pays, membre.region, membre.departement,membre.commune, membre.village);
+          let id = 'fuma:op:membre:' +membre.op_code + ':' + this.matricule;//  this.servicePouchdb.generateId('op:membre', membre.pays, membre.region, membre.departement,membre.commune, membre.village);
           //union._id = 'fuma'+ id;
           membre.end = date.toJSON();
     
           let membreFinal: any = {};
-          membreFinal._id = 'fuma'+ id;
+          membreFinal._id = id;
         
           let ida = 'fuma:photo:membre:'+ this.matricule;
           if(this.photo){
@@ -504,10 +557,11 @@ export class MembresPage {
                   this.allMembres1.push(m);
                   this.ajoutForm = false;
                   this.nom_Membre = '';
+                  this.surnom_Membre = '';
                   this.genre = '';
                   this.photo = null;
 
-                  this.detail(m, this.selectedSource)
+                  this.detail(m, false)
                   //this.membre = m;
                   //this.detailMembre = true;
                   //this.viewCtrl.dismiss(m)
@@ -521,9 +575,10 @@ export class MembresPage {
                 this.allMembres1.push(m);
                 this.ajoutForm = false;
                 this.nom_Membre = '';
+                this.surnom_Membre = '';
                 this.genre = '';
                 this.photo = null;
-                this.detail(m, this.selectedSource)
+                this.detail(m, false)
                 //this.detailMembre = true;
                 //this.viewCtrl.dismiss(m)
               }
@@ -538,6 +593,7 @@ export class MembresPage {
         let actu_ch_es: boolean = false;
         let membre = this.membreForm.value;
         this.membre1.nom_Membre = membre.nom_Membre;
+        this.membre1.surnom_Membre = membre.surnom_Membre;
         if(this.ancien_matricule !== membre.matricule_Membre){
           this.membre1.ancien_matricule_Membre = this.membre1.matricule_Membre;
           this.membre1.matricule_Membre = membre.matricule_Membre;
@@ -565,18 +621,18 @@ export class MembresPage {
           this.membre1.village = v.id;
           this.membre1.village_nom = v.nom;
         }
-      })
+      });
    
       
       this.grandMembre.doc.data = this.membre1
       this.servicePouchdb.updateDocReturn(this.grandMembre.doc).then((res) => {
         //en cas de changement d'op
         if(this.membre1.op !== this.ancien_OP){
-          this.changerOP(this.ancien_matricule, membre.matricule_Membre, membre.nom_Membre)
+          this.changerOP(this.ancien_matricule, membre.matricule_Membre, membre.nom_Membre, membre.surnom_Membre)
           actu_ch_es = true;
-        }else if(this.membre1.nom_Membre !== this.ancien_nom){
+        }else if((this.membre1.nom_Membre !== this.ancien_nom) || this.membre1.surnom_Membre !== this.ancien_surnom){
           //alert('diff')
-          this.changerNom(this.ancien_nom, this.membre1.nom_Membre);
+          this.changerNom(this.ancien_nom, this.membre1.nom_Membre, this.membre1.surnom_Membre);
           actu_ch_es = true;
         }      
 
@@ -592,11 +648,22 @@ export class MembresPage {
             this.grandMembre.photoDocRev = res.rev
             this.membre = this.grandMembre;
 
+            this.modifierForm = false;
+            this.ajoutForm = false;
+            //this.detailMembre = true;
+             if(actu_ch_es){
+              this.detail(this.grandMembre, true);
+              actu_ch_es = false;
+             }else{
+               this.detail(this.grandMembre, false)
+             }
+           /* this.membre = this.grandMembre;
+
             var membreID=this.membre.doc.data.matricule_Membre || 'pending';
             JsBarcode(this.barcode.nativeElement, membreID,{
               width: 1,
               height:50
-            });
+            });*/
            /* let toast = this.toastCtl.create({
             message: 'Membre bien sauvegardé!',
             position: 'top',
@@ -604,8 +671,10 @@ export class MembresPage {
           });*/
 
           //this.navCtrl.pop();
-          this.modifierForm = false;
+          /*this.modifierForm = false;
+          this.ajoutForm = false;
           this.detailMembre = true;
+          */
           this.membres.forEach((m, i) => {
             if(m.doc._id === this.membre.doc._id){
               this.membres[i] = this.membre;
@@ -626,16 +695,18 @@ export class MembresPage {
               //this.allMembres = this.membres;
             }
           });
-          //toast.present();
-          })
 
-          if(actu_ch_es){
+          this.reinitForm();
+          //toast.present();
+          });
+
+          /*if(actu_ch_es){
             this.chargerMesChamps(this.membre.doc.data.matricule_Membre);
             this.chargerMesEssai(this.membre.doc.data.matricule_Membre);
             actu_ch_es = false;
-          }
+          }*/
           
-          this.reinitForm();
+         // this.reinitForm();
         }else if(!this.photoID && this.imageData){
           //creation
           //let ida = 'fuma:photo:membre:'+ membre.matricule_Membre;
@@ -661,12 +732,25 @@ export class MembresPage {
           this.grandMembre.photoDocId = ida;
           this.grandMembre.photoDocRev = res.rev;
           this.membre = this.grandMembre;
+
+          this.modifierForm = false;
+          this.ajoutForm = false;
+          //this.detailMembre = true;
+          //this.detail(this.grandMembre, this.selectedSource)
+           if(actu_ch_es){
+              this.detail(this.grandMembre, true);
+              actu_ch_es = false;
+             }else{
+               this.detail(this.grandMembre, false)
+             }
+          /*this.membre = this.grandMembre;
           
             var membreID=this.membre.doc.data.matricule_Membre || 'pending';
             JsBarcode(this.barcode.nativeElement, membreID,{
               width: 1,
               height:50
-            });
+            });*/
+
          /* let toast = this.toastCtl.create({
             message: 'Membre bien sauvegardé!',
             position: 'top',
@@ -674,8 +758,9 @@ export class MembresPage {
           });*/
 
           //this.navCtrl.pop();
-          this.modifierForm = false;
-          this.detailMembre = true;
+          /*this.modifierForm = false;
+          this.ajoutForm = false;
+          this.detailMembre = true;*/
           this.membres.forEach((m, i) => {
             if(m.doc._id === this.membre.doc._id){
               this.membres[i] = this.membre;
@@ -697,23 +782,34 @@ export class MembresPage {
             }
           });
           //toast.present();
+          this.reinitForm();
         });
 
-         if(actu_ch_es){
+         /*if(actu_ch_es){
             this.chargerMesChamps(this.membre.doc.data.matricule_Membre);
             this.chargerMesEssai(this.membre.doc.data.matricule_Membre);
             actu_ch_es = false;
-          }
-
-          this.reinitForm();
+         }*/
 
         }else{
           this.membre = this.grandMembre;
+
+          this.modifierForm = false;
+          this.ajoutForm = false;
+          //this.detailMembre = true;
+          //this.detail(this.grandMembre, this.selectedSource)
+          if(actu_ch_es){
+              this.detail(this.grandMembre, true);
+              actu_ch_es = false;
+             }else{
+               this.detail(this.grandMembre, false)
+             }
+          /*
           var membreID=this.membre.doc.data.matricule_Membre || 'pending';
             JsBarcode(this.barcode.nativeElement, membreID,{
               width: 1,
               height:50
-            });
+            });*/
 
           /*let toast = this.toastCtl.create({
             message: 'Membre bien sauvegardé!',
@@ -722,8 +818,9 @@ export class MembresPage {
           });*/
 
           //this.navCtrl.pop();
-          this.modifierForm = false;
-          this.detailMembre = true;
+          /*this.modifierForm = false;
+          this.ajoutForm = false;
+          this.detailMembre = true;*/
           this.membres.forEach((m, i) => {
             if(m.doc._id === this.membre.doc._id){
               this.membres[i] = this.membre;
@@ -745,11 +842,11 @@ export class MembresPage {
             }
           });
 
-          if(actu_ch_es){
+         /* if(actu_ch_es){
             this.chargerMesChamps(this.membre.doc.data.matricule_Membre);
             this.chargerMesEssai(this.membre.doc.data.matricule_Membre);
             actu_ch_es = false;
-          }
+          }*/
 
           this.reinitForm();
 
@@ -773,7 +870,7 @@ export class MembresPage {
     
   }
 
-   changerOP(ancienMatricule, nouveauMatricule, nomProducteur){
+   changerOP(ancienMatricule, nouveauMatricule, nomProducteur, surnomProducteur){
     let nouveauChamps: any = [];
     //let nouveauEssai: any = [];
     let id_champs: any = '';
@@ -790,6 +887,7 @@ export class MembresPage {
       data.matricule_producteur = nouveauMatricule;
       data.ancien_matricule_producteur = ancienMatricule;
       data.nom_producteur = nomProducteur;
+      data.surnom_producteur = surnomProducteur;
       nouveauChamp._id = id;
       nouveauChamp.data = data;
       
@@ -822,6 +920,7 @@ export class MembresPage {
               data.matricule_producteur = nouveauMatricule;
               data.ancien_matricule_producteur = ancienMatricule;
               data.nom_producteur = nomProducteur;
+              data.surnom_producteur = surnomProducteur;
               }
             });
         }else{
@@ -830,6 +929,7 @@ export class MembresPage {
           data.matricule_producteur = nouveauMatricule;
           data.ancien_matricule_producteur = ancienMatricule;
           data.nom_producteur = nomProducteur;
+          data.surnom_producteur = surnomProducteur;
         }
         nouveauEssai._id = id;
         nouveauEssai.data = data;
@@ -839,17 +939,42 @@ export class MembresPage {
         nouveauEssai = {};
       });
       nouveauChamps = [];
-    }/*else{
-      alert('Erreur mise à jour des essais, la liste des champs est vide!')
-    }*/
+    }else{
+
+      let nouveauEssai: any = {};
+      this.mes_essais.map((essai) => {
+        essai = essai.doc;
+        let code_essai = this.generateIdEssai(nouveauMatricule);
+        let id = 'fuma'+':essai:'+ code_essai;
+        //let nouveauEssai: any = {};
+        let data = essai.data;
+        //let id_champs = data.id_champs;
+        data.ancien_code_essai = essai.data.code_essai;
+        data.code_essai = code_essai
+        data.matricule_producteur = nouveauMatricule;
+        data.ancien_matricule_producteur = ancienMatricule;
+        data.nom_producteur = nomProducteur;
+        data.surnom_producteur = surnomProducteur;
+
+        nouveauEssai._id = id;
+        nouveauEssai.data = data;
+        
+        this.servicePouchdb.remove(essai._id);
+        this.servicePouchdb.createDoc(nouveauEssai);
+        nouveauEssai = {};       
+      });
+      
+      alert('Erreur mise à jour des essais, la liste des champs est vide!\n Matricule: '+ancienMatricule+' --> '+nouveauMatricule)
+    }
     
   }
 
 
-  changerNom(ancienNom, nouveauNom){
+  changerNom(ancienNom, nouveauNom, surnouveauNom){
     this.mes_champs.map((champs) => {
       champs = champs.doc
       champs.data.nom_producteur = nouveauNom;
+      champs.data.surnom_producteur = surnouveauNom;
       //alert(champs._id + " -> " + champs.data.nom_producteur)
       this.servicePouchdb.updateDoc(champs)
     });   
@@ -857,6 +982,7 @@ export class MembresPage {
     this.mes_essais.map((essai) => {
       essai = essai.doc;
       essai.data.nom_producteur = nouveauNom;
+      essai.data.surnom_producteur = surnouveauNom;
       this.servicePouchdb.updateDoc(essai);
     });    
   }
@@ -1006,6 +1132,7 @@ chargerOp(){
     var randomString=randomArray.join("");
     //var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    //var Id= 'MR-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     
     return Id
   }
@@ -1038,7 +1165,20 @@ chargerOp(){
     this.servicePouchdb.syncAvecToast(this.getInitMemebre());
   }
 
-  choixLimit(){
+   choixLimit(){
+    this.rechercher = true;
+    if(this.selectedLimit !== 'Tous'){
+      this.membres = this.allMembres.slice(0, this.selectedLimit);
+      this.rechercher = false;
+    }else{
+      this.membres = this.allMembres;
+      this.rechercher = false;
+    }
+    
+  }
+
+
+  choixLimit1(){
     if(this.selectedSource === 'application'){
       if(this.selectedLimit === 'Tous'){
         this.getMembres('fuma:op:membre', 'fuma:op:membre:\uffff');
@@ -1084,11 +1224,13 @@ chargerOp(){
   }
 
   getInitMemebre(){
+    //this.rechercher = true;
     if(this.selectedSource === 'application'){
       if(this.selectedLimit === 'Tous'){
         this.getMembres('fuma:op:membre', 'fuma:op:membre:\uffff');
         }else{
            this.getMembresAvecLimite('fuma:op:membre', 'fuma:op:membre:\uffff', this.selectedLimit);
+           this.getAllMembres('fuma:op:membre', 'fuma:op:membre:\uffff');
         }
       /*this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrs) => {
         if(mbrs){
@@ -1101,7 +1243,8 @@ chargerOp(){
         this.getMembres('koboSubmission_fuma-op-membre', 'koboSubmission_fuma-op-membre\uffff');
        }else{
          this.getMembresAvecLimite('koboSubmission_fuma-op-membre', 'koboSubmission_fuma-op-membre\uffff', this.selectedLimit);
-       }
+         this.getAllMembres('koboSubmission_fuma-op-membre', 'koboSubmission_fuma-op-membre\uffff');
+        }
       /*this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrs) => {
         if(mbrs){
           this.membres = mbrs;
@@ -1109,12 +1252,13 @@ chargerOp(){
         }
       });*/
     }else{
-      
+      this.rechercher = true;
       this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrA) => {
       
          this.servicePouchdb.getPlageDocs('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrK) => {
           this.membres = mbrA.concat(mbrK);
           this.allMembres = this.membres
+          this.rechercher = false;
 
        
       }, err => console.log(err));
@@ -1125,6 +1269,7 @@ chargerOp(){
     this.servicePouchdb.getPlageDocsRapide('fuma:op:membre','fuma:op:membre:\uffff').then((mbrsA) => {
          this.servicePouchdb.getPlageDocsRapide('koboSubmission_fuma-op-membre','koboSubmission_fuma-op-membre\uffff').then((mbrsK) => {
           this.allMembres1 = mbrsA.concat(mbrsK);
+          //this.rechercher = false;
       }, err => console.log(err));
 
       }, err => console.log(err));   
@@ -1140,7 +1285,7 @@ chargerOp(){
   }
 
   ionViewDidEnter() {
-
+   
     this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
@@ -1149,7 +1294,7 @@ chargerOp(){
         }
     }, err => {
       if(global.info_user != null){
-        this.aProfile = true;
+        this.aProfile = true; 
       }else{
         this.aProfile = false;
       }
@@ -1198,9 +1343,9 @@ chargerOp(){
 
      if(this.selectedSource === 'application'){
        if(this.selectedLimit === 'Tous'){
-        this.getMembres('fuma:op:membre', 'fuma:op:membre\uffff');
+        this.getMembres('fuma:op:membre', 'fuma:op:membre');
        }else{
-         this.getMembresAvecLimite('fuma:op:membre', 'fuma:op:membre\uffff', this.selectedLimit);
+         this.getMembresAvecLimite('fuma:op:membre', 'fuma:op:membre', this.selectedLimit);
        }
      /* this.servicePouchdb.getPlageDocs('fuma:op:membre','fuma:op:membre:\uffff').then((mbrs) => {
         if(mbrs){
@@ -1238,6 +1383,11 @@ chargerOp(){
   }
 
   ajouter(){
+    this.photo = '';
+    this.photoID = '';
+    this.photoRev = '';
+    this.imageData = '';
+    this.imageBlob = '';
     if(this.confLocaliteEnquete){
 
       this.pourCreerForm();
@@ -1336,15 +1486,52 @@ chargerOp(){
         width: 1,
         height:50
       });
+
+      //alert(membre.doc._id.substr(15, membre.doc._id.length - 14))
+
+    //  alert(membreID.substr(membreID.indexOf(' '), membreID.length - membreID.indexOf(' ')))
     //this.navCtrl.push('DetailMembrePage', {'membre': membre, 'selectedSource': selectedSource});
     this.detailMembre = true;
-
-    this.chargerMesChamps(membre.doc.data.matricule_Membre);
-    this.chargerMesEssai(membre.doc.data.matricule_Membre);
+    if(selectedSource){
+      this.chargerMesChamps(membre.doc.data.matricule_Membre);
+      this.chargerMesEssai(membre.doc.data.matricule_Membre);
+    }
   }
 
   typeRechercheChange(){
-    this.membres = this.allMembres;
+    //this.membres = this.allMembres;
+  }
+
+  getItems(ev: any) {
+    // Reset items back to all of the items
+    //this.membres = this.allMembres;
+
+    // set val to the value of the searchbar
+    let val = ev.target.value;
+
+    // if the value is an empty string don't filter the items
+    if (val && val.trim() != '' && val.trim() != 'FM-' && val.trim() != 'fm-') {
+      this.membres = this.allMembres.filter((item) => {
+        if(this.typeRecherche === 'nom'){
+          return (item.doc.data.nom_Membre.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }else if(this.typeRecherche === 'matricule'){
+          if(val.trim() > 'FM-' || val.trim() > 'fm-'){
+            return (item.doc.data.matricule_Membre.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
+        }else if(this.typeRecherche === 'site'){
+          if(item.doc.data.commune_nom){
+            return (item.doc.data.commune_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
+        }else if(this.typeRecherche === 'village'){
+          if(item.doc.data.village_nom){
+            return (item.doc.data.village_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
+        }
+        
+      });
+    }else{
+      this.choixLimit();
+    }
   }
 
   getItemsByMatricule(ev: any) {
@@ -1378,7 +1565,70 @@ chargerOp(){
   }
 
   getMembres(strk, endk) {
-    this.servicePouchdb.getAll(
+    this.rechercher = true;
+    if(this.num_aggrement_op){
+      this.servicePouchdb.getAll(
+      {
+        startkey: strk + ':' + this.code_op,
+        endkey: strk + ':' + this.code_op + ':\uffff',
+        include_docs: true
+      },
+    ).then(
+      res => {
+        var membres: any = [];
+        res.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            membres.push(row);
+          }
+        });
+        //var membres = res.rows
+        var promises = membres.map(function (membre) {
+          return this.getPhoto(membre)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res => {
+              this.membres = res
+              this.allMembres=res
+              this.rechercher = false;
+           
+          }
+        )
+      }
+      );
+    
+    }else{
+
+      this.servicePouchdb.getAll(
+      {
+        startkey: strk,
+        endkey: strk + ':\uffff',
+        include_docs: true
+      },
+    ).then(
+      res => {
+        var membres: any = [];
+        res.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            membres.push(row);
+          }
+        });
+        //var membres = res.rows
+        var promises = membres.map(function (membre) {
+          return this.getPhoto(membre)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res => {
+              this.membres = res
+              this.allMembres=res  
+              this.rechercher = false;         
+          }
+        )
+      }
+      );
+    
+
+    }
+  /*    this.servicePouchdb.getAll(
       {
         startkey: strk,
         endkey: endk,
@@ -1392,6 +1642,7 @@ chargerOp(){
         }.bind(this))
         return Promise.all(promises).then(
           res => {
+
             let m: any = res
             if(this.num_aggrement_op){
               let mbrs: any = [];
@@ -1411,11 +1662,139 @@ chargerOp(){
           }
         )
       }
-      )
+      );
+    */
+  }
+
+   getAllMembres(strk, endk) {
+    this.rechercher = true;
+    if(this.num_aggrement_op){
+      this.servicePouchdb.getAll(
+      {
+        startkey: strk + ':' + this.code_op,
+        endkey: strk + ':' + this.code_op + ':\uffff',
+        include_docs: true
+      },
+    ).then(
+      res => {
+        var membres: any = [];
+        res.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            membres.push(row);
+          }
+        });
+        //var membres = res.rows
+        var promises = membres.map(function (membre) {
+          return this.getPhoto(membre)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res => {
+              //this.membres = res
+              this.allMembres=res
+              //this.rechercher = false;
+           
+          }
+        )
+      }
+      );
+    
+    }else{
+
+      this.servicePouchdb.getAll(
+      {
+        startkey: strk,
+        endkey: strk + ':\uffff',
+        include_docs: true
+      },
+    ).then(
+      res => {
+        var membres: any = [];
+        res.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            membres.push(row);
+          }
+        });
+        //var membres = res.rows
+        var promises = membres.map(function (membre) {
+          return this.getPhoto(membre)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res => {
+              //this.membres = res
+              this.allMembres=res  
+              //this.rechercher = false;         
+          }
+        )
+      }
+      );
+    }
   }
 
   getMembresAvecLimite(strk, endk, limit) {
-    this.servicePouchdb.getAll(
+    this.rechercher = true;
+    if(this.num_aggrement_op){
+      this.servicePouchdb.getAll(
+      {
+        startkey: strk+ ':'+this.code_op,
+        endkey: strk + ':' +this.code_op + ':\uffff',
+        include_docs: true,
+        limit: limit,
+      },
+    ).then(
+      res => {
+        var membres: any = [];
+        res.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            membres.push(row);
+          }
+        });
+        //var membres = res.rows
+        var promises = membres.map(function (membre) {
+          return this.getPhoto(membre)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res => {
+              this.membres = res
+              this.allMembres=res
+              this.rechercher = false;          
+          }
+        );
+      }
+      );
+    
+    }else{
+      this.servicePouchdb.getAll(
+      {
+        startkey: strk,
+        endkey: strk + ':\uffff',
+        include_docs: true,
+        limit: limit,
+      },
+    ).then(
+      res => {
+        var membres: any = [];
+        res.rows.map((row) => {
+          if(!row.doc.data.deleted){
+            membres.push(row);
+          }
+        });
+        //var membres = res.rows
+        var promises = membres.map(function (membre) {
+          return this.getPhoto(membre)
+        }.bind(this))
+        return Promise.all(promises).then(
+          res => {
+              this.membres = res
+              this.allMembres=res
+              this.rechercher = false;
+          }
+        );
+      }
+      );
+    
+
+    }
+  /*  this.servicePouchdb.getAll(
       {
         startkey: strk,
         endkey: endk,
@@ -1430,6 +1809,7 @@ chargerOp(){
         }.bind(this))
         return Promise.all(promises).then(
           res => {
+
             let m: any = res
             if(this.num_aggrement_op){
               let mbrs: any = [];
@@ -1450,6 +1830,7 @@ chargerOp(){
         )
       }
       )
+    */
   }
 
 
@@ -1539,6 +1920,7 @@ chargerOp(){
     this.ancien_code_op = this.membre1.op_code;
     this.nom = this.membre1.nom_Membre;
     this.ancien_nom = this.membre1.nom_Membre;
+    this.ancien_surnom = this.membre1.surnom_Membre;
     if(!this.matricule){
       this.getMatricule();
       this.generate = true;
@@ -1547,6 +1929,7 @@ chargerOp(){
     this.selectedVillageID = this.membre1.village;
     this.selectedOPID = this.membre1.op;
     this.nom_Membre = this.membre1.nom_Membre;
+    this.surnom_Membre = this.membre1.surnom_Membre;
     this.genre = this.membre1.genre;
     this.today = this.membre1.today;
 
@@ -1612,6 +1995,7 @@ chargerOp(){
     this.ancien_code_op = '';
     this.nom = '';
     this.ancien_nom = '';
+    this.ancien_surnom = '';
     /*if(!this.matricule){
       this.getMatricule();
       this.generate = true;
@@ -1620,6 +2004,7 @@ chargerOp(){
     this.selectedVillageID = '';
     this.selectedOPID = '';
     this.nom_Membre = '';
+    this.surnom_Membre = '';
     this.genre = '';
     this.today = '';
 
@@ -1644,8 +2029,10 @@ chargerOp(){
     model.present();
 
     model.onDidDismiss((ch) => {
-      this.mes_champs = ch;
-    })
+      if(ch){
+        this.mes_champs = ch;
+      }
+    });
   }
 
   mesEssai(matricule, nom, membre){
@@ -1653,8 +2040,10 @@ chargerOp(){
     let model = this.modelCtl.create('EssaiPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre});
     model.present();
     model.onDidDismiss((ess) => {
-      this.mes_essais = ess;
-    })
+      if(ess){
+        this.mes_essais = ess;
+      }
+    });
   }
 
   supprimer(membre){
@@ -1694,7 +2083,7 @@ chargerOp(){
                   /*this.detailMembre = false;
                   this.membre = {};*/
                 }
-              })
+              });
 
               this.detailMembre = false;
               this.membre = {};

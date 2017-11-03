@@ -275,6 +275,213 @@ export class AdminPage {
     });
   }
 
+  reorganiser_coordonnees(){
+
+    let loading = this.loadtingCtl.create({
+      content: 'Application des changements sur les coordonnées en cours...'
+    });
+    loading.present();
+    this.database.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+      if(essais){
+        essais.map((ess) => {
+          if(ess.doc.data.longitude && ess.doc.data.longitude !== ''){
+            let tmp = ess.doc.data.longitude;
+            ess.doc.data.longitude = ess.doc.data.latitude;
+            ess.doc.data.latitude = tmp;
+            this.database.updateDoc(ess.doc);
+
+          }
+        });
+      }
+    });
+    
+    
+    this.database.getPlageDocsRapide('fuma:champs', 'fuma:champs:\uffff').then((champs) => {
+      if(champs){
+        champs.map((ch) => {
+          if(ch.doc.data.longitude && ch.doc.data.longitude !== ''){
+            let tmp = ch.doc.data.longitude;
+            ch.doc.data.longitude = ch.doc.data.latitude;
+            ch.doc.data.latitude = tmp;
+            this.database.updateDoc(ch.doc);
+          }
+
+        });
+       loading.dismissAll();
+       this.affichierMsg('Coordonnées mises à jour') 
+      }
+    });
+    
+  }
+
+
+    completer_controle_essai(){
+
+    let loading = this.loadtingCtl.create({
+      content: 'Application des changements sur les essais en cours...'
+    });
+    loading.present();
+    this.database.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+      if(essais){
+        essais.map((ess) => {
+          ess.doc.data.date_semis_controle = ess.doc.data.date_semis;
+          ess.doc.data.gestion_controle = ess.doc.data.gestion;
+          ess.doc.data.mode_semis_controle = ess.doc.data.mode_semis;
+          this.database.updateDoc(ess.doc);
+        });
+
+      loading.dismissAll();
+       this.affichierMsg('Essais mis à jour') 
+      }
+    });
+        
+  }
+
+
+  mise_a_jour_code_union_op(){
+
+    let loading = this.loadtingCtl.create({
+      content: 'Application des changements sur les ops en cours...'
+    });
+    loading.present();
+    this.database.getPlageDocsRapide('fuma:union','fuma:union:\uffff').then((unions) => {
+      if(unions){
+        let ops: any = [];
+        this.database.getPlageDocsRapide('fuma:op','fuma:op:\uffff').then((opsA) => {
+          if(opsA){
+            //opss = ops;
+            opsA.forEach((o, index) => {
+              if(!o.doc.data.op/* || o.data.op !== ''*/){
+                ops.push(o)
+              }
+          });
+
+          unions.forEach((union, i) => {
+            ops.forEach((op, i) => {
+              if(union.doc.data.num_aggrement === op.doc.data.union){
+                op.doc.data.union_code = union.doc.data.code_union;
+                this.database.updateDoc(op.doc);
+              }
+            })
+          });
+          loading.dismissAll();
+          this.affichierMsg('Ops mis à jour')
+
+        }
+      });
+      }
+    });
+    
+
+  }
+
+  mise_a_jour_mbr(){
+
+    let loading = this.loadtingCtl.create({
+      content: 'Application des changements sur les membres en cours...'
+    });
+    loading.present();
+    this.database.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then((membres) => {
+      if(membres){
+        let ops: any = [];
+       this.database.getPlageDocsRapide('fuma:op','fuma:op:\uffff').then((opsA) => {
+        if(opsA){
+          //opss = ops;
+          opsA.forEach((o, index) => {
+            if(!o.doc.data.op/* || o.data.op !== ''*/){
+              ops.push(o)
+            }
+         });
+
+          let mbrs: any = [];
+          let m: any = {};
+          mbrs = membres;
+          //ops.forEach((op) =>  {
+           // if(op.doc.data.type === 'op'){
+              
+             membres.forEach((membre, i) => {
+
+              if(membre.doc.data.op_code && membre.doc.data.op_code !== ''){
+                m._id = 'fuma:op:membre:' + membre.doc.data.op_code + ':' + membre.doc.data.matricule_Membre;
+                m.data = membre.doc.data;
+                this.database.deleteDoc(membre.doc);
+                this.database.updateDocReturn(m).then((res) => {
+                  //this.database.deleteDoc(membre.doc);
+                  //this.database.deleteDoc(membre.doc);
+                }, err => {
+                  //this.database.deleteDoc(membre.doc);
+                  
+                });
+
+                //membres.splice(i, 1);
+                m = {};
+              }else{
+                for(let j=0; j < ops.length; j++){
+                  if(membre.doc.data.op === ops[j].doc.data.num_aggrement){
+                    membre.doc.data.op_code = ops[j].doc.data.code_OP;
+
+                    m._id = 'fuma:op:membre:' + membre.doc.data.op_code + ':' + membre.doc.data.matricule_Membre;
+                    m.data = membre.doc.data;
+                    this.database.deleteDoc(membre.doc);
+                    this.database.updateDocReturn(m).then((res) => {
+                      //this.database.deleteDoc(membre.doc);
+                      //this.database.deleteDoc(membre.doc);
+                    }, err => {
+                      //this.database.deleteDoc(membre.doc);
+                      
+                    });
+
+                    //membres.splice(i, 1);
+                    m = {};
+                    break;
+                    
+                  }
+                }
+              }
+              /* for(let i = 0; i < ops.length; i++){
+                  if(membre.doc.data.op === ops[i].doc.data.num_aggrement){
+                    m._id = 'fuma:op:membre:' + ops[i].doc.data.code_OP + ':' + membre.doc.data.matricule_Membre;
+                    m.data = membre.doc.data;
+                    this.database.createDocReturn(m).then((res) => {
+                      //this.database.deleteDoc(membre.doc);
+                      //this.database.deleteDoc(membre.doc);
+                    }, err => {
+                      //this.database.deleteDoc(membre.doc);
+                      
+                    });
+
+                    this.database.deleteDoc(membre.doc);
+
+                    //membres.splice(i, 1);
+                    m = {};
+
+                    break;
+
+                    /*this.database.createDocReturn(m).then((res) => {
+                      this.database.remove(membre.doc._id);
+
+                      //alert(membre.doc.data.op +' === '+op.doc.data.num_aggrement +' ===> '+membre.doc._id+'  => ' +res.id)
+                      //mbrs.splice(i, 1);
+                    // m = {};
+                    });*/
+                  //}
+
+               //}
+
+            });
+
+            //membres = mbrs;
+            }
+          });
+
+          loading.dismissAll();
+          this.affichierMsg('Membres mis à jour')
+        //}
+       // });
+      }
+    })
+  }
+
 
   affichierMsg(msg = 'Enregistrement mis à jour'){
     let toast = this.toastCtl.create({

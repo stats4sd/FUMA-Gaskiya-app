@@ -156,7 +156,7 @@ export class DetailOpPage {
     }, err => console.log(err));
   }
 
-  Change_num_a_op(ancien_num_a, num_a) {
+  Change_num_a_op(ancien_num_a, num_a, code_op, nom_op) {
     let loadin = this.loadinCtl.create({
       content: 'Modification en cours....'
     });
@@ -166,7 +166,9 @@ export class DetailOpPage {
       membres.forEach((membre) => {
           //return this.getPhoto(membre)
           if(membre.doc.data.op === ancien_num_a){
-                membre.doc.data.op = num_a
+                membre.doc.data.op = num_a;
+                membre.doc.data.op_code = code_op;
+                membre.doc.data.op_nom = nom_op;
                 this.servicePouchdb.updateDoc(membre.doc);
                 //mbrs.push(mbr);
               }
@@ -190,7 +192,7 @@ export class DetailOpPage {
           
   }
 
-  Changer_code_op(num_a, ancien_code_op, nouveau_code_op) {
+  Change_nom_op(num_a, nom_op) {
     let loadin = this.loadinCtl.create({
       content: 'Modification en cours....'
     });
@@ -200,14 +202,55 @@ export class DetailOpPage {
       membres.forEach((membre) => {
           //return this.getPhoto(membre)
           if(membre.doc.data.op === num_a){
+                membre.doc.data.op_nom = nom_op;
+                this.servicePouchdb.updateDoc(membre.doc);
+                //mbrs.push(mbr);
+              }
+        });
+
+        loadin.dismissAll();
+          let toast = this.toastCtl.create({
+            message: 'OP bien sauvegardée!',
+            position: 'top',
+            duration: 1000
+          });
+          
+          //this.navCtrl.pop();
+          this.modifierForm = false;
+          toast.present();
+
+          //this.membres = mbrs
+          //this.allMembres=mbrs
+    }))
+    
+          
+  }
+
+  Changer_code_op(num_a, ancien_code_op, nouveau_code_op, nom_op) {
+    let loadin = this.loadinCtl.create({
+      content: 'Modification en cours....'
+    });
+
+    loadin.present();
+    let m: any = {};
+    this.servicePouchdb.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then(((membres) => {
+      membres.forEach((membre) => {
+          //return this.getPhoto(membre)
+          if(membre.doc.data.op === num_a){
                 membre.doc.data.ancien_op_code = membre.doc.data.op_code;
                 membre.doc.data.op_code = nouveau_code_op;
+                membre.doc.data.op_nom = nom_op;
                 //let ancien_m = membre.doc.data.matricule_Membre;
                 membre.doc.data.ancien_matricule_Membre = membre.doc.data.matricule_Membre;
-                membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(5, membre.doc.data.matricule_Membre.length - 4);
-                this.servicePouchdb.updateDocReturn(membre.doc).then((res) => {
-                  this.changerOP(membre.doc.data.ancien_matricule_Membre, membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, nouveau_code_op)
-                });
+                //membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                membre.doc.data.matricule_Membre = 'MR-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                
+                m._id = 'fuma:op:membre:' +nouveau_code_op+':'+ membre.doc.data.matricule_Membre;
+                m.data = membre.doc.data;
+                this.servicePouchdb.deleteDoc(membre.doc);
+                this.servicePouchdb.updateDoc(m);
+                this.changerOP(m.data.ancien_matricule_Membre, m.data.matricule_Membre, m.data.nom_Membre, nouveau_code_op)
+                m = {};
 
                 //mbrs.push(mbr);
               }
@@ -232,7 +275,7 @@ export class DetailOpPage {
   }
 
 
-  Changer_num_a_et_code_op(ancien_num_a, num_a, ancien_code_op, nouveau_code_op) {
+  Changer_num_a_et_code_op(ancien_num_a, num_a, ancien_code_op, nouveau_code_op, nom_op) {
     let loadin = this.loadinCtl.create({
       content: 'Modification en cours....'
     });
@@ -245,9 +288,12 @@ export class DetailOpPage {
                 membre.doc.data.op = num_a;
                 membre.doc.data.ancien_op_code = membre.doc.data.op_code;
                 membre.doc.data.op_code = nouveau_code_op;
+                membre.doc.data.op_nom = nom_op;
                 //let ancien_m = membre.doc.data.matricule_Membre;
                 membre.doc.data.ancien_matricule_Membre = membre.doc.data.matricule_Membre;
-                membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(5, membre.doc.data.matricule_Membre.length - 4);
+                //membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                membre.doc.data.matricule_Membre = 'MR-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                
                 this.servicePouchdb.updateDocReturn(membre.doc).then((res) => {
                   this.changerOP(membre.doc.data.ancien_matricule_Membre, membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, nouveau_code_op)
                 }) ;
@@ -280,17 +326,19 @@ export class DetailOpPage {
     //let nouveauEssai: any = [];
     let id_champs: any = '';
     let nChamps: any = {};
-    this.servicePouchdb.getPlageDocsRapide('fuma:champs:'+ancienMatricule, 'fuma:champs:'+ancienMatricule+'\uffff').then((mes_champs) => {
+    this.servicePouchdb.getPlageDocsRapide('fuma:champs:'+ancienMatricule, 'fuma:champs:'+ancienMatricule+' \uffff').then((mes_champs) => {
       if(mes_champs){
         //nouveauChamps = [];
         //this.mes_champs = c;
-            mes_champs.map((champs) => {
+            mes_champs.forEach((champs, i) => {
             champs = champs.doc;
             //let code_champs = this.generateIdChamps(nouveauMatricule);    
             let nouveauChamp: any = {};
             let data = champs.data;
-            let code_champs = 'FM-'+code_op+ data.id_champs.substr(5, data.id_champs.length - 4);
-            let id = 'fuma'+':champs:'+ code_champs;
+            //let code_champs = 'FM-'+code_op+ data.id_champs.substr(data.id_champs.indexOf(' '), data.id_champs.length - data.id_champs.indexOf(' '));
+            let code_champs = 'MR-'+code_op+ data.id_champs.substr(data.id_champs.indexOf(' '), data.id_champs.length - data.id_champs.indexOf(' '));
+            
+            let id = 'fuma:champs:'+ code_champs;
             //nouveauChamp.data = 
             data.ancien_id_champs = champs.data.id_champs;
             data.id_champs = code_champs;
@@ -309,23 +357,25 @@ export class DetailOpPage {
 
               if(nouveauChamps.length > 0){
                 let nouveauEssai: any = {};
-                this.servicePouchdb.getPlageDocsRapide('fuma:essai:'+ancienMatricule, 'fuma:essai:'+ancienMatricule+'\uffff').then((mes_essais) => {
+                this.servicePouchdb.getPlageDocsRapide('fuma:essai:'+ancienMatricule, 'fuma:essai:'+ancienMatricule+' \uffff').then((mes_essais) => {
                 if(mes_essais){
-                  mes_essais.map((essai) => {
+                  mes_essais.forEach((essai, j) => {
                       essai = essai.doc;
                       //let code_essai = this.generateIdEssai(nouveauMatricule);
                       
                       //let nouveauEssai: any = {};
                       let data = essai.data;
                       
-                      let code_essai = 'FM-'+code_op+ data.code_essai.substr(5, data.code_essai.length - 4);
+                      //let code_essai = 'FM-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      let code_essai = 'MR-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      
                       let id = 'fuma'+':essai:'+ code_essai;
                       //let id_champs = data.id_champs;
                       data.ancien_code_essai = essai.data.code_essai;
                       data.code_essai = code_essai
                       
                       if(id_champs !== essai.data.id_champs){
-                        nouveauChamps.map((champs) => {
+                        nouveauChamps.forEach((champs, i) => {
                           //champs = champs;
                           if(champs.data.ancien_id_champs === data.id_champs){
                             id_champs = champs.data.ancien_id_champs;
@@ -370,7 +420,41 @@ export class DetailOpPage {
 
                 //this.nouveauChamps = [];
               }else{
-                alert('Erreur mise à jour des essais, la liste des champs est vide!')
+
+                let nouveauEssai: any = {};
+                this.servicePouchdb.getPlageDocsRapide('fuma:essai:'+ancienMatricule, 'fuma:essai:'+ancienMatricule+' \uffff').then((mes_essais) => {
+                if(mes_essais){
+                  mes_essais.forEach((essai, j) => {
+                      essai = essai.doc;
+                      //let code_essai = this.generateIdEssai(nouveauMatricule);
+                      
+                      //let nouveauEssai: any = {};
+                      let data = essai.data;
+                      
+                      //let code_essai = 'FM-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      
+                      let code_essai = 'MR-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                     
+                      let id = 'fuma'+':essai:'+ code_essai;
+                      //let id_champs = data.id_champs;
+                      data.ancien_code_essai = essai.data.code_essai;
+                      data.code_essai = code_essai
+
+                      data.matricule_producteur = nouveauMatricule;
+                      data.ancien_matricule_producteur = ancienMatricule;
+                      data.nom_producteur = nomProducteur;
+
+                      nouveauEssai._id = id;
+                      nouveauEssai.data = data;
+                      
+                      this.servicePouchdb.deleteDoc(essai);
+                      this.servicePouchdb.createDoc(nouveauEssai);
+                      nouveauEssai = {};
+                    });
+                }
+              });
+
+                alert('Erreur mise à jour des essais, la liste des champs est vide!\nMemebre :'+ancienMatricule+' --> '+nouveauMatricule)
               }
       }
       
@@ -528,8 +612,19 @@ export class DetailOpPage {
 
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
   genererCodeOP(){
-    let taille_nom = this.nom_op.length;
+    
     let nom = this.nom_op;
+    //let nom = this.nom_op;
+    let nom1: any = '';
+    for(let i = 0; i < nom.length; i++){
+      if(nom.charAt(i) !== ' '){
+        nom1 += nom.charAt(i).toString();
+      }
+    }
+    
+    //let nom1 = nom.replace(/ /g,"");
+    nom = nom1;
+    let taille_nom = nom.length;
     //taille initiale: deux aractères
     let taille_code = 2;
     let code: string = '';
@@ -583,6 +678,8 @@ export class DetailOpPage {
           }
       }
       
+    }else{
+      this.code_op = '';
     }
     
   }
@@ -708,21 +805,23 @@ export class DetailOpPage {
         this.op = this.grandeOP;
         //alert(this.ancien_num_a +' !== '+this.op1.code_OP)
         if(this.ancien_num_a !== this.op1.num_aggrement && this.ancien_code_op !== this.op1.code_OP){
-          this.Changer_num_a_et_code_op(this.ancien_num_a, op.num_aggrement, this.ancien_code_op, this.op1.code_OP);
+          this.Changer_num_a_et_code_op(this.ancien_num_a, op.num_aggrement, this.ancien_code_op, this.op1.code_OP, this.op1.nom_op);
         }else if(this.ancien_num_a !== this.op1.num_aggrement && this.ancien_code_op === this.op1.code_OP){
-          this.Change_num_a_op(this.ancien_num_a, op.num_aggrement);
+          this.Change_num_a_op(this.ancien_num_a, op.num_aggrement, this.op1.code_OP, this.op1.nom_op);
         }else if(this.ancien_code_op !== this.op1.code_OP){
-          this.Changer_code_op(this.op1.num_aggrement, this.ancien_code_op, this.op1.code_OP);
+          this.Changer_code_op(this.op1.num_aggrement, this.ancien_code_op, this.op1.code_OP, this.op1.nom_op);
         }else{
-           let toast = this.toastCtl.create({
+           
+          this.Change_nom_op(op.num_aggrement, this.op1.nom_op);
+          /* let toast = this.toastCtl.create({
             message: 'OP bien sauvegardée!',
             position: 'top',
             duration: 1000
-          });
+          });*/
           
           //this.navCtrl.pop();
           this.modifierForm = false;
-          toast.present();
+          //toast.present();
             }
 
       

@@ -1,10 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 import * as ionicWebpackFactory from process.env.IONIC_WEBPACK_FACTORY;
-
-alias: {
-  pouchdb: "pouchdb/dist/pouchdb"
-}
+//var ionicWebpackFactory = require(process.env.IONIC_WEBPACK_FACTORY);
 
 module.exports = {
   entry: process.env.IONIC_APP_ENTRY_POINT,
@@ -29,7 +26,10 @@ module.exports = {
 
   resolve: {
     extensions: ['.ts', '.js', '.json'],
-    modules: [path.resolve('node_modules')]
+    modules: [path.resolve('node_modules')],
+    alias: {
+      'pouchdb': 'pouchdb/dist/pouchdb'
+    }
   },
 
   module: {

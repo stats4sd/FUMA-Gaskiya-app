@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController, IonicPage, ModalController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ToastController, Platform, IonicPage, ModalController, MenuController, Events } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 //import { AjouterUnionPage } from './ajouter-union/ajouter-union';
 //import { DetailUnionPage } from './detail-union/detail-union';
@@ -11,6 +11,10 @@ import { global } from '../../global-variables/variable';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import { File } from '@ionic-native/file';
+import * as FileSaver from 'file-saver';
+import { Printer, PrintOptions } from '@ionic-native/printer';
+declare var cordova: any;
 
 /*
   Generated class for the Unions page.
@@ -34,6 +38,9 @@ export class UnionsPage {
   confLocaliteEnquete: any;
   aProfile: boolean = true;
   ajoutForm: boolean = false;
+  selectedStyle: any = 'liste';
+  typeRecherche: any = 'nom';
+  rechercher: any = false;
 
   unionForm: any;
   villages: any = [];
@@ -47,7 +54,7 @@ export class UnionsPage {
   code_union: any = '';
   num_aggrement: any = '';
 
-  constructor(public storage: Storage, public toastCtl: ToastController, public modelCtl: ModalController, public formBuilder: FormBuilder, public sim: Sim, public device: Device, public navCtrl: NavController, public events: Events, public menuCtl: MenuController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {
+  constructor(public storage: Storage, public platform: Platform, public toastCtl: ToastController, public printer: Printer, public file: File, public modelCtl: ModalController, public formBuilder: FormBuilder, public sim: Sim, public device: Device, public navCtrl: NavController, public events: Events, public menuCtl: MenuController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {
 
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
@@ -63,6 +70,49 @@ export class UnionsPage {
       }, err => console.log(err));
     });
   }
+
+    typeRechercheChange(){
+    this.unions = this.allUnions;
+  }
+
+  exportExcel(){
+
+    let date = new Date();
+    //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
+    let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
+
+    let blob = new Blob([document.getElementById('tableau').innerHTML], {
+      //type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+      type: "text/plain;charset=utf-8"
+      //type: 'application/vnd.ms-excel;charset=utf-8'
+      //type: "application/vnd.ms-excel;charset=utf-8"
+    });
+
+    if(!this.platform.is('android')){
+      FileSaver.saveAs(blob, 'Unions_'+nom+'.xls');
+    }else{
+
+      let fileDestiny: string = cordova.file.externalRootDirectory;
+      this.file.writeFile(fileDestiny, 'Unions_'+nom+'.xls', blob).then(()=> {
+          alert("Fichier créé dans: " + fileDestiny);
+      }).catch(()=>{
+          alert("Erreur de création du fichier dans: " + fileDestiny);
+      })
+    }
+  }
+
+  onPrint(){
+    let options: PrintOptions = {
+        //name: 'Rapport',
+        //printerId: 'printer007',
+        duplex: true,
+        landscape: true,
+        grayscale: true
+    };
+    let content = document.getElementById('tableau').innerHTML;
+    this.printer.print(content, options);
+  }
+
 
   initForm(){
     let maDate = new Date();
@@ -157,7 +207,16 @@ export class UnionsPage {
   genererCodeUnion(){
     //let taille_nom = this.nom_union.length;
     let nom = this.nom_union;
-    nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '')
+    //nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '')
+    //let nom = this.nom_op;
+    let nom1: any = '';
+    for(let i = 0; i < nom.length; i++){
+      if(nom.charAt(i) !== ' '){
+        nom1 += nom.charAt(i).toString();
+      }
+    }
+    //let nom1 = nom.replace(/ /g,"");
+     nom = nom1;
     let an = nom;
     //nom = nom.replace('  ' || '', '')
     //nom = nom.replace('  ', '')
@@ -221,6 +280,8 @@ export class UnionsPage {
           }
       }
       
+    }else{
+      this.code_union = '';
     }
     
   }
@@ -363,6 +424,7 @@ export class UnionsPage {
       //console.log(err)
     }); 
 
+    this.rechercher = true;
 
     if(this.selectedSource === 'application'){
      // this.unions = [];
@@ -370,6 +432,7 @@ export class UnionsPage {
         if(unions){
           this.unions = unions;
           this.allUnions = unions;
+          this.rechercher = false;
         }
       });
     }else if(this.selectedSource === 'kobo'){
@@ -378,6 +441,7 @@ export class UnionsPage {
         if(unions){
           this.unions = unions;
           this.allUnions = unions;
+          this.rechercher = false;
         }
       });
     }else{
@@ -390,6 +454,7 @@ export class UnionsPage {
          this.servicePouchdb.getPlageDocsRapide('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unionsK) => {
           this.unions = unionsA.concat(unionsK);
           this.allUnions = this.unions
+          this.rechercher = false;
 
        /* if(unionsK){
           this.unionsKobo = unionsK;
@@ -432,12 +497,14 @@ export class UnionsPage {
 
   choixSource(){
    // this.unions = [];
+   this.rechercher = true;
      if(this.selectedSource === 'application'){
      // this.unions = [];
       this.servicePouchdb.getPlageDocsRapide('fuma:union','fuma:union:\uffff').then((unions) => {
         if(unions){
           this.unions = unions;
           this.allUnions = unions;
+          this.rechercher = false;
         }
       });
     }else if(this.selectedSource === 'kobo'){
@@ -446,6 +513,7 @@ export class UnionsPage {
         if(unions){
           this.unions = unions;
           this.allUnions = unions;
+          this.rechercher = false;
         }
       });
     }else{
@@ -458,6 +526,7 @@ export class UnionsPage {
          this.servicePouchdb.getPlageDocsRapide('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unionsK) => {
           this.unions = unionsA.concat(unionsK);
           this.allUnions = this.unions
+          this.rechercher = false;
 
        /* if(unionsK){
           this.unionsKobo = unionsK;
@@ -521,7 +590,22 @@ export class UnionsPage {
     // if the value is an empty string don't filter the items
     if (val && val.trim() != '') {
       this.unions = this.unions.filter((item) => {
-        return (item.doc.data.nom_union.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        if(this.typeRecherche === 'nom'){
+          return (item.doc.data.nom_union.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }else if(this.typeRecherche === 'code'){
+          return (item.doc.data.code_union.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }else if(this.typeRecherche === 'aggrement'){
+           return (item.doc.data.num_aggrement.toLowerCase().indexOf(val.toLowerCase()) > -1);
+        }if(this.typeRecherche === 'site'){
+          if(item.doc.data.commune_nom){
+            return (item.doc.data.commune_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
+        }if(this.typeRecherche === 'village'){
+          if(item.doc.data.village_nom){
+            return (item.doc.data.village_nom.toLowerCase().indexOf(val.toLowerCase()) > -1);
+          }
+        }
+
       });
     } 
   }

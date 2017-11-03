@@ -204,8 +204,18 @@ export class DetailUnionPage {
 
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
   genererCodeUnion(){
-    let taille_nom = this.nom_union.length;
+    
     let nom = this.nom_union;
+    let nom1: any = '';
+    for(let i = 0; i < nom.length; i++){
+      if(nom.charAt(i) !== ' '){
+        nom1 += nom.charAt(i).toString();
+      }
+    }
+    //let nom = this.nom_op;
+     //let nom1 = nom.replace(/ /g,"");
+     nom = nom1;
+     let taille_nom = nom.length;
     //taille initiale: deux aractères
     let taille_code = 2;
     let code: string = '';
@@ -263,6 +273,8 @@ export class DetailUnionPage {
           }
       }
       
+    }else{
+      this.code_union = '';
     }
     
   }

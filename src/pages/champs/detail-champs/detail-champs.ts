@@ -39,6 +39,7 @@ export class DetailChampsPage {
   selectedTypeSole: any;
   selectedProducteur: any = [];
   nom_producteur: any = '';
+  surnom_producteur: any = '';
   allChamps: any;
   id_champs: any;
   ancienMatriculeProducteur: any;
@@ -89,6 +90,7 @@ export class DetailChampsPage {
 
     this.selectedProducteur = this.champs.matricule_producteur;
     this.nom_producteur = this.champs.nom_producteur;
+    this.surnom_producteur = this.champs.surnom_producteur;
     this.ancienMatriculeProducteur = this.champs.matricule_producteur;
     this.selectedTypeSole = this.champs.type_sole;
     this.id_champs = this.champs.id_champs;
@@ -106,6 +108,7 @@ export class DetailChampsPage {
       type_sole: [this.champs.type_sole, Validators.required],
       matricule_producteur: [this.champs.matricule_producteur],
       nom_producteur: [this.champs.nom_producteur, Validators.required],
+      surnom_producteur: [this.champs.surnom_producteur],
     });
     
   }
@@ -130,6 +133,7 @@ export class DetailChampsPage {
     this.producteurs.forEach((p, i) => {
       if(p.data.matricule_Membre === this.selectedProducteur){
         this.nom_producteur = p.data.nom_Membre;
+         this.surnom_producteur = p.data.surnom_Membre;
 
          if(this.ancienMatriculeProducteur !== p.data.matricule_Membre){
             let id = this.generateId(p.data.matricule_Membre);
@@ -197,6 +201,7 @@ export class DetailChampsPage {
     this.champs.type_sole = champ.type_sole;
     this.champs.matricule_producteur = champ.matricule_producteur;
     this.champs.nom_producteur = champ.nom_producteur;
+    this.champs.surnom_producteur = champ.surnom_producteur;
     
       this.grandChamps.data = this.champs;
       this.servicePouchdb.updateDocReturn(this.grandChamps).then((res) => {
