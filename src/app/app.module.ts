@@ -49,6 +49,7 @@ import { FormViewComponent } from '../components/form-view/form-view';
 import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
 import { AutoCompletion } from '../providers/auto-completion';
+import { RestitutionProvider } from '../providers/restitution/restitution';
 
 /*
 //configuration locale
@@ -347,6 +348,7 @@ export function createTranslateLoader(http: Http) {
     DetailCulturePage,*/
 
   ],
-  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, DatePicker, PouchdbProvider, File, Printer, ImagePicker, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen,]
+  providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, DatePicker, PouchdbProvider, File, Printer, ImagePicker, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen,
+    RestitutionProvider,]
 })
 export class AppModule { }

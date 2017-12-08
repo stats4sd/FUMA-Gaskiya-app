@@ -16,7 +16,7 @@
     <ion-buttons *ngIf="detailEssai" left>
       <button ion-button icon-only color="royal" (click)="fermerDetail()"><ion-icon name="arrow-back"></ion-icon></button>
     </ion-buttons> 
-    <ion-buttons *ngIf="!ajoutForm && !detailEssai && !modifierFrom"  start>
+    <ion-buttons *ngIf="!ajoutForm && !detailEssai && !modifierFrom && !statistique"  start>
 
       <button ion-button *ngIf="rechercher" icon-only>
           <ion-spinner></ion-spinner>
@@ -56,10 +56,6 @@
 <ion-content padding>
 
 <div *ngIf="!ajoutForm && !detailEssai && !statistique">
-
-  <h5 *ngIf="matricule_producteur1 && selectedStyle == 'liste'" style="text-align: center; color: seagreen">
-    Les essai de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
-  </h5>
 
   <ion-list>
     <ion-item>
@@ -133,11 +129,14 @@
     </ion-item>
   </ion-list>
 
-    <ion-list *ngIf="essais.length > 0 && selectedStyle === 'liste'">
+   <br >
+    <ion-list class="info-card" *ngIf="essais.length > 0 && selectedStyle === 'liste'">
     <!--ion-list *ngIf="selectedStyle === 'liste'" [virtualScroll]="essais" [headerFn]="myHeaderFn"-->
-      <br>
+     
       <ion-list-header>
-        <h2 style="width: 100%"><strong style="width: 100%">Essais {{selectedAnnee}}</strong></h2>
+        <h2  class="fond-gris"><strong>Les essais {{selectedAnnee}} <span *ngIf="matricule_producteur1 && selectedStyle == 'liste'">
+    de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
+  </span></strong></h2>
       </ion-list-header>
 
       <!--ion-item-divider *virtualHeader="let header" class="message">
@@ -154,13 +153,13 @@
     </ion-item>
     </ion-list>
 
-  <ion-card style="height: 80vh" *ngIf="essais.length > 0 && selectedStyle === 'tableau'">
-    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
-    <ion-card-header  style="width: 100vw">
-      <h2><strong>Essais {{selectedAnnee}} <span *ngIf="matricule_producteur1">
+  <ion-card class="info-card" *ngIf="essais.length > 0 && selectedStyle === 'tableau'">
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Les essais {{selectedAnnee}} <span *ngIf="matricule_producteur1">
     de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
   </span></strong></h2>
     </ion-card-header> 
+    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
@@ -439,6 +438,9 @@
           <ion-row> <ion-col class='meta-key'><strong>Objectif de l'essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.objectif_essai}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Observation:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Observation controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation_controle}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Gérant(s):</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let g of essai.data.gerants; let i = index">{{g}}<span *ngIf="i < essai.data.gerants.length - 1">, </span> </span></ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Culture(s) précédante(s):</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let pc  of essai.data.precedante_cultures; let i = index">{{pc}}<span *ngIf="i < essai.data.precedante_cultures.length - 1">, </span></span></ion-col> </ion-row>
+        
           <ion-row> <ion-col class='meta-key'><strong>Effort personnel ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.effort_personnel == true">Oui</span><span *ngIf="essai.data.effort_personnel == false">Non</span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Est valide ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.estValide == true">Oui</span><span *ngIf="essai.data.estValide == false">Non</span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
@@ -471,24 +473,108 @@
 
   </div>
 
-  <div *ngIf="statistique">
+  <div [hidden]="!statistique">
     
     <ion-card class="info-card"> 
-      <ion-card-header>
-        <strong>Statistique Essais {{selectedAnnee}}</strong>
-      </ion-card-header>
-      <ion-card-content>
+      <h2 class="fond-gris"><strong>Statistiques</strong></h2>
         <ion-grid>
           <ion-row> <ion-col class='meta-key'><strong>Nombre producteurs total:</strong></ion-col> <ion-col class='meta-value'> {{producteurs.length}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nombre producteurs ayant conduit des essais:</strong></ion-col> <ion-col class='meta-value'> {{uniqueMembres.length}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nombre essais total:</strong></ion-col> <ion-col class='meta-value'> {{nbTotalEssa}} </ion-col> </ion-row>
+          <ion-row *ngFor="let st of statistiqueTraitement"> <ion-col class='meta-key'><strong>Nombre essais {{st.nom_entree}}:</strong></ion-col> <ion-col class='meta-value'> {{st.value}} </ion-col> </ion-row> 
           <ion-row> <ion-col class='meta-key'><strong>Nombre OP total:</strong></ion-col> <ion-col class='meta-value'> {{allOP.length}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nombre OP ayant fait des essais:</strong></ion-col> <ion-col class='meta-value'> {{opEssai.length}} </ion-col> </ion-row> 
         </ion-grid>
-      </ion-card-content> 
+
     </ion-card>
 
+    <ion-card  class="info-card">
+      <h2 class="fond-gris"><strong>Visualisation {{selectedVar}} par membre</strong></h2>
+      <ion-row >
+        <ion-col>
+          <ion-list>
+            <ion-item>
+              <ion-label floating>Choisir la variable</ion-label>
+              <ion-select [(ngModel)]="selectedVar" (ionChange)="visualiserTouts(vegaData, selectedVar)" cancelText="Annuler" okText="Ok" >
+                <ion-option value="PDE">PDE</ion-option>
+                <ion-option value="PDE controle">PDE controle</ion-option>
+                <ion-option value="NPL">NPL</ion-option>
+                <ion-option value="NPL controle">NPL controle</ion-option>
+                <ion-option value="NPR">NPR</ion-option>
+                <ion-option value="NPR controle">NPR controle</ion-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+        <ion-col>
+          <ion-list>
+            <ion-item>
+              <ion-label floating>Choisir la variable</ion-label>
+              <ion-select [(ngModel)]="selectedVar" (ionChange)="visualiserTouts(vegaData, selectedVar)" cancelText="Annuler" okText="Ok" >
+                <ion-option value="PDE">PDE</ion-option>
+                <ion-option value="PDE controle">PDE controle</ion-option>
+                <ion-option value="NPL">NPL</ion-option>
+                <ion-option value="NPL controle">NPL controle</ion-option>
+                <ion-option value="NPR">NPR</ion-option>
+                <ion-option value="NPR controle">NPR controle</ion-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+      <ion-scroll scrollX="true" scrollY="true" style="min-height: 54vh"> 
+        <!--ion-card-header  style="width: 100vw"-->
+        <!--/ion-card-header-->
+        <div id="vis1"></div>
+      </ion-scroll>
+    </ion-card>
+
+    
+
+    <ion-card  class="info-card">
+      <h2 class="fond-gris"><strong>Visualisation différence {{selectedDiff}} et {{selectedDiff}} contrôle par membre</strong></h2>
+
+      <ion-list>
+        <ion-item>
+          <ion-label floating>Choisir la variable</ion-label>
+          <ion-select [(ngModel)]="selectedDiff" (ionChange)="visualiserDifferenceEssaiControle(vegaData, selectedDiff)" cancelText="Annuler" okText="Ok" >
+            <ion-option value="PDE">Différence PDE - Contrôle</ion-option>
+            <ion-option value="NPL">Différence NPL - Contrôle</ion-option>
+            <ion-option value="NPR">Différence NPR - Contrôle</ion-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+      <ion-scroll scrollX="true" scrollY="true" style="min-height: 54vh"> 
+        <!--ion-card-header  style="width: 100vw"-->
+        <!--/ion-card-header-->
+
+          <ion-spinner *ngIf="loading"></ion-spinner>
+        <div id="visDiff1"></div>
+      </ion-scroll>
+    </ion-card>
+
+    <ion-card  class="info-card">
+      <h2 class="fond-gris"><strong>Visualisation médiane {{selectedMed}} et {{selectedMed}} contrôle</strong></h2>
+      <ion-list>
+        <ion-item>
+          <ion-label floating>Choisir la variable</ion-label>
+          <ion-select [(ngModel)]="selectedMed" (ionChange)="visualiserMediane(vegaData, selectedMed)" cancelText="Annuler" okText="Ok" >
+            <ion-option value="PDE">PDE</ion-option>
+            <ion-option value="NPL">NPL</ion-option>
+            <ion-option value="NPR">NPR</ion-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+      <ion-scroll scrollX="true" scrollY="true" style="min-height: 54vh"> 
+        <!--ion-card-header  style="width: 100vw"-->
+        <!--/ion-card-header-->
+        <div id="visMediane1"></div>
+      </ion-scroll>
+    </ion-card>
+
+    <br><br><br>
   </div>
+
 
 
 <div *ngIf="ajoutForm || modifierFrom">
@@ -807,7 +893,23 @@
     <ion-label floating>Observation controle</ion-label>
     <ion-textarea formControlName="observation_controle" [(ngModel)]="observation_controle" row="6"></ion-textarea>
   </ion-item>
-    
+
+  <ion-item> 
+    <ion-label floating>Le(s) gerant(s) de l'essai</ion-label>
+    <ion-select formControlName="gerants" multiple="true" [(ngModel)]="selectedGerants" cancelText="Annuler" okText="Ok">
+      <!--ion-option value="" selected disabled>Selectionnez le(s) gérant(s)</ion-option-->
+      <ion-option *ngFor="let g of gerants" [value]=g >{{g}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  
+  <ion-item> 
+    <ion-label floating>Culture(s) précédante(s)</ion-label>
+    <ion-select formControlName="precedante_cultures" multiple="true" [(ngModel)]="selectedPrecedanteCultures" cancelText="Annuler" okText="Ok">
+      <!--ion-option value="" selected disabled>Selectionnez le précédant culturel</ion-option-->
+      <ion-option *ngFor="let pc of precedante_cultures" [value]=pc >{{pc}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  
     <br>
     <button ion-button type="submit" color="my_secondary" [disabled]="!essaiForm.valid" block>Sauvegarder</button>
   </form>
@@ -815,20 +917,20 @@
 
 </div>
 
-  <ion-fab bottom right *ngIf="!ajoutForm && !statistique && selectedStyle != 'tableau'" bottom>
+  <ion-fab bottom right *ngIf="!ajoutForm && !statistique &&!detailEssai && selectedStyle != 'tableau'" bottom>
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
-    <button ion-fab mini *ngIf="statistiqueOk" (click)="calculerMembreAyantFaitUnEssai(allEssais)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
+    <button ion-fab mini *ngIf="statistiqueOk" (click)="calculStatisitque(allEssais, traitements)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
     <!--button ion-fab mini (click)="fusionnerEssais()" color="my_primary">FUS</button-->
   </ion-fab>
   
 
 
-  <ion-fab bottom right *ngIf="!ajoutForm && !statistique && selectedStyle == 'tableau'">
+  <ion-fab bottom right *ngIf="!ajoutForm && !statistique &&!detailEssai && selectedStyle == 'tableau'">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top"> 
       <button ion-fab mini *ngIf="essais.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
       <button ion-fab mini *ngIf="essais.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
-      <button ion-fab mini *ngIf="statistiqueOk" (click)="calculerMembreAyantFaitUnEssai(allEssais)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
+      <button ion-fab mini *ngIf="statistiqueOk" (click)="calculStatisitque(allEssais, traitements)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
       <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
       
     </ion-fab-list>

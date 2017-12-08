@@ -9,6 +9,15 @@ page-detail-champs {
     h2{
         text-align: center;
     }
+
+       .fond-gris{
+        width:100%;
+        text-align: center;
+        font-size: large;
+        background-color: map-get($colors,fuma-yellow-background);
+        color: map-get($colors,fuma-yellow);
+        margin:0
+    }
     .info-card{
         background:rgba(255,255,255,0.5); 
         margin:12px 0 0 0;

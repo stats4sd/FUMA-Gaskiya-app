@@ -45,10 +45,6 @@
 
  <div *ngIf="!ajoutForm">
    
-  <h5 *ngIf="num_aggrement_union" style="text-align: center; color: seagreen">
-    Les OP de l'union: {{nom_union}} - N.A: {{num_aggrement_union}}
-  </h5>
-
   <ion-list>
     <ion-row>
       <ion-col>
@@ -97,7 +93,13 @@
     </ion-item>
   </ion-list>
 
-  <ion-list *ngIf="ops.length > 0 && selectedStyle === 'liste'">
+  <br >
+  <ion-list  class="info-card" *ngIf="ops.length > 0 && selectedStyle === 'liste'">
+    <ion-list-header>
+        <h2  class="fond-gris"><strong>Liste des OPs   <span *ngIf="num_aggrement_union">
+          de l'union: {{nom_union}} - N.A: {{num_aggrement_union}}
+        </span></strong></h2>
+      </ion-list-header>
     <ion-item *ngFor="let op of ops" (click)="detail(op.doc, selectedSource)" >
       <!--ion-row>
         <ion-col-->
@@ -112,11 +114,14 @@
     </ion-item>  
   </ion-list>
 
-  <ion-card style="height: 80vh" *ngIf="unions.length > 0 && selectedStyle === 'tableau'">
-    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
-    <ion-card-header  style="width: 100vw">
-      <h2><strong>Liste des ops</strong></h2>
+  <ion-card class="info-card" *ngIf="unions.length > 0 && selectedStyle === 'tableau'">
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Liste des OPs   <span *ngIf="num_aggrement_union">
+    de l'union: {{nom_union}} - N.A: {{num_aggrement_union}}
+  </span></strong></h2>
     </ion-card-header> 
+    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
+
     <table class="table table-striped table-bordered">
       <thead>
         <tr>

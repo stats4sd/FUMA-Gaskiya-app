@@ -63,9 +63,6 @@
 
   <!--div *ngIf="!ajoutForm && !detailMembre && !modifierForm" -->
   <div [hidden]="ajoutForm || detailMembre || modifierForm" >
-   <h5 *ngIf="num_aggrement_op && selectedStyle === 'liste'" style="text-align: center; color: seagreen">
-    Les membres de l'OP: {{nom_op}} - N.A: {{num_aggrement_op}}
-  </h5>
 
   <ion-list>
     <ion-row>
@@ -119,7 +116,13 @@
     </ion-item>
   </ion-list>
 
-  <ion-list *ngIf="membres.length > 0 && selectedStyle === 'liste'">
+  <br>
+  <ion-list class="info-card" *ngIf="membres.length > 0 && selectedStyle === 'liste'">
+    <ion-list-header>
+        <h2  class="fond-gris"><strong>Liste des membres <span *ngIf="num_aggrement_op">
+    de l'OP: {{nom_op}} - N.A: {{num_aggrement_op}}
+  </span> </strong></h2>
+      </ion-list-header>
     <ion-item *ngFor="let membre of membres">
   <!--ion-list [virtualScroll]="membres">
     <ion-item *virtualItem="let membre"-->
@@ -147,14 +150,12 @@
     </ion-item>    
   </ion-list>
 
-  <ion-card style="height: 80vh" *ngIf="membres.length > 0 && selectedStyle === 'tableau'">
-    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
-    <ion-card-header  style="width: 100vw">
-      <h2 style="text-align: center; color: seagreen">
-        Liste des membres <span *ngIf="num_aggrement_op">de l'OP: {{nom_op}} - <strong>N.A:</strong> {{num_aggrement_op}}</span>
-      </h2>
-        
+  <ion-card class="info-card" *ngIf="membres.length > 0 && selectedStyle === 'tableau'">
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Liste des membres <span *ngIf="num_aggrement_op">de l'OP: {{nom_op}} - <strong>N.A:</strong> {{num_aggrement_op}}</span></strong></h2>
     </ion-card-header> 
+    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
+
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
@@ -274,7 +275,11 @@
               <span *ngIf="membre.doc.data.genre == 'male'">Homme</span><span *ngIf="membre.doc.data.genre == 'female'">Femme</span>
             </ion-col>
           </ion-row>
-          <ion-row *ngIf="membre.doc.data.classe != 'AUTRE' && !membre.doc.data.classe_nom">
+
+          <ion-row> <ion-col class='meta-key'><strong>Date de naissance:</strong> </ion-col> <ion-col class='meta-value'> {{membre.doc.data.date_naissance}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Age:</strong> </ion-col> <ion-col class='meta-value'> {{age}} </ion-col> </ion-row>
+          
+          <!--ion-row *ngIf="membre.doc.data.classe != 'AUTRE' && !membre.doc.data.classe_nom">
             <ion-col class='meta-key'>
               <strong>Classe:</strong>
               </ion-col>
@@ -297,7 +302,8 @@
             <ion-col class='meta-value'>
                 {{membre.doc.data.classe_autre}}
             </ion-col>
-          </ion-row>
+          </ion-row-->
+
             <ion-row *ngIf="membre.doc.data.op != 'AUTRE' && !membre.doc.data.op_nom">
             <ion-col class='meta-key'>
               <strong>OP:</strong>
@@ -634,6 +640,15 @@
     </ion-item>
     <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['genre'].hasError('required') && membreForm.controls['genre'].touched">* le sex est obligatoir!</div>
     
+    <ion-item>
+      <ion-label floating>Date de naissance</ion-label>
+      <ion-datetime  (ionChange)="setAge();" [max]="max_date" (ionCancel)="autreActionDate();" displayFormat="DD/MM/YYYY" formControlName="date_naissance" [(ngModel)]="date_naissance" cancelText="Annuler" okText="Valider"></ion-datetime>
+    </ion-item>
+
+    <ion-item>
+      <ion-label floating>Age approximative</ion-label>
+      <ion-input type="number" formControlName="age" [(ngModel)]="age" (keyup)="setDate()"></ion-input>
+    </ion-item>
     <!--ion-item> 
       <ion-label floating>Selectionnez la classe</ion-label>
       <ion-select formControlName="classe" [(ngModel)]="selectedClasse" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomClasse(selectedClasse.data.id)" >
@@ -664,8 +679,8 @@
   <ion-fab bottom right *ngIf="!ajoutForm && !modifierForm && !detailMembre && selectedStyle == 'tableau'">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
-      <button ion-fab mini *ngIf="membres.length > 0" (click)="onPrint()"><ion-icon name="print"></ion-icon></button>
-      <button ion-fab mini *ngIf="membres.length > 0" (click)="exportExcel()"><ion-icon name="logo-windows"></ion-icon></button>
+      <button ion-fab mini *ngIf="membres.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
+      <button ion-fab mini *ngIf="membres.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
       <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
       
     </ion-fab-list>
@@ -675,8 +690,8 @@
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
       <button ion-fab mini (click)="supprimer(membre.doc)" color="delete" ><ion-icon name="trash"></ion-icon></button>
-      <button ion-fab (click)="mesEssai(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)"><strong>ES</strong></button>
-      <button ion-fab (click)="mesChamps(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)"><strong>CH</strong></button>
+      <button ion-fab (click)="mesEssai(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)" color="my_primary"><strong>ES</strong></button>
+      <button ion-fab (click)="mesChamps(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)" color="my_primary"><strong>CH</strong></button>
       <button ion-fab mini (click)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab>

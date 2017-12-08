@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController, ToastController, ViewController, IonicPage } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, ModalController, ToastController, ViewController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 import { OpPage } from '../../op/op';
 import { TranslateService } from '@ngx-translate/core';
@@ -26,7 +26,7 @@ export class AdminPage {
   membres:any = [];
   //toast: any;
 
-  constructor(public translate: TranslateService, public loadtingCtl: LoadingController, public viewCtl: ViewController, public storage: Storage, public alertCtl: AlertController, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
+  constructor(public translate: TranslateService, public modalCtl: ModalController, public loadtingCtl: LoadingController, public viewCtl: ViewController, public storage: Storage, public alertCtl: AlertController, public navCtrl: NavController, public toastCtl: ToastController, public navParams: NavParams,  private database: PouchdbProvider) {
     this.translate.setDefaultLang(global.langue);
   }
 
@@ -79,6 +79,30 @@ export class AdminPage {
     }, err => console.log(err));
 
   }
+
+
+  gestionPays(){
+    let model = this.modalCtl.create('AjouterPaysPage', {'liste': true});
+    model.present();
+  }
+
+  gestionRegions(){
+
+  }
+
+  gestionDepartements(){
+
+  }
+
+  gestionCommunes(){
+
+  }
+
+  gestionVillages(){
+
+  }
+
+
   culture(){
     this.navCtrl.push('CulturePage')
   }

@@ -40,6 +40,9 @@ export class MembresPage {
   confLocaliteEnquete: any;
   num_aggrement_op: any;
   selectedStyle: any = 'liste';
+  max_date: any;
+  date_naissance: any;
+  age: any;
   nom_op: any;
   code_op: any;
   aProfile: boolean = true;
@@ -225,6 +228,48 @@ export class MembresPage {
     this.chargerVillages(loc.commune.id);
   }
 
+  setDate(){
+    if(this.age >= 15){
+      let now: Date = new Date();
+      let annee = now.getFullYear() - this.age;
+      //this.createDate(1,1, annee)
+      this.date_naissance = this.createDate(1,0, annee);
+      //alert(this.date_naissance)
+    }
+    
+  }
+
+  setAge(){
+    let now: Date = new Date();
+    let date = new Date(this.date_naissance)
+    this.age = now.getFullYear() - date.getFullYear();
+    //alert(this.age);
+    //this.date_naissance = ev;
+  }
+
+  autreActionDate(){
+
+      let alert = this.alertCtl.create({
+        title: 'Autres actions',
+        message: 'Voulez vous supprimer la date de naissance ?',
+        buttons: [
+          {
+            text: 'Oui',
+            handler: () => {
+              this.date_naissance = '';
+              this.age = '';
+            }
+          },
+           {
+            text: 'Non',
+            handler: () => console.log('non')
+          }
+        ]
+      });
+
+      alert.present();
+  }
+
   initForm(){
     //this.confLocaliteEnquete = this.navParams.data.confLocaliteEnquete;
     let maDate = new Date();
@@ -237,6 +282,8 @@ export class MembresPage {
       surnom_Membre: [''],
       matricule_Membre: ['', Validators.required],
       genre: ['', Validators.required],
+      age: [''],
+      date_naissance: [''],
       //classe: [''],
       //classe_nom: [''],
       //classe_autre: [''],
@@ -593,6 +640,8 @@ export class MembresPage {
         let actu_ch_es: boolean = false;
         let membre = this.membreForm.value;
         this.membre1.nom_Membre = membre.nom_Membre;
+        this.membre1.age = membre.age;
+        this.membre1.date_naissance = membre.date_naissance;
         this.membre1.surnom_Membre = membre.surnom_Membre;
         if(this.ancien_matricule !== membre.matricule_Membre){
           this.membre1.ancien_matricule_Membre = this.membre1.matricule_Membre;
@@ -601,9 +650,9 @@ export class MembresPage {
           this.membre1.matricule_Membre = membre.matricule_Membre;
         }
         this.membre1.genre = membre.genre;
-        this.membre1.classe = membre.classe;
-        this.membre1.classe_nom = membre.classe_nom;
-        this.membre1.classe_autre = membre.classe_autre;
+        //this.membre1.classe = membre.classe;
+        //this.membre1.classe_nom = membre.classe_nom;
+        //this.membre1.classe_autre = membre.classe_autre;
         this.membre1.village = membre.village;
         this.membre1.village_nom = membre.village_nom;
         this.membre1.village_autre = membre.village_autre;
@@ -1396,6 +1445,8 @@ chargerOp(){
       let today = this.createDate(maDate.getDate(), maDate.getMonth(), maDate.getFullYear());
 
       this.today = today;
+      this.max_date = maDate.getFullYear() - 15;
+      //this.max_date = this.createDate(1, 0, maxAnnee);
 
 
       this.chargerConfLocaliter(this.confLocaliteEnquete)
@@ -1481,6 +1532,14 @@ chargerOp(){
 
   detail(membre, selectedSource){
     this.membre = membre;
+    if(membre.doc.data.date_naissance){
+      let now =new Date();
+      let date_naiss = new Date(membre.doc.data.date_naissance);
+      this.age = now.getFullYear() - date_naiss.getFullYear();
+    }else{
+      this.age = '';
+      this.date_naissance = '';
+    }
     var membreID=this.membre.doc.data.matricule_Membre || 'pending'
       JsBarcode(this.barcode.nativeElement, membreID,{
         width: 1,
@@ -1905,11 +1964,22 @@ chargerOp(){
     this.photoID = this.grandMembre.photoDocId;
     this.photoRev = this.grandMembre.photoDocRev;
     this.photo = this.grandMembre.photo;
+    let now = new Date();
+    this.max_date = now.getFullYear() - 15;
+    // = maxAnnee;//this.createDate(1, 0, maxAnnee);
 
     //this.classes.push(this.autreClasse);
 
     this.membre1 = this.grandMembre.doc.data;
     this.selectedClasseID = this.membre1.classe;
+    this.date_naissance = this.membre1.date_naissance;
+    if(this.date_naissance){
+      let date_naissance = new Date(this.date_naissance);
+      this.age = now.getFullYear() - date_naissance.getFullYear();
+    }else{
+      this.age = '';
+      this.date_naissance = '';
+    }
     this.selectedOPID = this.membre1.op;
     this.ancienSelectedOPID = this.membre1.op;
     this.selectedVillageID = this.membre1.village;
@@ -1994,6 +2064,8 @@ chargerOp(){
     this.ancien_nom_op = '';
     this.ancien_code_op = '';
     this.nom = '';
+    this.date_naissance = '';
+    this.age = '';
     this.ancien_nom = '';
     this.ancien_surnom = '';
     /*if(!this.matricule){

@@ -40,7 +40,14 @@ page-unions {
 
     }
 
-
+   .fond-gris{
+        width:100%;
+        text-align: center;
+        font-size: large;
+        background-color: map-get($colors,fuma-yellow-background);
+        color: map-get($colors,fuma-yellow);
+        margin:0
+    }
      //tableau bootstrap
     table{
         border-spacing:0;

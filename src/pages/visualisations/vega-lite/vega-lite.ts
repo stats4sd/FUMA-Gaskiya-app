@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController, IonicPage } from 'ionic-angular';
 import { TranslateService  } from '@ngx-translate/core';
-import { global } from '../../../global-variables/variable'
+import { global } from '../../../global-variables/variable';
 //vega imported via script in index, so just declaring global var vg
 declare var vg;
 

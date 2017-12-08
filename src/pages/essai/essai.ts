@@ -12,7 +12,31 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { AutoCompletion } from '../../providers/auto-completion';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+
+//import 'vega';
+//import 'vega-util';
+//import 'vega-tooltip';
+//import 'vega-event-selector';
+//import 'vega-lite';
+import embed from 'vega-embed';
+
+//declare var vg;
+//declare var vega
+//import 'd3';
+//import 'vega';
+//import 'vega-lite';
+//import vegaEmbed from 'vega-embed';
+//import * as vega from 'vega';
+//import embed from 'vega-embed';
+///import vegaEmbed, {Mode} from 'vega-embed';
+//import 'vega-lite';
+//import 'vega-embed';
+
+//import vegaEmbed from 'vega-embed';
+
 declare var cordova: any;
+
+
 //import { FileService } from '../../providers/file.service'
 //declare var cordova: any;
 
@@ -31,9 +55,11 @@ declare var cordova: any;
 export class EssaiPage {
 
   essai: any;
+  loading: boolean = true;
   rechercher: any = false;
   detailEssai: boolean = false;
   allTraitements: any = [];
+  statistiqueTraitement: any = [];
   essais: any[] = [];
   essais1: any = [];
   allEssais: any = [];
@@ -41,6 +67,8 @@ export class EssaiPage {
   opEssai: any = [];
   annee: any = '';
   selectedAnnee: any;
+  selectedGerants: any;
+  selectedPrecedanteCultures: any;
   ancien_selectedAnnee: any;
   matricule_producteur: any;
   matricule_producteur1: any;
@@ -49,7 +77,12 @@ export class EssaiPage {
   surnom_producteur: any;
   storageDirectory: string = '';
   a_matricule: boolean = false;
-  recherche: any = 'FM-'
+  recherche: any = 'FM-';
+  selectedDiff: any = 'PDE';
+  selectedVar: any = 'PDE';
+  selectedMed: any = 'PDE';
+  vegaData: any = [];
+  medianeData: any = [];
 
   annees: any = [];
   selectedStyle: any = 'liste';
@@ -60,7 +93,9 @@ export class EssaiPage {
   mode_semis: any = ['sec', 'humide'];
   mode_semi: any = '';
   mode_semi_controle: any = '';
-  typeRecherche: any = 'matricule'
+  typeRecherche: any = 'matricule';
+  gerants: any = ['Arachide', 'Mil', 'Niébé', 'Sorgho', 'Souchet'];
+  precedante_cultures: any = ['Moi', 'Mon mari', 'Ma femme', 'Mes fils', 'Mes frères', 'Mes soeurs', 'Manoeuvres'];
   //champs: any = [];
   //traitements: any = [];
 
@@ -145,6 +180,8 @@ export class EssaiPage {
   dateSemis: any;
   dateSemisControle: any;
   dateRecolte: any;
+  testData: any = [];
+  data:any
 
 
   constructor(public navCtrl: NavController, public loadtingCtl: LoadingController, public toastCtl: ToastController, public ionicApp: IonicApp, public viewCtl: ViewController, public formBuilder: FormBuilder, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public device: Device, public modelCtl: ModalController, public a: App, public events: Events, public zone: NgZone, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
@@ -152,6 +189,7 @@ export class EssaiPage {
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
   
+    
     //this.servicePouchdb.reset()
     //this.zone = new NgZone({enableLongStackTrace: true})
     events.subscribe('user:login', () => {
@@ -163,6 +201,9 @@ export class EssaiPage {
         }
       }, err => console.log(err));
     });
+
+
+    
 
     /*events.subscribe('ajout-essai', (essai) => {
       this.zone.run(() => {
@@ -216,6 +257,354 @@ export class EssaiPage {
     return 0;
   }
 
+  preparerDannePourAnnalyse(essai){
+    let essai_data: any = [];
+    essai.forEach((ess) => {
+      essai_data.push(ess.doc.data);
+    });
+
+    return essai_data;
+  }
+
+  viewResearch(spec) {
+    //this.navCtrl.push('ResearchViewPage', {'res': res})
+    let modal = this.modelCtl.create('VegaLitePage', { 'visSpec': this.data });
+    modal.present();
+  }
+
+  visualisation(essais){
+    //let data: any = this.preparerDannePourAnnalyse(essai);
+    let essai: any = [];
+    let data: any = [];
+    let ess: any = {};
+    essais.forEach((item) => {
+      essai.push(item);
+    });
+
+    essai.forEach((e) =>{
+       /*if(essai[i].doc.data.NPL && essai[i].doc.data.NPL !== ""){
+        //ess.doc.data.PDE = 0;
+        //alert('ok')
+        data.push(essai[i].doc.data);
+       }*/
+
+       ess = e.doc.data;
+       if(e.doc.data.PDE)
+        {ess.PDE = parseFloat(e.doc.data.PDE);}
+       if(e.doc.data.PDE_controle)
+       {ess.PDE_controle = parseFloat(e.doc.data.PDE_controle);}
+       if(e.doc.data.NPL)
+       {ess.NPL = parseInt(e.doc.data.NPL);}
+       if(e.doc.data.NPL_controle)
+       {ess.NPL_controle = parseInt(e.doc.data.NPL_controle);}
+       if(e.doc.data.NPR)
+       {ess.NPR = parseInt(e.doc.data.NPR);}
+       if(e.doc.data.NPR_controle)
+       {ess.NPR_controle = parseInt(e.doc.data.NPR_controle);}
+
+
+       if(e.doc.data.PDE && e.doc.data.PDE_controle)
+       {ess.diff_PDE = parseFloat(e.doc.data.PDE) - parseFloat(e.doc.data.PDE_controle);
+      }else if(e.doc.data.PDE && !e.doc.data.PDE_controle){
+        ess.diff_PDE = parseFloat(e.doc.data.PDE);
+      }else if(!e.doc.data.PDE && e.doc.data.PDE_controle){
+        ess.diff_PDE = - parseFloat(e.doc.data.PDE_controle);
+      }else{
+        ess.diff_PDE = '';
+      }
+
+      if(e.doc.data.NPL && e.doc.data.NPL_controle)
+       {ess.diff_NPL = parseInt(e.doc.data.NPL) - parseInt(e.doc.data.NPL_controle);
+      }else if(e.doc.data.NPL && !e.doc.data.NPL_controle || e.doc.data.NPL_controle === ''){
+        ess.diff_NPL = parseInt(e.doc.data.NPL);
+      }else if(!e.doc.data.NPL || e.doc.data.NPL === '' && e.doc.data.NPL_controle){
+        ess.diff_NPL= - parseInt(e.doc.data.NPL_controle);
+      }else{
+        ess.diff_NPL = '';
+      }
+
+       if(e.doc.data.NPR && e.doc.data.NPR_controle)
+       {ess.diff_NPR = parseInt(e.doc.data.NPR) - parseInt(e.doc.data.NPR_controle);
+      }else if(e.doc.data.NPR && !e.doc.data.NPR_controle){
+        ess.diff_NPR = parseInt(e.doc.data.NPR);
+      }else if(!e.doc.data.NPR && e.doc.data.NPR_controle){
+        ess.diff_NPR= - parseInt(e.doc.data.NPR_controle);
+      }else{
+        ess.diff_NPR = '';
+      }
+
+      if(ess.PDE === ess.PDE_controle){
+        ess.mediane_PDE = ess.PDE;
+      }
+      if(ess.NPL === ess.NPL_controle){
+        ess.mediane_NPL = ess.NPL;
+      }
+      if(ess.NPR === ess.NPR_controle){
+        ess.mediane_NPR = ess.NPR;
+      }
+
+       //ess.diff_NPL = parseInt(e.doc.data.NPL) - parseInt(e.doc.data.NPL_controle);
+       //ess.diff_NPR = parseInt(e.doc.data.NPR) - parseInt(e.doc.data.NPR_controle);
+
+      data.push(ess);
+      ess = {};
+    });
+
+    this.vegaData = data;
+
+    /*data.forEach((d, i) => {
+      var ese :any = {};
+      var control: any = {};
+      var commun: any = {}
+      control.matricule_producteur = d.matricule_producteur;
+      control.nom_producteur = d.nom_producteur;
+      control.type_sole = d.type_sole;
+      control.genre = d.genre;
+      control.nom_entree = d.nom_entree;
+      control.mediane_NPL = d.mediane_NPL;
+      control.mediane_NPR  = d.mediane_NPR;
+      control.mediane_PDE = d.mediane_PDE;
+      
+      ese.matricule_producteur = d.matricule_producteur;
+      ese.nom_producteur = d.nom_producteur;
+      ese.type_sole = d.type_sole;
+      ese.genre = d.genre;
+      ese.nom_entree = d.nom_entree;
+      ese.mediane_NPL = d.mediane_NPL;
+      ese.mediane_NPR  = d.mediane_NPR;
+      ese.mediane_PDE = d.mediane_PDE;
+
+      //ese = commun;
+      //control = commun;
+      control.type = 'controle';
+      ese.type = 'essai';
+      
+      ese.NPL = d.NPL;
+      control.NPL_controle = d.NPL_controle;
+      ese.PDE = d.PDE;
+      control.PDE_controle = d.PDE_controle;
+      ese.NPR = d.NPR;
+      control.NPR_controle = d.NPR_controle;
+      this.medianeData.push(ese);
+      this.medianeData.push(control);
+        //essai = {};
+      //control = {}
+    });
+    */
+
+    //alert(data.length+',' +essai.length);
+    this.visualiserTouts(data, this.selectedVar);
+    this.visualiserDifferenceEssaiControle(data, this.selectedDiff);
+    this.visualiserMediane(data, this.selectedMed);
+   
+
+  }
+
+  visualiserTouts(data, selectedVar){
+
+    let variable:any;
+
+   if(selectedVar === 'NPL controle'){
+      variable = 'NPL_controle'
+    }else if(selectedVar === 'NPR controle'){
+      variable = 'NPL_controle'
+    }else if(selectedVar === 'PDE controle'){
+      variable = 'PDE_controle'
+    }else {
+      variable = selectedVar
+    }
+
+     var vlSpec = {
+    "data": {
+      "values": JSON.stringify(data)
+    }
+    ,
+    "mark": "point",
+    "encoding": {
+     "x": { "field": "matricule_producteur", "type": "nominal" },
+     "y": { "field": variable, "type": "quantitative" },
+     "color": { "field": "nom_entree", "type": "nominal" },
+     //"shape": { "field": "type_sole", "type": "nominal" }
+    }
+  };
+
+/*var embedSpec = {
+  mode: "vega-lite",
+  spec: vlSpec
+}
+
+var opt = {
+  'mode': 'vega'
+
+}*/
+
+    embed('#vis1', vlSpec, { mode: "vega-lite"}).then(function(result) {
+      // access view as result.view
+    }).catch(console.error);
+  }
+
+
+   visualiserDifferenceEssaiControle(data, selectedDiff){
+     this.loading = true;
+     let diff: string;
+
+     if(selectedDiff === 'NPL'){
+        diff = "diff_NPL";
+        let v: any;
+        for(let i = 0; i < data.length -1; i++){
+          v = data[i];
+          for(let j = i; j < data.length; j++){
+            if(v.diff_NPL > data[j].diff_NPL){
+              data[i] = data[j];
+              data[j] = v;
+              v = data[i];
+            }
+          }
+        }
+  /*      data.sort((a, b) => {
+            if ( a.diff_NPL < b.diff_NPL ){
+              return -1;
+            }
+            if ( a.diff_NPL > b.diff_NPL ){
+              return 1;
+            }else{
+              return 0;
+            }
+        });
+*/
+     }else if(selectedDiff === 'NPR'){
+        diff = "diff_NPR"; 
+        data.sort((a, b) => {
+            if ( a.diff_NPR < b.diff_NPR )
+                {return -1;}
+            if ( a.diff_NPR > b.diff_NPR )
+                {return 1;}
+            else
+            {return 0;}
+        });
+     }else{
+       diff = "diff_PDE";
+       data.sort((a, b) =>{
+            if ( a.diff_PDE < b.diff_PDE )
+                {return -1;}
+            if ( a.diff_PDE > b.diff_PDE )
+                {return 1;}
+            else
+            {return 0;}
+        });
+     }
+     var vlSpec = {
+      "data": {
+        "values": data
+      },
+      
+      "mark": "bar",
+      "encoding": {
+        "y": { "field": diff, "type": "quantitative"},
+        "x": { "field": "matricule_producteur", "type": "nominal",
+        "sort": false,
+      },
+      "color": { "field": "nom_entree", "type": "nominal" },
+      //"shape": { "field": "type_sole", "type": "nominal" }
+      }
+    };
+
+   /* var embedSpec = {
+      mode: "vega-lite",
+      spec: vlSpec
+    }
+
+    var opt = {
+    }*/
+      
+    embed('#visDiff1', vlSpec, { mode: "vega-lite"}).then(function(result) {
+      // access view as result.view
+    }).catch(console.error);
+    this.loading = false
+  }
+
+
+   visualiserMediane(data, selectedMed){
+
+    let variable:any;
+    let med: any;
+
+    if(selectedMed === 'NPL'){
+        variable = 'NPL_controle';
+        med = 'mediane_NPL';
+      }else if(selectedMed === 'NPR'){
+        variable = 'NPR_controle';
+        med = 'mediane_NPR';
+      }else if(selectedMed === 'PDE'){
+        variable = 'PDE_controle';
+        med = 'mediane_PDE';
+      }
+
+     var vlSpec = {
+    "data": {
+      "values": data
+    },
+    "layer": [
+      {
+        "mark": "point",
+        "encoding": {
+          "x": {
+            "field": variable,
+            "type": "quantitative"
+
+          },
+          "y": {
+            "field": selectedMed,
+            "type": "quantitative"
+          },
+          "color": { "field": "type", "type": "nominal" },
+          "shape": { "field": "type_sole", "type": "nominal" }
+        }
+      },
+      {
+      "mark": "line",
+      "encoding": {
+        "x": {
+          "field": med,
+          "type": "quantitative",
+          "color": {"value": "firebrick"}
+        },
+        "y": {
+          "field": med,
+          "type": "quantitative",
+          "axis": {
+            "grid": false
+          },
+          //"scale": {"zero": false}
+        },
+        "color": {"value": "firebrick"}
+      }
+    }
+    ],
+  "resolve": {"scale": {"y": "independent"}} 
+  };
+
+    /*var embedSpec = {
+      mode: "vega-lite",
+      spec: vlSpec
+    }
+
+    var opt = {
+    }*/
+
+    embed('#visMediane1', vlSpec, { mode: "vega-lite"}).then(function(result) {
+      // access view as result.view
+    }).catch(console.error);
+  }
+
+  calculStatisitque(essais, traitements){
+    let model = this.modelCtl.create('RestitutionPage', {'essais': essais, 'traitements': traitements, 'producteurs': this.producteurs});
+    model.present();
+    //this.calculerMembreAyantFaitUnEssai(essais);
+    //this.calculerNombreEssaiParTraitement(essais, traitements);
+    //this.visualisation(essais);
+  }
+
 
     calculerMembreAyantFaitUnEssai(dd){
     let temp: any = 0
@@ -228,7 +617,7 @@ export class EssaiPage {
     });
 //let d: any = [];
     //d = this.allEssais;
-    var uniqueField='';
+    //var uniqueField='';
     for(let i = 0; i < d.length -1 ; i++){
       temp = 1;
       for(let j=1; j< d.length; j++){
@@ -313,6 +702,29 @@ export class EssaiPage {
     }
     
     //return membreNbEssais;
+  }
+
+
+  calculerNombreEssaiParTraitement(essai, traitement){
+    let tr: any = [];
+    let t: any = {};
+    traitement.forEach((item) => {
+      t.nom_entree = item.doc.data.nom_entree;
+      t.value = 0;
+      tr.push(t);
+      t = {};
+    });
+
+    essai.map((es) => {
+      for(let i =0; i <tr.length; i++){
+        if(es.doc.data.nom_entree === tr[i].nom_entree){
+          tr[i].value++;
+          break;
+        }
+      }
+    });
+
+    this.statistiqueTraitement = tr;
   }
 
 
@@ -721,6 +1133,8 @@ export class EssaiPage {
       NPR_controle: [''],
       PDE: [''],
       PDE_controle: [''],
+      gerants: [''],
+      precedante_cultures: [''],
       observation: [''],
       observation_controle: [''],
       objectif_essai: [''],
@@ -836,6 +1250,8 @@ export class EssaiPage {
     }
      
      this.selectedTraitement = {};
+     this.selectedGerants = {};
+     this.selectedPrecedanteCultures = {};
      this.superficie_tr = '';
      this.nom_controle = '';
      this.selectedTraitementInfoComplet = '';
@@ -932,6 +1348,8 @@ export class EssaiPage {
     
     this.selectedProducteur = null;
     this.selectedChamps = null;
+    this.selectedGerants = {};
+    this.selectedPrecedanteCultures = {};
     //nom producteur
     this.nom_producteur = '';
     this.surnom_producteur = '';
@@ -1393,20 +1811,25 @@ export class EssaiPage {
               if(this.matricule_producteur1){
 
                 this.essais1.push(E);
-                this.dechargerT()
+                //this.dechargerT()
               }else{
                 this.essais.push(E);
+                //this.ajoutForm = false;
+                //this.reinitForm();
+                //this.dechargerT();
+              }
+            });
+
+            if(this.matricule_producteur1){
+
+                //this.essais1.push(E);
+                this.dechargerT()
+              }else{
+                //this.essais.push(E);
                 this.ajoutForm = false;
                 this.reinitForm();
                 this.dechargerT();
               }
-                
-              //});
-
-            
-              
-              //toast.present();
-            });
             
 
             //this.navCtrl.pop();
@@ -1466,6 +1889,8 @@ export class EssaiPage {
         this.essai1.NPR_controle = essai.NPR_controle;
         this.essai1.PDE = essai.PDE;
         this.essai1.PDE_controle = essai.PDE_controle;
+        this.essai1.gerants = essai.gerants;
+        this.essai1.precedante_cultures = essai.precedante_cultures;
         this.essai1.observation = essai.observation;
         this.essai1.observation_controle = essai.observation_controle;
         this.essai1.objectif_essai = essai.objectif_essai;
@@ -1484,6 +1909,8 @@ export class EssaiPage {
           this.grandEssai._rev = res.rev;
           this.essai = this.grandEssai;
           //this.essais[this.essais.indexOf(this.essaiAModifier)] = e;
+          
+          
           this.reinitFormModifier();
           this.modifierFrom = false;
           this.detailEssai = true
@@ -1510,6 +1937,11 @@ export class EssaiPage {
             
           });
         });
+
+        /*this.reinitFormModifier();
+        this.modifierFrom = false;
+        this.detailEssai = true
+        this.ajoutForm = false;*/
       }
     
   }
@@ -1615,6 +2047,7 @@ export class EssaiPage {
 
   sync(){
     this.servicePouchdb.syncAvecToast(this.getEssais());
+    this.pourCreerForm();
   }
 
   exportExcel(){
@@ -1635,7 +2068,7 @@ export class EssaiPage {
     }else{
 
       let fileDestiny: string = cordova.file.externalRootDirectory;
-      this.file.writeFile(fileDestiny, 'Combinee_'+nom+'.xls', blob, true).then(()=> {
+      this.file.writeFile(fileDestiny, 'Combinee_'+nom+'.xls', blob).then(()=> {
           alert("Fichier créé dans: " + fileDestiny);
       }).catch(()=>{
           alert("Erreur de création du fichier dans: " + fileDestiny);
@@ -2820,6 +3253,8 @@ export class EssaiPage {
     this.ancienSelectedProducteur = this.essai1.matricule_producteur;
     this.selectedChamps = this.essai1.id_champs;
     this.selectedTraitement = this.essai1.code_traitement;
+    this.selectedGerants = this.essai1.gerants;
+    this.selectedPrecedanteCultures = this.essai1.precedante_cultures;
     this.ancien_code_traitement = this.essai1.code_traitement;
     this.nom_entree = this.essai1.nom_entree;
     this.nom_controle = this.essai1.nom_controle;
@@ -2963,6 +3398,8 @@ export class EssaiPage {
     this.essai1 = '';
     this.selectedProducteur = '';
     this.ancienSelectedProducteur = '';
+    this.selectedGerants = {};
+    this.selectedPrecedanteCultures = {};
     this.selectedChamps = '';
     this.selectedTraitement ='';
     this.ancien_code_traitement ='';
