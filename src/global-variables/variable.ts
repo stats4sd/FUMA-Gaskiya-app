@@ -1,9 +1,46 @@
 export var global = {
 
     //id_boutique: 'VIDE!',
+    estUtilisateur: (roles) => {
+        //un admin et un moderateur sont des utilisateur
+        return (roles.indexOf('user') !== -1) || (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    estModerateur: (roles) => {
+        //un admin est un moderateur
+        return (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    estAmin: (roles) => {
+       return (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    estAdmin: (roles) => {
+       return (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    estPersonnel: (roles) => {
+        //un admin et un moderateur sont des personnels
+        return (roles.indexOf('personnel') !== -1) || (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    estAnimataire: (roles) => {
+        //un admin et un moderateur sont des animataires
+        return (roles.indexOf('animataire') !== -1) || (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    peutAjouter: (roles) => {
+        //tout le monde sauf les utilisateur et les personnels peuvent ajouter des essais et des membres
+        return (roles.indexOf('animataire') !== -1) || (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    peutModifier: (roles) => {
+        //tout le monde sauf les utilisateur et les personnels peuvent modifier des essais et des membres
+        return (roles.indexOf('animataire') !== -1) || (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    estManager: (roles) => {
+        //Seuls les admin et les moderateurs peuvent supprimer quoi que ce soit dans la base
+        //Cette fonction sera aussi utilisée pour les autorisations pour la gestion des Unions, Ops, localité, les variété, les protocoles
+        return (roles.indexOf('moderateur') !== -1) || (roles.indexOf('_admin') !== -1) || (roles.indexOf('admin') !== -1)
+    },
+    
     premierLancement: true,
     langue: 'fr',
     estConnecte: false,
+    remoteSaved: null,
     info_user: null,
     info_connexion: null,
     info_db:{

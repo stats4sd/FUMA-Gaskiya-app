@@ -29,7 +29,7 @@
 
 <ion-content padding>
   <div *ngIf="!modifierForm">
-    <ion-card class="info-card" (dblclick)="editer(op)">
+    <ion-card class="info-card" (dblclick)="editer(op, true)">
       <ion-card-header>
         <strong>Information op: {{op.data.num_aggrement}}</strong>
       </ion-card-header>
@@ -79,7 +79,7 @@
               </ion-row>
               <ion-row>           
                 <ion-col class='meta-key'><strong>Code union:</strong></ion-col>           
-                <ion-col class='meta-value'> {{op.data.union_code}}</ion-col>          
+                <ion-col class='meta-value'> {{op.data.code_union}}</ion-col>          
               </ion-row>
               <ion-row>           
                 <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col>           
@@ -130,12 +130,14 @@
     </ion-card>
 
 
-    <ion-card class="info-card" (dblclick)="editer(op)"> 
+    <ion-card class="info-card" (dblclick)="editer(op, true)"> 
       <ion-card-header>
         <strong>Plus d'informations</strong>
       </ion-card-header>
       <ion-card-content>
         <ion-grid>
+          <ion-row><ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'>{{op._id}} </ion-col>   </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>No révision:</strong></ion-col> <ion-col class='meta-value'> {{op._rev }} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{op.data.created_at | date: 'dd-MM-yyyy'}} à {{op.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{op.data.created_by}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{op.data.deviceid}} </ion-col> </ion-row>
@@ -247,7 +249,7 @@
 
       <ion-item>
         <ion-label floating>Nom de l'OP <span class="error-box">*</span></ion-label>
-        <ion-input type="text" formControlName="nom_OP" [(ngModel)]="nom_op" (keyup)="genererCodeOP()"></ion-input> 
+        <ion-input type="text" formControlName="nom_OP" [(ngModel)]="nom_op"></ion-input> 
       </ion-item>
       <div style="padding-left: 15px;" class="error-box" *ngIf="opForm.controls['nom_OP'].hasError('required') && opForm.controls['nom_OP'].touched">* le nom de l'OP des est obligatoir!</div>
       
@@ -261,9 +263,11 @@
   <ion-fab bottom right *ngIf="!modifierForm" >
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
-      <button ion-fab mini (click)="supprimer(op)" color="delete" ><ion-icon name="trash"></ion-icon></button>
-      <button ion-fab (click)="membresOP(op.data.num_aggrement, op.data.nom_OP, op.data.code_OP)"><ion-icon name="people"></ion-icon></button>
-      <button ion-fab mini (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+      <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" (click)="supprimer(op)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="openMap(op.data.code_OP)" color="my_primary"><ion-icon name="pin"></ion-icon></button>
+      <button ion-fab mini *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="calculStatisitque(op.data.code_OP)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
+      <button ion-fab *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="membresOP(op.data.num_aggrement, op.data.nom_OP, op.data.code_OP, op.data.code_union)" color="my_primary"><ion-icon name="people"></ion-icon></button>
+      <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" (click)="editer(op)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab> 
 

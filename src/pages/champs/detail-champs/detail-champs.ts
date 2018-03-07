@@ -7,6 +7,7 @@ import { Storage } from '@ionic/storage';
 
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Geolocation } from '@ionic-native/geolocation';
+import { global } from '../../../global-variables/variable';
 
 /*
   Generated class for the DetailChamps page.
@@ -28,8 +29,11 @@ export class DetailChampsPage {
   ancien_type_sole: any;
   ancien_longitude: any;
   ancien_latitude: any;
-
+  membre: any;
   champID: any;
+  appartenance: any = '';
+  appartenances: any = ['Mien', 'Prêt', 'Location']
+
 
   champsForm: any;
   grandChamps: any;
@@ -40,16 +44,20 @@ export class DetailChampsPage {
   selectedProducteur: any = [];
   nom_producteur: any = '';
   surnom_producteur: any = '';
+  code_union: any = '';
   allChamps: any;
   id_champs: any;
   ancienMatriculeProducteur: any;
   longitude: any;
   latitude: any;
   modifierForm: boolean = false;
+  user: any = global.info_user;
+  global:any = global;
 
 
    constructor(public servicePouchdb: PouchdbProvider, public loadingCtl: LoadingController, public geolocation: Geolocation, public formBuilder: FormBuilder, public toastCtl: ToastController, public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController) {
     this.champ = this.navParams.data.champ;
+    this.membre = this.navParams.data.membre;
     this.champID = this.champ._id;
   }
 
@@ -91,6 +99,7 @@ export class DetailChampsPage {
     this.selectedProducteur = this.champs.matricule_producteur;
     this.nom_producteur = this.champs.nom_producteur;
     this.surnom_producteur = this.champs.surnom_producteur;
+    this.code_union = this.champs.code_union;
     this.ancienMatriculeProducteur = this.champs.matricule_producteur;
     this.selectedTypeSole = this.champs.type_sole;
     this.id_champs = this.champs.id_champs;
@@ -105,6 +114,7 @@ export class DetailChampsPage {
       longitude: [this.champs.longitude],
       latitude: [this.champs.latitude],
       superficie: [this.champs.superficie, Validators.required],
+      appartenance: [this.champs.appartenance, Validators.required],
       type_sole: [this.champs.type_sole, Validators.required],
       matricule_producteur: [this.champs.matricule_producteur],
       nom_producteur: [this.champs.nom_producteur, Validators.required],
@@ -135,6 +145,7 @@ export class DetailChampsPage {
         this.nom_producteur = p.data.nom_Membre;
          this.surnom_producteur = p.data.surnom_Membre;
 
+         this.code_union = p.data.code_union;
          if(this.ancienMatriculeProducteur !== p.data.matricule_Membre){
             let id = this.generateId(p.data.matricule_Membre);
             this.id_champs = id;
@@ -194,14 +205,23 @@ export class DetailChampsPage {
     let champ = this.champsForm.value;
 
     this.champs.id_champs = champ.id_champs;
-    this.champs.nom = champ.nom;
+    this.champs.nom = champ.nom; 
     this.champs.longitude = champ.longitude;
     this.champs.latitude = champ.latitude;
     this.champs.superficie = champ.superficie;
+    this.champs.appartenance = champ.appartenance;
     this.champs.type_sole = champ.type_sole;
     this.champs.matricule_producteur = champ.matricule_producteur;
     this.champs.nom_producteur = champ.nom_producteur;
-    this.champs.surnom_producteur = champ.surnom_producteur;
+    
+    if(this.membre && this.membre != {}){
+      this.champs.surnom_producteur = this.membre.data.surnom_Membre;
+      this.champs.code_union = this.membre.data.code_union;
+    }else{
+      this.champs.surnom_producteur = champ.surnom_producteur;
+      this.champs.code_union = champ.code_union;
+    }
+    
     
       this.grandChamps.data = this.champs;
       this.servicePouchdb.updateDocReturn(this.grandChamps).then((res) => {
@@ -227,6 +247,14 @@ export class DetailChampsPage {
   annuler(){
     //this.navCtrl.pop();
     this.modifierForm = false;
+
+    if(!this.code_union || this.code_union === ''){
+      for(let k = 0; k < this.producteurs.length; k++){
+      if(this.producteurs[k].data.matricule_Membre === this.selectedProducteur){
+        this.code_union = this.producteurs[k].data.code_union;
+        break;
+      }}
+    }
   }
 
 
@@ -242,9 +270,11 @@ export class DetailChampsPage {
     this.getAllMembre();
   }
 
-  editer(champ){
+  editer(champ, dbclick: boolean = false){
+    if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
     //this.navCtrl.push('ModifierChampsPage', {'champ': champ});
     this.modifierForm = true;
+    }
   }
 
   supprimer(champ){

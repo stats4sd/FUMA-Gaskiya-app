@@ -50,6 +50,8 @@ import { PouchdbProvider } from '../providers/pouchdb-provider';
 import { KoboProvider } from '../providers/kobo-provider';
 import { AutoCompletion } from '../providers/auto-completion';
 import { RestitutionProvider } from '../providers/restitution/restitution';
+import { SiteProvider } from '../providers/site/site';
+import { VillageProvider } from '../providers/village/village';
 
 /*
 //configuration locale
@@ -349,6 +351,8 @@ export function createTranslateLoader(http: Http) {
 
   ],
   providers: [{ provide: ErrorHandler, useClass: IonicErrorHandler }, AutoCompletion, DatePicker, PouchdbProvider, File, Printer, ImagePicker, Device, Sim, Geolocation, KoboProvider, Camera, StatusBar, SplashScreen,
-    RestitutionProvider,]
+    RestitutionProvider,
+    SiteProvider,
+    VillageProvider,]
 })
 export class AppModule { }

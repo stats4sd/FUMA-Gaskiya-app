@@ -28,7 +28,7 @@ export class LoginPage {
   loginForm: any;
   //tache: any = '';
   user: any = {
-    'username': '',
+    'email': '',
     'mdpass': ''
   };
   //configOK: any = global.configOK;
@@ -49,7 +49,7 @@ export class LoginPage {
     this.translate.setDefaultLang(global.langue);
     //this.tache = this.navParams.data.tache;
     this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      email: ['', Validators.required],
       mdpass: ['', Validators.required]
     });
   } 
@@ -83,19 +83,19 @@ export class LoginPage {
     let ajaxOpts = {
       ajax: {
         headers: {
-          Authorization: 'Basic ' + window.btoa(user.username + ':' + user.mdpass)
+          Authorization: 'Basic ' + window.btoa(user.email + ':' + user.mdpass)
         }
       }
     };
     //this.remote.login(username, mdpass, ajaxOpts).then((err, response) =
-    this.servicePouchdb.remoteSaved.login(user.username, user.mdpass, ajaxOpts, (err, response) => {
+    this.servicePouchdb.remoteSaved.login(user.email, user.mdpass, ajaxOpts, (err, response) => {
       if (err) {
         loading.dismissAll();
         if (err.name === 'unauthorized') {
           alert('Nom ou mot de passe incorrecte');
           
         } else {
-          alert('Une erreur s\'est produite. Veuillez réessayer plus tard');
+          alert('Une erreur s\'est produite. Veuillez réessayer plus tard '+err);
           
         }
       }else if(response){
@@ -108,14 +108,33 @@ export class LoginPage {
         this.storage.set('info_connexion', user);
         global.info_connexion = user;
         global.estConnecte = true;
-        this.events.publish('user:login');
-        this.servicePouchdb.remoteSaved.getUser(user.username, (err, us) => {
+        this.events.publish('user:login', response);
+        //this.events.publish('user:login_com', response);
+        this.servicePouchdb.remoteSaved.getUser(user.email, (err, us) => {
           if (err) {
             //this.viewCtl.dismiss();
              loading.dismissAll();
             if (err.name === 'not_found') {
               // typo, or you don't have the privileges to see this user
-              alert('Privilèges insuffiasants');
+              //alert('Privilèges insuffiasants');
+              this.servicePouchdb.remoteSaved.getSession((err, response) =>{
+                if (err) {
+                  // network error
+                  alert('Erreur du réseau');
+                } else if (!response.userCtx.name) {
+                  // nobody's logged in
+                  alert('Non connecté ou privilèges insuffiasants');
+                } else {
+                  // response.userCtx.name is the current user
+                  loading.dismissAll();
+                  //this.user = us;
+                  this.storage.set('info_user', response.userCtx);
+                  global.info_user = response.userCtx;
+                  this.servicePouchdb.sync();
+                  this.afficheMsg('Connexion terminée avec succèes. \nVous êtes connectés!')
+                  this.viewCtl.dismiss();
+                }
+              });
             } else {
               // some other error
               alert('Erreur');

@@ -22,9 +22,13 @@
         <ion-badge color="fuma-green" item-right>{{membres.length}}</ion-badge>
       </button>
 
-      <button ion-button icon-only color="royal" (click) = "sync()" >
+      <button ion-button icon-only color="royal" *ngIf="aProfile" (click) = "sync()" >
         <ion-icon name="sync"></ion-icon>
       </button>
+
+      <!--button ion-button icon-only color="royal" (click) = "copierDB()" >
+         <ion-icon name="arrow-dropup-circle"></ion-icon>
+      </button-->
 
       <button *ngIf="aProfile == true" ion-button icon-only color="royal" (click)="profile()">
         <ion-icon name="person"></ion-icon>
@@ -60,6 +64,16 @@
 
 
 <ion-content padding>
+
+  <ion-refresher *ngIf="!ajoutForm && !detailMembre && !modifierForm" (ionRefresh)="getInitMemebre($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Tirer pour actualiser"
+      refreshingSpinner="circles"
+      refreshingText="Actualisation...">
+    </ion-refresher-content>
+  </ion-refresher>
+
 
   <!--div *ngIf="!ajoutForm && !detailMembre && !modifierForm" -->
   <div [hidden]="ajoutForm || detailMembre || modifierForm" >
@@ -154,7 +168,7 @@
     <ion-card-header>
       <h2 class="fond-gris"><strong>Liste des membres <span *ngIf="num_aggrement_op">de l'OP: {{nom_op}} - <strong>N.A:</strong> {{num_aggrement_op}}</span></strong></h2>
     </ion-card-header> 
-    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
+    <ion-scroll scrollX="true" scrollY="true" id="membre_tableau" style="height: 80vh"> 
 
     <table class="table table-striped table-bordered">
       <thead>
@@ -176,6 +190,9 @@
         </th>
         <th  >
           <strong>Code OP</strong>
+        </th>
+        <th  >
+          <strong>Code union</strong>
         </th>
         <th>
           <strong>Pays</strong>
@@ -215,6 +232,10 @@
           <td  >
             {{membre.doc.data.op_code}}
           </td>
+
+          <td  >
+            {{membre.doc.data.code_union}}
+          </td>
           
           <td  >
             {{membre.doc.data.pays_nom}}
@@ -239,7 +260,7 @@
 
   
   <div *ngIf="membres.length > 0">
-      <br><br><br>
+      <br><br><br><br>
     </div>
   </div>
 
@@ -257,7 +278,7 @@
 
   <div *ngIf="detailMembre">
 
-    <ion-card class="info-card" (dblclick)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev)">
+    <ion-card class="info-card" (dblclick)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev, true)">
       <ion-card-header>
         <strong>Informations</strong>
       </ion-card-header>
@@ -276,8 +297,8 @@
             </ion-col>
           </ion-row>
 
-          <ion-row> <ion-col class='meta-key'><strong>Date de naissance:</strong> </ion-col> <ion-col class='meta-value'> {{membre.doc.data.date_naissance}} </ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Age:</strong> </ion-col> <ion-col class='meta-value'> {{age}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date de naissance:</strong> </ion-col> <ion-col class='meta-value'> {{membre.doc.data.date_naissance | date: 'dd-MM-yyyy'}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Age:</strong> </ion-col> <ion-col class='meta-value'> {{age1}} </ion-col> </ion-row>
           
           <!--ion-row *ngIf="membre.doc.data.classe != 'AUTRE' && !membre.doc.data.classe_nom">
             <ion-col class='meta-key'>
@@ -334,6 +355,14 @@
             </ion-col> 
               <ion-col class='meta-value'>
               {{membre.doc.data.op_code}}
+              </ion-col>
+          </ion-row>
+            <ion-row>
+            <ion-col class='meta-key'>
+              <strong>Code union:</strong>
+            </ion-col> 
+              <ion-col class='meta-value'>
+              {{membre.doc.data.code_union}}
               </ion-col>
           </ion-row>
           <ion-row>
@@ -470,12 +499,14 @@
     </ion-card>
 
 
-    <ion-card class="info-card" (dblclick)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev)"> 
+    <ion-card class="info-card" (dblclick)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev, true)"> 
       <ion-card-header>
         <strong>Plus d'informations</strong>
       </ion-card-header>
       <ion-card-content>
         <ion-grid>
+          <ion-row><ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'>{{membre.doc._id}} </ion-col>   </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>No révision:</strong></ion-col> <ion-col class='meta-value'> {{membre.doc._rev }} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{membre.doc.data.created_at | date: 'dd-MM-yyyy'}} à {{membre.doc.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{membre.doc.data.created_by}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{membre.doc.data.deviceid}} </ion-col> </ion-row>
@@ -503,8 +534,8 @@
   <form [formGroup]="membreForm" (ngSubmit) = "actionForm()" >
 
     <ion-item>
-      <ion-label floating>Date <span class="error-box">*</span></ion-label>
-      <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" doneText="Valider"></ion-datetime>
+      <ion-label floating>Date d'enregistrement<span class="error-box">*</span></ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" doneText="Valider" disabled></ion-datetime>
     </ion-item>
 
     <ion-row>
@@ -647,7 +678,7 @@
 
     <ion-item>
       <ion-label floating>Age approximative</ion-label>
-      <ion-input type="number" formControlName="age" [(ngModel)]="age" (keyup)="setDate()"></ion-input>
+      <ion-input type="number" formControlName="age" [(ngModel)]="age" (keyup)="setDate(age)"></ion-input>
     </ion-item>
     <!--ion-item> 
       <ion-label floating>Selectionnez la classe</ion-label>
@@ -672,11 +703,12 @@
 
   </div>
 
-  <ion-fab *ngIf="!ajoutForm && !modifierForm && !detailMembre && selectedStyle != 'tableau'" bottom right>
+  <ion-fab *ngIf="!ajoutForm && !modifierForm && !detailMembre && selectedStyle != 'tableau' && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)" bottom right>
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="person-add"></ion-icon></button>
+    <!--button ion-fab mini (click)="replicate()" color="my_primary"><strong>RP</strong></button-->
   </ion-fab>
 
-  <ion-fab bottom right *ngIf="!ajoutForm && !modifierForm && !detailMembre && selectedStyle == 'tableau'">
+  <ion-fab bottom right *ngIf="!ajoutForm && !modifierForm && !detailMembre && selectedStyle == 'tableau' && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
       <button ion-fab mini *ngIf="membres.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
@@ -686,12 +718,15 @@
     </ion-fab-list>
   </ion-fab>
 
-  <ion-fab bottom right *ngIf="detailMembre" >
+  <ion-fab bottom right *ngIf="detailMembre && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)" >
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
-      <button ion-fab mini (click)="supprimer(membre.doc)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (click)="supprimer(membre.doc)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab (click)="mesEssai(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)" color="my_primary"><strong>ES</strong></button>
       <button ion-fab (click)="mesChamps(membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, membre.doc)" color="my_primary"><strong>CH</strong></button>
+      <button ion-fab (click)="mesTypologies(membre.doc.data)" color="my_primary"><strong>TY</strong></button>
+      <!--button ion-fab (click)="copierPhotoDB(membre)" color="my_primary"><strong>TRp</strong></button-->
+      
       <button ion-fab mini (click)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab>

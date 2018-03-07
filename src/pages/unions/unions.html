@@ -19,7 +19,7 @@
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{unions.length}}</ion-badge>
       </button>
-      <button ion-button icon-only color="royal" (click) = "sync()" >
+      <button ion-button icon-only color="royal" *ngIf="aProfile" (click) = "sync()" >
         <ion-icon name="sync"></ion-icon>
       </button>
       
@@ -42,7 +42,17 @@
 
 
 <ion-content padding>
-  <div *ngIf="!ajoutForm">
+
+  <ion-refresher  *ngIf="!ajoutForm" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Tirer pour actualiser"
+      refreshingSpinner="circles"
+      refreshingText="Actualisation...">
+    </ion-refresher-content>
+  </ion-refresher>
+  
+  <div  *ngIf="!ajoutForm">
     <ion-list>
       <ion-row>
         <ion-col>
@@ -113,7 +123,7 @@
     <ion-card-header>
       <h2 class="fond-gris"><strong>Liste des unions</strong></h2>
     </ion-card-header> 
-    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
+    <ion-scroll scrollX="true" scrollY="true" id="union_tableau" style="height: 80vh"> 
     <!--ion-card-header  style="width: 100vw">
       <h2><strong>Liste des unions</strong></h2>
     </ion-card-header--> 
@@ -216,7 +226,7 @@
 </ion-card>
 
 <div *ngIf="unions.length > 0">
-  <br><br><br>
+  <br><br><br><br>
 </div>
 
   <ion-list *ngIf="!unions.length > 0">
@@ -314,11 +324,11 @@
 
   </div>
 
-  <ion-fab *ngIf="!ajoutForm && selectedStyle != 'tableau'"  bottom right>
+  <ion-fab *ngIf="!ajoutForm && selectedStyle != 'tableau' && ((user && user.roles && global.estManager(user.roles)) || estManger)"  bottom right>
     <button ion-fab mini (click)="ajouter(confLocaliteEnquete)" color="my_primary"><ion-icon name="add"></ion-icon></button>
   </ion-fab>
 
-  <ion-fab bottom right *ngIf="!ajoutForm && selectedStyle == 'tableau'">
+  <ion-fab bottom right *ngIf="!ajoutForm && selectedStyle == 'tableau' && ((user && user.roles && global.estManager(user.roles)) || estManger)">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
       <button ion-fab mini *ngIf="unions.length > 0" (click)="onPrint()"><ion-icon name="print"></ion-icon></button>

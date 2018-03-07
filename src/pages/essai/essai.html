@@ -23,18 +23,30 @@
       </button>
 
       <button ion-button icon-only>
-        <ion-badge color="fuma-green" item-right>{{essais.length}}</ion-badge>
+        <ion-badge color="fuma-green" item-right><span *ngIf="selectedStyleTableau == 'standard'"> {{essais.length}}</span> <span *ngIf="selectedStyleTableau == 'avance'"> {{essais.length *2}}</span></ion-badge>
       </button>
 
-      <button ion-button icon-only color="royal" (click) = "sync()" >
+      <button ion-button icon-only color="royal" *ngIf="aProfile" (click) = "sync()" >
          <ion-icon name="sync"></ion-icon>
       </button>
 
-      <button *ngIf="aProfile == true" ion-button icon-only color="royal" (click)="profile()">
+      <button ion-button icon-only color="royal" *ngIf="aProfile" (click) = "replicationDepuisServeur()" >
+         <ion-icon name="arrow-round-down"></ion-icon>
+      </button>
+
+      <button ion-button icon-only color="royal" *ngIf="aProfile" (click) = "replicationVersServeur()" >
+         <ion-icon name="arrow-round-up"></ion-icon>
+      </button>
+
+      <!--button ion-button icon-only color="royal" (click) = "copierDB()" >
+         <ion-icon name="arrow-dropup-circle"></ion-icon>
+      </button-->
+
+      <button *ngIf="aProfile" ion-button icon-only color="royal"  (click)="profile()">
         <ion-icon name="person"></ion-icon>
       </button>
 
-      <button *ngIf="aProfile == false" ion-button icon-only color="royal" (click)="connexion()">
+      <button *ngIf="!aProfile" ion-button icon-only color="royal" (click)="connexion()">
         <ion-icon name="unlock"></ion-icon>
       </button>
     </ion-buttons>
@@ -55,16 +67,19 @@
 
 <ion-content padding>
 
+
+  <ion-refresher (ionRefresh)="getEssais($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Tirer pour actualiser"
+      refreshingSpinner="circles"
+      refreshingText="Actualisation...">
+    </ion-refresher-content>
+  </ion-refresher>
+
 <div *ngIf="!ajoutForm && !detailEssai && !statistique">
 
   <ion-list>
-    <ion-item>
-      <ion-label floating>Choisir la limite</ion-label>
-      <ion-select [(ngModel)]="selectedLimit" (ionChange)="choixLimit()" cancelText="Annuler" okText="Ok" >
-        <ion-option value="" selected disabled>Selectionnez la limite</ion-option>
-        <ion-option *ngFor="let limit of limits" [value]=limit>{{limit}}</ion-option>
-      </ion-select>
-    </ion-item>
     <ion-row>
       <ion-col>
         <ion-item>
@@ -77,6 +92,17 @@
       </ion-col>
       <ion-col>
         <ion-item>
+          <ion-label floating>Choisir la limite</ion-label>
+          <ion-select [(ngModel)]="selectedLimit" (ionChange)="choixLimit()" cancelText="Annuler" okText="Ok" >
+            <ion-option value="" selected disabled>Selectionnez la limite</ion-option>
+            <ion-option *ngFor="let limit of limits" [value]=limit>{{limit}}</ion-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="selectedStyle === 'tableau'">
+      <ion-col>
+        <ion-item>
           <ion-label floating>Style affichage</ion-label>
           <ion-select [(ngModel)]="selectedStyle" cancelText="Annuler" okText="Ok" >
             <ion-option value="" selected disabled>Selectionnez le style de la liste</ion-option>
@@ -85,7 +111,26 @@
           </ion-select>
         </ion-item>
       </ion-col>
+      <ion-col>
+        <ion-item>
+          <ion-label floating>Style de tableau</ion-label>
+          <ion-select [(ngModel)]="selectedStyleTableau" cancelText="Annuler" okText="Ok" >
+            <ion-option value="standard" >Standard</ion-option>
+            <ion-option value="avance" >Décompacté</ion-option>
+            <ion-option value="tres-avance" >Très décompacté</ion-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
     </ion-row>
+
+    <ion-item *ngIf="selectedStyle !== 'tableau'">
+      <ion-label floating>Style affichage</ion-label>
+      <ion-select [(ngModel)]="selectedStyle" cancelText="Annuler" okText="Ok" >
+        <ion-option value="" selected disabled>Selectionnez le style de la liste</ion-option>
+        <ion-option value="liste" >Liste</ion-option>
+        <ion-option value="tableau" >Tableau</ion-option>
+      </ion-select>
+    </ion-item>
 
     <ion-item>
       <ion-label floating>Type de recherche</ion-label>
@@ -135,7 +180,7 @@
      
       <ion-list-header>
         <h2  class="fond-gris"><strong>Les essais {{selectedAnnee}} <span *ngIf="matricule_producteur1 && selectedStyle == 'liste'">
-    de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
+    de {{nom_producteur1}} - mat. {{matricule_producteur1}}
   </span></strong></h2>
       </ion-list-header>
 
@@ -156,15 +201,18 @@
   <ion-card class="info-card" *ngIf="essais.length > 0 && selectedStyle === 'tableau'">
     <ion-card-header>
       <h2 class="fond-gris"><strong>Les essais {{selectedAnnee}} <span *ngIf="matricule_producteur1">
-    de M. {{nom_producteur1}} - mat. {{matricule_producteur1}}
+    de {{nom_producteur1}} - mat. {{matricule_producteur1}}
   </span></strong></h2>
     </ion-card-header> 
     <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered" *ngIf="selectedStyleTableau == 'standard'">
       <thead>
         <tr>
         <th style="min-width: 150px" >
           <strong>Code essai</strong> 
+        </th>
+        <th >
+          <strong>Code union</strong> 
         </th>
         <th  >
           <strong>Site</strong>
@@ -217,7 +265,7 @@
           <strong>NPL</strong>
         </th>
 
-        <th  >
+        <th >
           <strong>NPL controle</strong>
         </th>
 
@@ -248,8 +296,16 @@
           <strong>PDE (kg)</strong> 
         </th>
 
+        <th  >
+          <strong>PDE (kg/ha)</strong> 
+        </th>
+
          <th  >
           <strong>PDE controle (kg)</strong> 
+        </th>
+
+        <th  >
+          <strong>PDE controle (kg/ha)</strong> 
         </th>
 
         <th  >
@@ -262,125 +318,563 @@
       </thead>
       <!--hr style="width: 375%"-->
       <tbody>
-        <tr *ngFor="let ess of essais" (click)="detail(ess.doc)">
-          <td  >
-            {{ess.doc.data.code_essai}}
-          </td>
-          <td  >
-            {{ess.doc.data.site_producteur}}
-          </td>
-          <td  >
-            {{ess.doc.data.village_producteur}}
-          </td>
-          <td  >
-            {{ess.doc.data.matricule_producteur}}
-          </td>
-          <td  >
-            {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
-          </td>
-          <td  >
-            <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
-          </td>
-          <td  >
-            {{ess.doc.data.classe_producteur}}
-          </td>
-          <td  >
-            {{ess.doc.data.nom_champs}}
-          </td>
-          <td  >
-            {{ess.doc.data.type_sole}}
-          </td>
-          <td  >
-            {{ess.doc.data.latitude}}
-          </td>
-          <td  >
-            {{ess.doc.data.longitude}}
-          </td>
-          <td  >
-            {{ess.doc.data.nom_entree}}
-          </td>
-          <td  >
-            {{ess.doc.data.nom_controle}}
-          </td>
-          <td  >
-            {{ess.doc.data.superficie_essai}}
-          </td>
-          <td  >
-            {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
-          </td>
-          <td  >
-            {{ess.doc.data.date_semis_controle | date: 'dd-MM-yyyy'}}
-          </td>
+          <tr *ngFor="let ess of essais" (click)="detail(ess.doc)">
+            <td  >
+              {{ess.doc.data.code_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.code_union}}
+            </td>
+            <td  >
+              {{ess.doc.data.site_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.village_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.matricule_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
+            </td>
+            <td  >
+              <span *ngFor="let c of ess.doc.data.classes_producteur; let i = index"> {{c}}<span *ngIf="i < ess.doc.data.classes_producteur.length - 1">, </span> </span>
+            </td>
+            <td  >
+              {{ess.doc.data.nom_champs}}
+            </td>
+            <td  >
+              {{ess.doc.data.type_sole}}
+            </td>
+            <td  >
+              {{ess.doc.data.latitude}}
+            </td>
+            <td  >
+              {{ess.doc.data.longitude}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_entree}}
+            </td>
+            <td >
+              {{ess.doc.data.nom_controle}}
+            </td>
+            <td  >
+              {{ess.doc.data.superficie_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
+            </td>
+            <td  >
+              {{ess.doc.data.date_semis_controle | date: 'dd-MM-yyyy'}}
+            </td>
 
-          <td *ngIf="!ess.doc.data.NPL || (ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 40) ">
-            {{ess.doc.data.NPL}}
-          </td>
-          
-          <td *ngIf=" ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 50 " style="background: red !important" >
-            {{ess.doc.data.NPL}}
-          </td>
+            <td *ngIf="!ess.doc.data.NPL || (ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 40) ">
+              {{ess.doc.data.NPL}}
+            </td>
+            
+            <td *ngIf=" ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 50 " style="background: red !important" >
+              {{ess.doc.data.NPL}}
+            </td>
 
-          <td *ngIf="ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 50 && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 40 " style="background: orange !important" >
-            {{ess.doc.data.NPL}}
-          </td>
+            <td *ngIf="ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 50 && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 40 " style="background: orange !important" >
+              {{ess.doc.data.NPL}}
+            </td>
 
-          <!--td  >
-            {{ess.doc.data.NPL_controle}}
-          </td-->
+            <!--td  >
+              {{ess.doc.data.NPL_controle}}
+            </td-->
 
-          <td *ngIf="!ess.doc.data.NPL_controle || (ess.doc.data.NPL_controle && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle < 40) ">
-            {{ess.doc.data.NPL_controle}}
-          </td>
-          
-          <td *ngIf=" ess.doc.data.NPL_controle && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle >= 50 " style="background: red !important" >
-            {{ess.doc.data.NPL_controle}}
-          </td>
+            <td *ngIf="!ess.doc.data.NPL_controle || (ess.doc.data.NPL_controle && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle < 40) ">
+              {{ess.doc.data.NPL_controle}}
+            </td>
+            
+            <td *ngIf="ess.doc.data.NPL_controle && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle >= 50 " style="background: red !important" >
+              {{ess.doc.data.NPL_controle}}
+            </td>
 
-          <td *ngIf="ess.doc.data.NPL_controle && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle < 50 && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle >= 40 " style="background: orange !important" >
-            {{ess.doc.data.NPL_controle}}
-          </td>
+            <td *ngIf="ess.doc.data.NPL_controle && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle < 50 && ess.doc.data.superficie_essai - ess.doc.data.NPL_controle >= 40 " style="background: orange !important" >
+              {{ess.doc.data.NPL_controle}}
+            </td>
 
-          <td  >
-            {{ess.doc.data.gestion}}
-          </td>
-          <td  >
-            {{ess.doc.data.gestion_controle}}
-          </td>
-          <td  >
-            {{ess.doc.data.mode_semis}}
-          </td>
-          <td  >
-            {{ess.doc.data.mode_semis_controle}}
-          </td>
-          <td  >
-            {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
-          </td>
-          <td  >
-            {{ess.doc.data.NPR}}
-          </td>
-          <td  >
-            {{ess.doc.data.NPR_controle}}
-          </td>
-          <td  >
-            {{ess.doc.data.PDE}}
-          </td>
-          <td  >
-            {{ess.doc.data.PDE_controle}}
-          </td>
-          <td  >
-            <span *ngIf="ess.doc.data.effort_personnel">Oui</span><span *ngIf="!ess.doc.data.effort_personnel">Non</span>
-          </td>
-          <td  >
-            <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
-          </td>          
+            <td  >
+              {{ess.doc.data.gestion}}
+            </td>
+            <td >
+              {{ess.doc.data.gestion_controle}}
+            </td>
+            <td  >
+              {{ess.doc.data.mode_semis}}
+            </td>
+            <td  >
+              {{ess.doc.data.mode_semis_controle}}
+            </td>
+            <td  >
+              {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
+            </td>
+            <td  >
+              {{ess.doc.data.NPR}}
+            </td>
+            <td  >
+              {{ess.doc.data.NPR_controle}}
+            </td>
+            <td  >
+              {{ess.doc.data.PDE}}
+            </td>
+            <td  >
+              {{(10000 * ess.doc.data.PDE) / ess.doc.data.superficie_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.PDE_controle}}
+            </td>
+            <td  >
+              {{(10000 * ess.doc.data.PDE_controle) / ess.doc.data.superficie_essai}}
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.effort_personnel">Oui</span><span *ngIf="!ess.doc.data.effort_personnel">Non</span>
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
+            </td>          
+          </tr>
+      </tbody>
+    </table>
+
+     <table class="table table-striped table-bordered" *ngIf="selectedStyleTableau == 'avance'">
+      <thead>
+        <tr>
+        <th style="min-width: 150px" >
+          <strong>Code essai</strong> 
+        </th>
+        <th >
+          <strong>Code union</strong> 
+        </th>
+        <th  >
+          <strong>Site</strong>
+        </th>
+        <th>
+          <strong>Village</strong>
+        </th>
+        <th style="min-width: 105px" >
+          <strong>Matricule producteur</strong>
+        </th>
+        <th style="min-width: 130px" >
+          <strong>Nom producteur (surnom)</strong>
+        </th>
+        <th  >
+          <strong>Sex</strong>
+        </th>
+        <th  >
+          <strong>Classes</strong>
+        </th>
+        <th  style="min-width: 100px">
+          <strong>Nom du champs</strong>
+        </th>
+        <th style="min-width: 100px" >
+          <strong>Type de sole</strong>
+        </th>
+        <th  >
+          <strong>Latitude</strong>
+        </th>
+        <th  >
+          <strong>Longitude</strong>
+        </th>
+        <th  style="min-width: 120px">
+          <strong>Nom d'entrée</strong>
+        </th>
+
+        <th >
+          <strong>Superficie essai (m²)</strong>
+        </th>
+        <th style="min-width: 90px">
+          <strong>Date de sémis</strong>
+        </th>
+        <th  >
+          <strong>NPL</strong>
+        </th>
+
+        <th  >
+          <strong>Gestion</strong> 
+        </th>
+        <th  >
+          <strong>Mode de sémis</strong>
+        </th>
+
+        <th style="min-width: 90px" >
+          <strong>Date récolte</strong>
+        </th>
+        <th>
+          <strong>NPR</strong> 
+        </th>
+        <th  >
+          <strong>PDE (kg)</strong> 
+        </th>
+
+         <th  >
+          <strong>PDE (kg/ha)</strong> 
+        </th>
+        <th  >
+          <strong>Effort personnel ?</strong> 
+        </th>
+        <th  >
+          <strong>Est valide ?</strong> 
+        </th>
         </tr>
+      </thead>
+      <!--hr style="width: 375%"-->
+        <tbody *ngFor="let ess of essais">
+            <tr (click)="detail(ess.doc)">
+              <td >
+                {{ess.doc.data.code_essai}}
+              </td>
+              <td  >
+                {{ess.doc.data.code_union}}
+              </td>
+              <td  >
+                {{ess.doc.data.site_producteur}}
+              </td>
+              <td  >
+                {{ess.doc.data.village_producteur}}
+              </td>
+              <td  >
+                {{ess.doc.data.matricule_producteur}}
+              </td>
+              <td  >
+                {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
+              </td>
+              <td  >
+                <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
+              </td>
+              <td  >
+                
+                <span *ngFor="let c of ess.doc.data.classes_producteur; let i = index"> {{c}}<span *ngIf="i < ess.doc.data.classes_producteur.length - 1">, </span> </span>
+              </td>
+              <td  >
+                {{ess.doc.data.nom_champs}}
+              </td>
+              <td  >
+                {{ess.doc.data.type_sole}}
+              </td>
+              <td  >
+                {{ess.doc.data.latitude}}
+              </td>
+              <td  >
+                {{ess.doc.data.longitude}}
+              </td>
+              <td  >
+                {{ess.doc.data.nom_entree}}
+              </td>
+              <td  >
+                {{ess.doc.data.superficie_essai}}
+              </td>
+              <td  >
+                {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
+              </td>
+              
+
+              <td *ngIf="!ess.doc.data.NPL || (ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 40) ">
+                {{ess.doc.data.NPL}}
+              </td>
+              
+              <td *ngIf=" ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 50 " style="background: red !important" >
+                {{ess.doc.data.NPL}}
+              </td>
+
+              <td *ngIf="ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 50 && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 40 " style="background: orange !important" >
+                {{ess.doc.data.NPL}}
+              </td>
+
+    
+              <td  >
+                {{ess.doc.data.gestion}}
+              </td>
+              
+              <td  >
+                {{ess.doc.data.mode_semis}}
+              </td>
+              
+              <td  >
+                {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
+              </td>
+              <td  >
+                {{ess.doc.data.NPR}}
+              </td>
+              
+              <td  >
+                {{ess.doc.data.PDE}}
+              </td>
+
+              <td  >
+              {{(10000 * ess.doc.data.PDE) / ess.doc.data.superficie_essai}}
+            </td>
+              
+              <td  >
+                <span *ngIf="ess.doc.data.effort_personnel">Oui</span><span *ngIf="!ess.doc.data.effort_personnel">Non</span>
+              </td>
+              <td  >
+                <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
+              </td>          
+            </tr>
+
+            <tr (click)="detail(ess.doc)">
+              <td  >
+                {{ess.doc.data.code_essai}}
+              </td>
+              <td  >
+                {{ess.doc.data.code_union}}
+              </td>
+              <td  >
+                {{ess.doc.data.site_producteur}}
+              </td>
+              <td  >
+                {{ess.doc.data.village_producteur}}
+              </td>
+              <td  >
+                {{ess.doc.data.matricule_producteur}}
+              </td>
+              <td  >
+                {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
+              </td>
+              <td  >
+                <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
+              </td>
+              <td  >
+                
+                <span *ngFor="let c of ess.doc.data.classes_producteur; let i = index"> {{c}}<span *ngIf="i < ess.doc.data.classes_producteur.length - 1">, </span> </span>
+              </td>
+              <td  >
+                {{ess.doc.data.nom_champs}}
+              </td>
+              <td  >
+                {{ess.doc.data.type_sole}}
+              </td>
+              <td  >
+                {{ess.doc.data.latitude}}
+              </td>
+              <td  >
+                {{ess.doc.data.longitude}}
+              </td>
+              <td  >
+                {{ess.doc.data.nom_controle}}
+              </td>
+              <td  >
+                {{ess.doc.data.superficie_essai}}
+              </td>
+              <td  >
+                {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
+              </td>
+
+              <td>
+                {{ess.doc.data.NPL_controle}}
+              </td>
+
+    
+              <td  >
+                {{ess.doc.data.gestion_controle}}
+              </td>
+              
+              <td  >
+                {{ess.doc.data.mode_semis_controle}}
+              </td>
+              
+              <td  >
+                {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
+              </td>
+              <td  >
+                {{ess.doc.data.NPR_controle}}
+              </td>
+              
+              <td  >
+                {{ess.doc.data.PDE_controle}}
+              </td>
+
+              <td  >
+              {{(10000 * ess.doc.data.PDE_controle) / ess.doc.data.superficie_essai}}
+            </td>
+              
+              <td  >
+                <span *ngIf="ess.doc.data.effort_personnel">Oui</span><span *ngIf="!ess.doc.data.effort_personnel">Non</span>
+              </td>
+              <td  >
+                <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
+              </td>          
+            </tr>
+     
+          <!--tr *ngFor="let ess of essais">
+            <td  >
+              {{ess.doc.data.code_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.code_union}}
+            </td>
+            <td  >
+              {{ess.doc.data.site_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.village_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.matricule_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
+            </td>
+            <td  >
+              {{ess.doc.data.classes_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_champs}}
+            </td>
+            <td  >
+              {{ess.doc.data.type_sole}}
+            </td>
+            <td  >
+              {{ess.doc.data.latitude}}
+            </td>
+            <td  >
+              {{ess.doc.data.longitude}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_entree}}
+            </td>
+            <td  >
+              {{ess.doc.data.superficie_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
+            </td>
+            
+
+            <td *ngIf="!ess.doc.data.NPL || (ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 40) ">
+              {{ess.doc.data.NPL}}
+            </td>
+            
+            <td *ngIf=" ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 50 " style="background: red !important" >
+              {{ess.doc.data.NPL}}
+            </td>
+
+            <td *ngIf="ess.doc.data.NPL && ess.doc.data.superficie_essai - ess.doc.data.NPL < 50 && ess.doc.data.superficie_essai - ess.doc.data.NPL >= 40 " style="background: orange !important" >
+              {{ess.doc.data.NPL}}
+            </td>
+
+  
+            <td  >
+              {{ess.doc.data.gestion}}
+            </td>
+            
+            <td  >
+              {{ess.doc.data.mode_semis}}
+            </td>
+            
+            <td  >
+              {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
+            </td>
+            <td  >
+              {{ess.doc.data.NPR}}
+            </td>
+            
+            <td  >
+              {{ess.doc.data.PDE}}
+            </td>
+            
+            <td  >
+              <span *ngIf="ess.doc.data.effort_personnel">Oui</span><span *ngIf="!ess.doc.data.effort_personnel">Non</span>
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
+            </td>          
+          </tr>
+
+          <tr *ngFor="let ess of essais" (click)="detail(ess.doc)">
+            <td  >
+              {{ess.doc.data.code_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.code_union}}
+            </td>
+            <td  >
+              {{ess.doc.data.site_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.village_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.matricule_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_producteur}} <span *ngIf="ess.doc.data.surnom_producteur">({{ess.doc.data.surnom_producteur}})</span>
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.sex_producteur == 'male'">Homme</span><span *ngIf="ess.doc.data.sex_producteur == 'female'">Femme</span>
+            </td>
+            <td  >
+              {{ess.doc.data.classes_producteur}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_champs}}
+            </td>
+            <td  >
+              {{ess.doc.data.type_sole}}
+            </td>
+            <td  >
+              {{ess.doc.data.latitude}}
+            </td>
+            <td  >
+              {{ess.doc.data.longitude}}
+            </td>
+            <td  >
+              {{ess.doc.data.nom_controle}}
+            </td>
+            <td  >
+              {{ess.doc.data.superficie_essai}}
+            </td>
+            <td  >
+              {{ess.doc.data.date_semis | date: 'dd-MM-yyyy'}}
+            </td>
+
+            <td>
+              {{ess.doc.data.NPL_controle}}
+            </td>
+
+  
+            <td  >
+              {{ess.doc.data.gestion_controle}}
+            </td>
+            
+            <td  >
+              {{ess.doc.data.mode_semis_controle}}
+            </td>
+            
+            <td  >
+              {{ess.doc.data.date_recolte | date: 'dd-MM-yyyy'}}
+            </td>
+            <td  >
+              {{ess.doc.data.NPR_controle}}
+            </td>
+            
+            <td  >
+              {{ess.doc.data.PDE_controle}}
+            </td>
+            
+            <td  >
+              <span *ngIf="ess.doc.data.effort_personnel">Oui</span><span *ngIf="!ess.doc.data.effort_personnel">Non</span>
+            </td>
+            <td  >
+              <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
+            </td>          
+          </tr-->
       </tbody>
     </table>
   </ion-scroll>
 </ion-card>
 
 <div *ngIf="essais.length > 0">
-  <br><br><br>
+  <br><br><br><br>
 </div>
    <ion-list *ngIf="!essais.length > 0">
     <ion-item>
@@ -396,31 +890,38 @@
 </div>
 
 <div *ngIf="detailEssai">
-    <ion-card class="info-card" (dblclick)="editer(essai)"> 
+    <ion-card class="info-card" (dblclick)="editer(essai, true)"> 
       <ion-card-header>
-        <strong>Information Essai: {{essai.data.code_essai}}</strong>
+        <h2 class="fond-gris"><strong>Détail Essai: {{essai.data.code_essai}}</strong></h2>
       </ion-card-header>
       <ion-card-content>
         <ion-grid>
+          <ion-row><h5 class="sans-fond-gris"><strong>Info essai</strong></h5> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Année:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.annee_essai}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Code essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.code_essai}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Code union:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.code_union}} </ion-col> </ion-row>
+          <ion-row><h5 class="sans-fond-gris"><strong>Info producteur</strong></h5> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.matricule_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Surnom producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.surnom_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Sex producteur:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.sex_producteur == 'male'">Homme</span><span *ngIf="essai.data.sex_producteur == 'female'">Femme</span> </ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>Classe producteur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.classe_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe producteur:</strong></ion-col> <ion-col class='meta-value'><span *ngFor="let c of essai.data.classes_producteur; let i = index"> {{c}}<span *ngIf="i < essai.data.classes_producteur.length - 1">, </span> </span> </ion-col> </ion-row>
+          <ion-row><h5 class="sans-fond-gris"><strong>Info localité</strong></h5> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Site:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.site_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Village:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.village_producteur}}</ion-col> </ion-row>
+          <ion-row><h5 class="sans-fond-gris"><strong>Info champs</strong></h5> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>ID champs:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.id_champs}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom champs:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_champs}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Type de sole:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.type_sole}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Superficie:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie}}ha</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Latitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.latitude}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Longitude:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.longitude}}</ion-col> </ion-row>
+          <ion-row><h5 class="sans-fond-gris"><strong>Info triatement</strong></h5> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Code traitement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.code_traitement}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom d'entrée:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_entree}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.nom_controle}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Superficie essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.superficie_essai}}m²</ion-col> </ion-row>
+          <ion-row><h5 class="sans-fond-gris"><strong>Données de l'essai</strong> </h5></ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date sémis:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_semis | date: 'dd-MM-yyyy'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date sémis controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_semis_controle | date: 'dd-MM-yyyy'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPL:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPL}}</ion-col> </ion-row>
@@ -433,14 +934,16 @@
           <ion-row> <ion-col class='meta-key'><strong>Date récolte:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.date_recolte | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPR:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPR}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>NPR controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.NPR_controle}}</ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>PDE:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE}}kg</ion-col> </ion-row>
-          <ion-row> <ion-col class='meta-key'><strong>PDE controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE_controle}}kg</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>PDE en kg:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>PDE en ka/ha:</strong></ion-col> <ion-col class='meta-value'> {{(10000 * essai.data.PDE) / essai.data.superficie_essai}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>PDE controle en ka:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.PDE_controle}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>PDE controle en ka/ha:</strong></ion-col> <ion-col class='meta-value'> {{(10000 * essai.data.PDE_controle) / essai.data.superficie_essai}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Objectif de l'essai:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.objectif_essai}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Observation:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Observation controle:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.observation_controle}}</ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Gérant(s):</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let g of essai.data.gerants; let i = index">{{g}}<span *ngIf="i < essai.data.gerants.length - 1">, </span> </span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Culture(s) précédante(s):</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let pc  of essai.data.precedante_cultures; let i = index">{{pc}}<span *ngIf="i < essai.data.precedante_cultures.length - 1">, </span></span></ion-col> </ion-row>
-        
+          <ion-row><h5 class="sans-fond-gris"><strong>Status de l'essai</strong> </h5></ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Effort personnel ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.effort_personnel == true">Oui</span><span *ngIf="essai.data.effort_personnel == false">Non</span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Est valide ?:</strong></ion-col> <ion-col class='meta-value'> <span *ngIf="essai.data.estValide == true">Oui</span><span *ngIf="essai.data.estValide == false">Non</span></ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
@@ -449,12 +952,14 @@
       </ion-card-content> 
     </ion-card>
 
-    <ion-card class="info-card" (dblclick)="editer(essai)"> 
+    <ion-card class="info-card" (dblclick)="editer(essai, true)"> 
       <ion-card-header>
-        <strong>Plus d'informations</strong>
+        <h2 class="fond-gris"><strong>Plus d'informations</strong></h2>
       </ion-card-header>
       <ion-card-content>
         <ion-grid>
+          <ion-row><ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'>{{essai._id}} </ion-col>   </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>No révision:</strong></ion-col> <ion-col class='meta-value'> {{essai._rev }} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.created_at | date: 'dd-MM-yyyy'}} à {{essai.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.created_by}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{essai.data.deviceid}} </ion-col> </ion-row>
@@ -645,11 +1150,11 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['sex_producteur'].hasError('required') && essaiForm.controls['sex_producteur'].touched">* le sex du producteur est obligatoir!</div>
    
-   <ion-item>
+   <!--ion-item>
     <ion-label floating>Classe producteur</ion-label>
-    <ion-input type="text" formControlName="classe_producteur" [(ngModel)]="classe_producteur" disabled></ion-input>
+    <ion-input type="text" formControlName="classes_producteur" [(ngModel)]="classes_producteur" disabled></ion-input>
   </ion-item>
-  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['classe_producteur'].hasError('required') && essaiForm.controls['classe_producteur'].touched">* la classe du producteur est obligatoir!</div>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="essaiForm.controls['classes_producteur'].hasError('required') && essaiForm.controls['classes_producteur'].touched">* la classe du producteur est obligatoir!</div-->
    
    <ion-item>
     <ion-label floating>Site <span class="error-box">*</span></ion-label>
@@ -917,29 +1422,33 @@
 
 </div>
 
-  <ion-fab bottom right *ngIf="!ajoutForm && !statistique &&!detailEssai && selectedStyle != 'tableau'" bottom>
+  <ion-fab bottom right *ngIf="!ajoutForm && !statistique &&!detailEssai && selectedStyle != 'tableau' && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)" bottom>
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
     <button ion-fab mini *ngIf="statistiqueOk" (click)="calculStatisitque(allEssais, traitements)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
+    <button ion-fab mini *ngIf="statistiqueOk" (click)="openMap(allEssais)" color="my_primary"><ion-icon name="pin"></ion-icon></button>
     <!--button ion-fab mini (click)="fusionnerEssais()" color="my_primary">FUS</button-->
   </ion-fab>
   
 
 
-  <ion-fab bottom right *ngIf="!ajoutForm && !statistique &&!detailEssai && selectedStyle == 'tableau'">
+  <ion-fab bottom right *ngIf="!ajoutForm && !statistique &&!detailEssai && selectedStyle == 'tableau' && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top"> 
       <button ion-fab mini *ngIf="essais.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
-      <button ion-fab mini *ngIf="essais.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
+      <!--button ion-fab mini *ngIf="essais.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button-->
+      <button ion-fab mini *ngIf="essais.length > 0" (click)="export()" color="my_primary"><ion-icon name="share-alt"></ion-icon></button>
+    
+      <button ion-fab mini *ngIf="statistiqueOk" (click)="openMap(allEssais)" color="my_primary"><ion-icon name="pin"></ion-icon></button>
       <button ion-fab mini *ngIf="statistiqueOk" (click)="calculStatisitque(allEssais, traitements)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
       <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
       
     </ion-fab-list>
   </ion-fab>
 
-  <ion-fab bottom right *ngIf="detailEssai" >
+  <ion-fab bottom right *ngIf="detailEssai && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)">
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
-      <button ion-fab mini (click)="supprimer(essai)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (click)="supprimer(essai)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab mini (click)="editer(essai)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab>

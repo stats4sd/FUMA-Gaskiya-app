@@ -36,7 +36,7 @@ export class UnionsPage {
   allUnions: any = [];
   allUnions1: any = [];
   confLocaliteEnquete: any;
-  aProfile: boolean = true;
+  aProfile: boolean = false;
   ajoutForm: boolean = false;
   selectedStyle: any = 'liste';
   typeRecherche: any = 'nom';
@@ -53,6 +53,10 @@ export class UnionsPage {
   nom_union: string = '';
   code_union: any = '';
   num_aggrement: any = '';
+  user: any = global.info_user;
+  global:any = global;
+  estManger: boolean = false;
+  estAdmin: boolean = false;
 
   constructor(public storage: Storage, public platform: Platform, public toastCtl: ToastController, public printer: Printer, public file: File, public modelCtl: ModalController, public formBuilder: FormBuilder, public sim: Sim, public device: Device, public navCtrl: NavController, public events: Events, public menuCtl: MenuController, public alertCtl: AlertController, public navParams: NavParams, public servicePouchdb: PouchdbProvider) {
 
@@ -60,20 +64,101 @@ export class UnionsPage {
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
     
-    events.subscribe('user:login', () => {
-      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+    events.subscribe('user:login', (user) => {
+      if(user){
+        this.aProfile = true;
+        //this.user = global.info_user;
+        this.estMangerConnecter(user)
+      }else{
+        this.aProfile = false;
+        this.estManger = false;
+        this.user = global.info_user;
+      }
+     /* this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
+          this.user = global.info_user;
+          this.estMangerConnecter(this.user)
+          alert('ok')
         }else{
           this.aProfile = false;
+          this.user = {};
+          this.estManger = false;
+          alert('non')
         }
-      }, err => console.log(err));
+      }, err => {
+        console.log(err)
+        this.estManger = false;
+      });*/
     });
+  }
+
+  doRefresh(refresher) {
+    if(this.selectedSource === 'application'){
+     // this.unions = [];
+      this.servicePouchdb.getPlageDocsRapide('fuma:union','fuma:union:\uffff').then((unions) => {
+        if(unions){
+          this.unions = unions;
+          this.allUnions = unions;
+          refresher.complete();
+        }
+      });
+    }else if(this.selectedSource === 'kobo'){
+     // this.unions = [];
+      this.servicePouchdb.getPlageDocsRapide('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unions) => {
+        if(unions){
+          this.unions = unions;
+          this.allUnions = unions;
+          refresher.complete();
+        }
+      });
+    }else{
+      
+      this.servicePouchdb.getPlageDocsRapide('fuma:union','fuma:union:\uffff').then((unionsA) => {
+        /*if(unionsA){
+          this.unionsApplication = unionsA;
+          //this.allUnions = unions;
+        }*/
+         this.servicePouchdb.getPlageDocsRapide('koboSubmission_fuma-union','koboSubmission_fuma-union\uffff').then((unionsK) => {
+          this.unions = unionsA.concat(unionsK);
+          this.allUnions = this.unions
+          refresher.complete();
+
+       /* if(unionsK){
+          this.unionsKobo = unionsK;
+          
+        }*/
+      }, err => console.log(err));
+
+      }, err => console.log(err));      
+    }
+  
+    console.log('Begin async operation', refresher);
+
+    /*setTimeout(() => {
+      console.log('Async operation has ended');
+      refresher.complete();
+    }, 2000);*/
+  }
+
+  estMangerConnecter(user){
+    //alert('entree')
+    if(user && user.roles){
+      //alert('ok')
+      this.estManger = global.estManager(user.roles);
+    }
+  }
+
+  estAdminConnecter(user){
+    if(user && user.roles){
+      this.estManger = global.estAdmin(user.roles);
+    }
   }
 
     typeRechercheChange(){
     this.unions = this.allUnions;
   }
+
 
   exportExcel(){
 
@@ -81,7 +166,7 @@ export class UnionsPage {
     //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
     let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
 
-    let blob = new Blob([document.getElementById('tableau').innerHTML], {
+    let blob = new Blob([document.getElementById('union_tableau').innerHTML], {
       //type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
       type: "text/plain;charset=utf-8"
       //type: 'application/vnd.ms-excel;charset=utf-8'
@@ -109,7 +194,7 @@ export class UnionsPage {
         landscape: true,
         grayscale: true
     };
-    let content = document.getElementById('tableau').innerHTML;
+    let content = document.getElementById('union_tableau').innerHTML;
     this.printer.print(content, options);
   }
 
@@ -206,12 +291,14 @@ export class UnionsPage {
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
   genererCodeUnion(){
     //let taille_nom = this.nom_union.length;
+    let exclut: any = [' ', ',', '!', ';','/', '-', '_', '.', '"', 'é', 'ê', 'û', 'ë', 'ü', 'î', 'ï', 'ô', 'ö'];
     let nom = this.nom_union;
     //nom = nom.replace(' ' || '  ' || '    ' || '     ' || '      ' , '')
     //let nom = this.nom_op;
     let nom1: any = '';
     for(let i = 0; i < nom.length; i++){
-      if(nom.charAt(i) !== ' '){
+      //if(nom.charAt(i) !== ' '){
+      if(exclut.indexOf(nom.charAt(i)) === -1 ){
         nom1 += nom.charAt(i).toString();
       }
     }
@@ -295,10 +382,14 @@ export class UnionsPage {
             this.villages.push(village);
           }
         });
-        this.villages.push(this.autreVillage);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
       });
     }else{
-      this.villages.push(this.autreVillage);
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
     }
 
   } 
@@ -358,20 +449,23 @@ export class UnionsPage {
         this.allUnions1.push(u)
         this.ajoutForm = false;
         this.ressetChampsForm();
+        let toast = this.toastCtl.create({
+          message: 'Union bien enregistré!',
+          position: 'top',
+          duration: 1000
+        });
+
+        toast.present();
+
         /*let E: any = this.essais;
         E = E.concat(essais);
          
         this.essais = E;
         this.allEssais = this.essais;*/
           
-      });
+      }).catch((err) => alert('une erreur est survenue lors de l\'enregistrement: '+err) );
     
-      let toast = this.toastCtl.create({
-        message: 'Union bien enregistré!',
-        position: 'top',
-        duration: 1000
-      });
-
+      
       //this.navCtrl.pop();
       //toast.present();
       
@@ -383,7 +477,7 @@ export class UnionsPage {
 
 
   sync(){
-    this.servicePouchdb.syncAvecToast(this.ionViewDidLoad());
+    this.servicePouchdb.syncAvecToast();
   }
 
   option(){
@@ -409,21 +503,7 @@ export class UnionsPage {
 
   ionViewDidLoad(){
 
-    this.servicePouchdb.remoteSaved.getSession((err, response) => {
-        if (response.userCtx.name) {
-          this.aProfile = true;
-        }else{
-          this.aProfile = false;
-        }
-    }, err => {
-      if(global.info_user != null){
-        this.aProfile = true;
-      }else{
-        this.aProfile = false;
-      }
-      //console.log(err)
-    }); 
-
+    
     this.rechercher = true;
 
     if(this.selectedSource === 'application'){
@@ -477,6 +557,27 @@ export class UnionsPage {
   }
 
   ionViewDidEnter() {
+
+        //this.getEssais()
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (err) {
+          // network error
+          //this.events.publish('user:login');
+          //alert('network')
+          this.aProfile = false;
+        } else if (!response.userCtx.name) {
+          // nobody's logged in
+          //this.events.publish('user:login');
+          //alert('nobady')
+          this.aProfile = false;
+        } else {
+          // response.userCtx.name is the current user
+          //this.events.publish('user:login', response.userCtx);
+          //alert(response.userCtx.name)
+          this.aProfile = true;
+        }
+      });
+
 
     this.storage.get('confLocaliteEnquete').then((confLocaliteEnquete) => {
       if(confLocaliteEnquete){

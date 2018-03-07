@@ -17,6 +17,10 @@
       <button ion-button icon-only>
         <ion-badge color="fuma-green" item-right>{{champs.length}}</ion-badge>
       </button>
+
+       <button ion-button icon-only color="royal" (click) = "copierDB()" >
+         <ion-icon name="arrow-dropup-circle"></ion-icon>
+      </button>
     </ion-buttons>
 
     <ion-title>champs</ion-title>
@@ -32,15 +36,26 @@
 <ion-content padding>
 
 <div *ngIf="!ajoutForm">
+  <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Choisir le type de sole</ion-label>
+        <ion-select [(ngModel)]="selectedTypeSole" (ionChange)="choixTypeSole()" cancelText="Annuler" okText="Ok" >
+          <ion-option *ngFor="let typeSole of typeSoles" [value]=typeSole.doc.data.nom>{{typeSole.doc.data.nom}}</ion-option>
+        </ion-select>
+      </ion-item>
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label floating>Style affichage</ion-label>
+        <ion-select [(ngModel)]="selectedStyle" cancelText="Annuler" okText="Ok" >
+          <ion-option value="liste" >Liste</ion-option>
+          <ion-option value="tableau" >Tableau</ion-option>
+        </ion-select>
+      </ion-item>
+    </ion-col>
+  </ion-row>
   <ion-list>
-    <ion-item>
-      <ion-label floating>Choisir le type de sole</ion-label>
-      <ion-select [(ngModel)]="selectedTypeSole" (ionChange)="choixTypeSole()" cancelText="Annuler" okText="Ok" >
-        <ion-option value="" selected disabled>Selectionnez le type de sole</ion-option>
-        <ion-option *ngFor="let typeSole of typeSoles" [value]=typeSole.doc.data.nom>{{typeSole.doc.data.nom}}</ion-option>
-      </ion-select>
-    </ion-item>
-
     <ion-item>
       <ion-label floating>Type de recherche</ion-label>
       <ion-select [(ngModel)]="typeRecherche" (ionChange)="typeRechercheChange()" cancelText="Annuler" okText="Ok" >
@@ -64,7 +79,7 @@
   </ion-list-->
 
   <br>
-    <ion-list>
+    <ion-list class="info-card" *ngIf="champs.length > 0 && selectedStyle === 'liste'">
       <ion-list-header>
         <h2  class="fond-gris"><strong>Liste des champs <span *ngIf="matricule_producteur1">
     de M. {{nom_producteur}} - mat. {{matricule_producteur1}}
@@ -76,12 +91,100 @@
       <h6><strong>Matricule producteur:</strong> {{champ.doc.data.matricule_producteur}}</h6>
       <h6><strong>Nom producteur:</strong> {{champ.doc.data.nom_producteur}} <span *ngIf="champ.doc.data.surnom_producteur">({{champ.doc.data.surnom_producteur}})</span> </h6>
       <!--p><strong>Date:</strong> {{champ.doc.data.today | date: 'dd-MM-yyyy'}}</p-->
-    </ion-item>
+    </ion-item> 
+  </ion-list>
 
-    <ion-item *ngIf="!champs.length > 0">
+  <ion-list class="info-card" *ngIf="!champs.length > 0">
+    <ion-item>
       <div class="message">La liste est vide!</div>
     </ion-item>    
   </ion-list>
+
+  <ion-card class="info-card" *ngIf="champs.length > 0 && selectedStyle === 'tableau'">
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Liste des champs <span *ngIf="matricule_producteur1">
+    de M. {{nom_producteur}} - mat. {{matricule_producteur1}}
+  </span></strong></h2>
+    </ion-card-header> 
+    <ion-scroll scrollX="true" scrollY="true" id="champs_tableau" style="height: 80vh"> 
+
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+        <th style="min-width: 105px" >
+          <strong>Id</strong>
+        </th>
+        <th  >
+          <strong>Code union</strong>
+        </th>
+        <th>
+          <strong>Nom</strong>
+        </th>
+        <th>
+          <strong>Type de sole</strong>
+        </th>
+         <th >
+          <strong>Latitude</strong> 
+        </th>
+        <th  >
+          <strong>Longitude</strong>
+        </th>
+       
+        <th  >
+          <strong>Superficie (ha)</strong>
+        </th>
+        <th  >
+          <strong>Matricule producteur</strong>
+        </th>
+        <th>
+          <strong>Nom producteur</strong>
+        </th>
+        <th >
+          <strong>Surnom producteur</strong>
+        </th>
+        </tr>
+      </thead>
+      <!--hr style="width: 375%"-->
+      <tbody>
+        <tr *ngFor="let champ of champs" (click)="detail(champ.doc)">
+          <td  >
+            {{champ.doc.data.id_champs}}
+          </td>
+          <td  >
+            {{champ.doc.data.code_union}}
+          </td>
+          <td  >
+            {{champ.doc.data.nom}}
+          </td>
+          <td  >
+            {{champ.doc.data.type_sole}}
+          </td>
+          <td  >
+            {{champ.doc.data.latitude}}
+          </td>
+          <td  >
+            {{champ.doc.data.longitude}}
+          </td>
+
+          <td  >
+            {{champ.doc.data.superficie}}
+          </td>
+          
+          <td  >
+            {{champ.doc.data.matricule_producteur}}
+          </td>
+          <td  >
+            {{champ.doc.data.nom_producteur}}
+          </td>
+          <td  >
+            {{champ.doc.data.surnom_producteur}}
+          </td>        
+        </tr>
+      </tbody>
+    </table>
+  </ion-scroll>
+</ion-card>
+
 </div>
 
 <div *ngIf="ajoutForm">
@@ -149,6 +252,14 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['superficie'].hasError('required') && champsForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
 
+  <ion-item> 
+    <ion-label floating>Appartenance <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="appartenance" [(ngModel)]="appartenance" cancelText="Annuler" okText="Ok">
+      <ion-option *ngFor="let st of appartenances" [value]=st >{{st}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['appartenance'].hasError('required') && champsForm.controls['appartenance'].touched">* l'appartenance du sole est obligatoir!</div>
+
   <ion-item>
     <ion-label floating>Latitude</ion-label>
     <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
@@ -166,8 +277,18 @@
 
 </div>
 
-  <ion-fab *ngIf="!ajoutForm" bottom right>
+  <ion-fab *ngIf="!ajoutForm && selectedStyle == 'liste' && user && user.roles && global.estAnimataire(user.roles)" bottom right>
     <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+  </ion-fab>
+
+    <ion-fab bottom right *ngIf="!ajoutForm && selectedStyle == 'tableau' && user && user.roles && global.estAnimataire(user.roles)">
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini *ngIf="champs.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
+      <button ion-fab mini *ngIf="champs.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
+      <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+      
+    </ion-fab-list>
   </ion-fab>
 
   <ion-fab *ngIf="ajoutForm" bottom right>

@@ -17,20 +17,24 @@ import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 export class AjouterPaysPage {
 
   paysForm: any;
-  pays: any;
+  pays: any = {};
   allPays: any = [];
   id: any = '';
   nom: any = '';
   ancien_nom: any = '';
+  ancien_id: any = '';
 
   liste: boolean = false;
-  ajouter:boolean = false;
+  ajouter:boolean = true;
   modifier: boolean = false;
+  gestion_pays: boolean = false;
  
   constructor(public navCtrl: NavController, public loadingCtl: LoadingController, public alertCtl: AlertController, public menuCtl: MenuController, public viewCtrl: ViewController, public navParams: NavParams,public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder) {
     
     if(this.navParams.data.liste){
       this.liste = true;
+      this.gestion_pays = true;
+      this.ajouter = false;
     }
 
     this.paysForm = this.formBuilder.group({
@@ -133,8 +137,11 @@ export class AjouterPaysPage {
         data = this.pays.data;
         data.push(pays);
         this.pays.data = data;
+        this.pays.type = 'pays';
         this.allPays = data;
-        this.servicePouchdb.updateLocalite(this.pays);
+        this.servicePouchdb.updateLocalite(this.pays).then((res) => {
+          this.pays._rev = res.rev;
+        })
         let toast = this.toastCtl.create({
           message: 'Pays bien enregistré!',
           position: 'top',
@@ -144,10 +151,11 @@ export class AjouterPaysPage {
         toast.present();
         this.ajouter = false;
 
-        if(!this.navParams.data.liste){
+        if(!this.gestion_pays){
           this.viewCtrl.dismiss();
         }else{
           this.liste = true;
+          this.ajouter = false;
         }
       }
     }else if(this.modifier){
@@ -155,7 +163,7 @@ export class AjouterPaysPage {
         content: 'Application des changements en cours...'
       });
 
-      loading.present();
+      //loading.present();
       let pays = this.paysForm.value;
       this.allPays.forEach((p, i) => {
         if(p.id === pays.id){
@@ -165,38 +173,40 @@ export class AjouterPaysPage {
 
       this.pays.data = this.allPays;
       //this.allPays.splice(this.pays.indesOf())
-      this.servicePouchdb.updateLocalite(this.pays);
+      this.servicePouchdb.updateLocalite(this.pays).then((res) => {
+          this.pays._rev = res.rev;
+      })
         //recuperer tous les doc pour modifier le nom du pays
-        this.servicePouchdb.getPlageDocsRapide('fuma', 'fuma:\uffff').then((allDocs) => {
+        /*this.servicePouchdb.getPlageDocsRapide('fuma', 'fuma:\uffff').then((allDocs) => {
           allDocs.map((doc) => {
             //pour les essais
-            if(doc.doc.data.type === 'essai' && doc.doc.data0village_producteur === this.ancien_nom ){
+            *****if(doc.doc.data.type === 'essai' && doc.doc.data.village_producteur === this.ancien_nom ){
               doc.doc.data0village_producteur = pays.nom;
               this.servicePouchdb.updateDoc(doc.doc);
-            }else 
+            }else ****
             //pour les memebres
-            if(doc.doc.data.type === 'membre_op' && doc.doc.data.village_nom === this.ancien_nom ){
-              doc.doc.data.village_nom = pays.nom;
+            if(doc.doc.data.type === 'membre_op' && doc.doc.data.pays === this.ancien_id ){
+              doc.doc.data.pays_nom = pays.nom;
               this.servicePouchdb.updateDoc(doc.doc);
             }
             else 
             //pour les union
-            if(doc.doc.data.type === 'union' && doc.doc.data.village_nom === this.ancien_nom ){
-              doc.doc.data.village_nom = pays.nom;
+            if(doc.doc.data.type === 'union' && doc.doc.data.pays === this.ancien_id ){
+              doc.doc.data.pays_nom = pays.nom;
               this.servicePouchdb.updateDoc(doc.doc);
             }
             else 
             //pour les op
-            if(doc.doc.data.type === 'op' && doc.doc.data.village_nom === this.ancien_nom ){
-              doc.doc.data.village_nom = pays.nom;
+            if(doc.doc.data.type === 'op' && doc.doc.data.pays === this.ancien_id ){
+              doc.doc.data.pays_nom = pays.nom;
               this.servicePouchdb.updateDoc(doc.doc);
             }
-            else 
+           ***** else 
             //pour les champs
             if(doc.doc.data.type === 'champs' && doc.doc.data.village === this.ancien_nom ){
               doc.doc.data.village = pays.nom;
               this.servicePouchdb.updateDoc(doc.doc);
-            }
+            }*****
           });
 
            let toast = this.toastCtl.create({
@@ -206,8 +216,18 @@ export class AjouterPaysPage {
             });
             toast.present();  
             loading.dismissAll();
-        });
+        });*/
       
+        let toast = this.toastCtl.create({
+          message: 'Pays bien modifier!',
+          position: 'top',
+          duration: 1000
+        });
+        toast.present(); 
+
+        this.ajouter = false;
+        this.modifier = false;
+        this.liste = true;
 
     }
   } 
@@ -215,6 +235,8 @@ export class AjouterPaysPage {
   ajouterPays(){
     this.liste = false;
     this.ajouter = true;
+    this.id = '';
+    this.nom = '';
   }
 
   modifierPays(pays){
@@ -222,6 +244,7 @@ export class AjouterPaysPage {
     this.id = pays.id;
     this.nom = pays.nom;
     this.ancien_nom = this.nom;
+    this.ancien_id = this.id;
     this.liste = false;
     this.modifier = true;
   }
@@ -248,7 +271,10 @@ export class AjouterPaysPage {
 
             this.pays.data = this.allPays;
             //this.allPays.splice(this.pays.indesOf())
-            this.servicePouchdb.updateLocalite(this.pays);
+            //this.servicePouchdb.updateLocalite(this.pays);
+            this.servicePouchdb.updateLocalite(this.pays).then((res) => {
+                this.pays._rev = res.rev;
+            })
             let toast = this.toastCtl.create({
               message: 'Pays bien suprimé!',
               position: 'top',
@@ -264,13 +290,19 @@ export class AjouterPaysPage {
   }
 
   annuler(){
-    if(this.navParams.data.liste){
-      this.modifier = false;
-      this.ajouter = false;
-      this.liste = true;
-
+    if(this.gestion_pays){
+      if(this.liste){
+        this.viewCtrl.dismiss();
+      }else if(this.ajouter){
+        this.liste = true;
+        this.ajouter = false;
+      } else{
+        this.liste = true;
+        this.modifier = false;
+      }
+    }else{
+      this.viewCtrl.dismiss();
     }
-     this.viewCtrl.dismiss();
   }
 
 

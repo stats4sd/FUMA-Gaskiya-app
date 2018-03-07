@@ -32,7 +32,7 @@ export class TabsPage {
 
   // include formview as unselectable tab to keep window open after form filled
   tab1Root: any = 'HomePage';
-  tab2Root: any = 'EssaiPage';
+  tab2Root: any = 'Essai1Page';
   tab3Root: any = 'ResearchPage';
   //tab4Root: any = ProfilePage;
   tab4Root: any = 'MembresPage';

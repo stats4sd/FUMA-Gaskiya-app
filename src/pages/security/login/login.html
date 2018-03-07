@@ -28,11 +28,11 @@
       <!--ion-list inset-->
  
         <ion-item>
-          <ion-label><ion-icon name="person" class="error-box"></ion-icon></ion-label>
+          <ion-label><ion-icon name="mail" class="error-box"></ion-icon></ion-label>
           <!--ion-input [(ngModel)]="username" placeholder="nom utilisateur " type="text"></ion-input-->
-          <ion-input type="text" formControlName="username" [(ngModel)]=user.username placeholder="{{'NOMUTILISATEUR' | translate}}"></ion-input>
+          <ion-input type="Email" formControlName="email" [(ngModel)]=user.email placeholder="{{'NOMUTILISATEUR' | translate}}"></ion-input>
         </ion-item>
-        <div style="padding-left: 15px;" class="error-box" *ngIf="loginForm.controls['username'].hasError('required') && loginForm.controls['username'].touched">* {{'NOMUTILISATEUROBLIGATOIRE' | translate}}</div>
+        <div style="padding-left: 15px;" class="error-box" *ngIf="loginForm.controls['email'].hasError('required') && loginForm.controls['email'].touched">* L'email est obligatoire</div>
  
         <ion-item>
           <ion-label><ion-icon name="lock" class="error-box"></ion-icon></ion-label>

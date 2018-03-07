@@ -4,6 +4,7 @@ import { Validators, FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 import { PouchdbProvider } from '../../../../providers/pouchdb-provider';
+import { global } from '../../../../global-variables/variable';
 
 /* 
   Generated class for the AjouterConfLocaliteEnquete page.
@@ -36,6 +37,8 @@ export class AjouterConfLocaliteEnquetePage {
   nom_autre_region: any = '';
   nom_autre_departement: any = '';
   nom_autre_commune: any = '';
+  user: any = global.info_user;
+  global:any = global;
 
   constructor(public pouchdbService: PouchdbProvider, public modelCtl: ModalController,  public navCtrl: NavController, public navParams: NavParams , public formBuilder: FormBuilder, public storage: Storage, public translate: TranslateService) {
  
@@ -62,7 +65,9 @@ export class AjouterConfLocaliteEnquetePage {
     this.pouchdbService.getDocById('pays').then((pays) => {
       if(pays){ 
         this.pays = pays.data;
-        this.pays.push(this.autrePays);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.pays.push(this.autrePays);
+        }
         this.selectedPays = '';
         this.selectedRegion = '';
         this.selectedDepartement = '';
@@ -82,7 +87,9 @@ export class AjouterConfLocaliteEnquetePage {
           }
         });
 
-        this.regions.push(this.autreRegion);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.regions.push(this.autreRegion);
+        }
         this.nom_autre_pays = 'NA';
       });
     }else{
@@ -92,7 +99,9 @@ export class AjouterConfLocaliteEnquetePage {
         this.chargerPays();
         this.selectedPays = '';
       })
-      this.regions.push(this.autreRegion);
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+        this.regions.push(this.autreRegion);
+      }
       this.nom_autre_pays = '';
     }
 
@@ -110,7 +119,9 @@ export class AjouterConfLocaliteEnquetePage {
             this.departements.push(departement);
           }
         });
-        this.departements.push(this.autreDepartement);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.departements.push(this.autreDepartement);
+        }
         this.nom_autre_region = 'NA';
       });
     }else{
@@ -119,8 +130,11 @@ export class AjouterConfLocaliteEnquetePage {
           model.onDidDismiss(() => {
             this.chargerRegions(this.selectedPays.id);
             this.selectedRegion = '';
-        })
-      this.departements.push(this.autreDepartement);
+        });
+      
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+        this.departements.push(this.autreDepartement);
+      }
       this.nom_autre_region = '';
     }
     this.selectedDepartement = '';
@@ -137,7 +151,9 @@ export class AjouterConfLocaliteEnquetePage {
             
           }
         });
-        this.communes.push(this.autreCommune);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.communes.push(this.autreCommune);
+        }
         this.nom_autre_departement = 'NA';
       });
     }else{
@@ -146,8 +162,10 @@ export class AjouterConfLocaliteEnquetePage {
       model.onDidDismiss(() => {
         this.chargerDepartements(this.selectedRegion.id);
         this.selectedDepartement = '';
-      })
-      this.communes.push(this.autreCommune);
+      });
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+        this.communes.push(this.autreCommune);
+      }
       this.nom_autre_departement = '';
     }
 

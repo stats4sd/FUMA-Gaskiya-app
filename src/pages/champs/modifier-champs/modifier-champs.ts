@@ -103,7 +103,7 @@ export class ModifierChampsPage {
 
     getPosition(){
     this.msg('Obtention des coordonnées en cours...');
-    this.geolocation.getCurrentPosition().then((resp) => {
+    this.geolocation.getCurrentPosition({enableHighAccuracy: true/*, maximumAge: 3000, timeout: 5000 */}).then((resp) => {
       this.longitude = resp.coords.longitude;
       this.latitude = resp.coords.latitude;
       this.msg('Coordonnées obtenues avec succes!')

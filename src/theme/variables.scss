@@ -4,6 +4,10 @@ $font-path: "../assets/fonts";
 
 @import "ionic.globals";
 
+//This is a simple way to apply the ngx-datatable style of the demo
+@import '~@swimlane/ngx-datatable/release/index.css';
+@import '~@swimlane/ngx-datatable/release/themes/material.css';
+@import '~@swimlane/ngx-datatable/release/assets/icons.css';
 
 // Shared Variables
 // --------------------------------------------------

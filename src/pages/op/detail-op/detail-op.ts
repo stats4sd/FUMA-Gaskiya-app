@@ -26,7 +26,7 @@ export class DetailOpPage {
   op: any = {};
   selectedSource: any;
   opID: any;
-  aProfile: boolean = true;
+  aProfile: boolean = false;
   //allOPs1: any = [];
   //nom_op: string;
   //nouveauChamps: any = [];
@@ -52,7 +52,12 @@ export class DetailOpPage {
   nom_autre_union: any = '';
   nom_op: string = '';
   code_op: any = '';
+  code_union: any = '';
   modifierForm: boolean = false;
+  user: any = global.info_user;
+  global:any = global;
+  estManger: boolean = false;
+  estAnimataire: boolean = false;
   
 
   constructor(public servicePouchdb: PouchdbProvider, public loadinCtl: LoadingController, public formBuilder: FormBuilder, public modelCtl: ModalController, public toastCtl: ToastController, public menuCtl: MenuController, public events: Events, public alertCtl: AlertController, public navCtrl: NavController, public navParams: NavParams) {
@@ -61,14 +66,27 @@ export class DetailOpPage {
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
     
-    events.subscribe('user:login', () => {
-      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+    events.subscribe('user:login', (user) => {
+
+      if(user){
+        this.aProfile = true;
+        //this.user = global.info_user;
+        this.estMangerConnecter(user)
+      }else{
+        this.aProfile = false;
+        this.estManger = false;
+        this.estAnimataire = false;
+        this.user = global.info_user;
+      }
+      /*this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
+          this.user = global.info_user;
         }else{
           this.aProfile = false;
+          this.user = {};
         }
-      }, err => console.log(err));
+      }, err => console.log(err));*/
     });
     
     this.op = this.navParams.data.op;
@@ -79,6 +97,15 @@ export class DetailOpPage {
     //this.nom_op = this.op.data.nom_OP;
   }
 
+  estMangerConnecter(user){
+    //alert('entree')
+    if(user && user.roles){
+      //alert('ok')
+      this.estManger = global.estManager(user.roles);
+      this.estAnimataire = global.estAnimataire(user.roles);
+    }
+  }
+
   initForm(){
     this.grandeOP = this.navParams.data.op;
     this.op1 = this.grandeOP.data;
@@ -86,7 +113,8 @@ export class DetailOpPage {
     this.selectedUnionID = this.op1.union;
     this.ancienSelectedUnionID = this.op1.union;
     this.nom_op = this.op1.nom_OP;
-    this.code_op = this.op1.code_OP
+    this.code_op = this.op1.code_OP;
+    this.code_union = this.op1.code_union;
 
     if(this.op1.village_autre){
         this.nom_autre_village = this.op1.village_autre;
@@ -128,7 +156,7 @@ export class DetailOpPage {
       village_autre: [this.op1.village_autre, Validators.required],
       union: [this.op1.union, Validators.required],
       union_nom: [this.op1.union_nom],
-      union_code: [this.op1.union_code],
+      code_union: [this.op1.code_union],
       union_autre: [this.op1.union_autre, Validators.required],
       today: [this.op1.today, Validators.required],
       /*deviceid: [this.op.deviceid],
@@ -144,6 +172,19 @@ export class DetailOpPage {
       created_by: [this.op.created_by],*/
     });
 
+  }
+
+  calculStatisitque(code_op){
+    let model = this.modelCtl.create('RestitutionPage', {'type': 'op', 'code_op': code_op});
+    model.present();
+    //this.calculerMembreAyantFaitUnEssai(essais);
+    //this.calculerNombreEssaiParTraitement(essais, traitements);
+    //this.visualisation(essais);
+  }
+
+  openMap(code_op){
+    let modal = this.modelCtl.create('LeafletPage', { 'type': 'op', 'code_op': code_op });
+    modal.present();
   }
 
   getAllUnion(){
@@ -242,8 +283,8 @@ export class DetailOpPage {
                 membre.doc.data.op_nom = nom_op;
                 //let ancien_m = membre.doc.data.matricule_Membre;
                 membre.doc.data.ancien_matricule_Membre = membre.doc.data.matricule_Membre;
-                //membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
-                membre.doc.data.matricule_Membre = 'MR-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                //membre.doc.data.matricule_Membre = 'MR-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
                 
                 m._id = 'fuma:op:membre:' +nouveau_code_op+':'+ membre.doc.data.matricule_Membre;
                 m.data = membre.doc.data;
@@ -291,8 +332,8 @@ export class DetailOpPage {
                 membre.doc.data.op_nom = nom_op;
                 //let ancien_m = membre.doc.data.matricule_Membre;
                 membre.doc.data.ancien_matricule_Membre = membre.doc.data.matricule_Membre;
-                //membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
-                membre.doc.data.matricule_Membre = 'MR-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                membre.doc.data.matricule_Membre = 'FM-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
+                //membre.doc.data.matricule_Membre = 'MR-'+nouveau_code_op+ membre.doc.data.matricule_Membre.substr(membre.doc.data.matricule_Membre.indexOf(' '), membre.doc.data.matricule_Membre.length - membre.doc.data.matricule_Membre.indexOf(' '));
                 
                 this.servicePouchdb.updateDocReturn(membre.doc).then((res) => {
                   this.changerOP(membre.doc.data.ancien_matricule_Membre, membre.doc.data.matricule_Membre, membre.doc.data.nom_Membre, nouveau_code_op)
@@ -335,8 +376,8 @@ export class DetailOpPage {
             //let code_champs = this.generateIdChamps(nouveauMatricule);    
             let nouveauChamp: any = {};
             let data = champs.data;
-            //let code_champs = 'FM-'+code_op+ data.id_champs.substr(data.id_champs.indexOf(' '), data.id_champs.length - data.id_champs.indexOf(' '));
-            let code_champs = 'MR-'+code_op+ data.id_champs.substr(data.id_champs.indexOf(' '), data.id_champs.length - data.id_champs.indexOf(' '));
+            let code_champs = 'FM-'+code_op+ data.id_champs.substr(data.id_champs.indexOf(' '), data.id_champs.length - data.id_champs.indexOf(' '));
+            //let code_champs = 'MR-'+code_op+ data.id_champs.substr(data.id_champs.indexOf(' '), data.id_champs.length - data.id_champs.indexOf(' '));
             
             let id = 'fuma:champs:'+ code_champs;
             //nouveauChamp.data = 
@@ -366,8 +407,8 @@ export class DetailOpPage {
                       //let nouveauEssai: any = {};
                       let data = essai.data;
                       
-                      //let code_essai = 'FM-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
-                      let code_essai = 'MR-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      let code_essai = 'FM-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      //let code_essai = 'MR-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
                       
                       let id = 'fuma'+':essai:'+ code_essai;
                       //let id_champs = data.id_champs;
@@ -431,9 +472,9 @@ export class DetailOpPage {
                       //let nouveauEssai: any = {};
                       let data = essai.data;
                       
-                      //let code_essai = 'FM-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      let code_essai = 'FM-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
                       
-                      let code_essai = 'MR-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
+                      //let code_essai = 'MR-'+code_op+ data.code_essai.substr(data.code_essai.indexOf(' '), data.code_essai.length - data.code_essai.indexOf(' '));
                      
                       let id = 'fuma'+':essai:'+ code_essai;
                       //let id_champs = data.id_champs;
@@ -694,11 +735,15 @@ export class DetailOpPage {
             
           }
         });
-        this.villages.push(this.autreVillage);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
         //this.nom_autre_departement = 'NA';
       });
     }else{
-      this.villages.push(this.autreVillage);
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
       //this.nom_autre_departement = '';
     }
 
@@ -757,7 +802,7 @@ export class DetailOpPage {
   modifierOP(){
       //  let date = new Date();
     let op = this.opForm.value;
-
+ 
     this.op1.nom_OP = op.nom_OP;
     this.op1.code_OP = op.code_OP;
     this.op1.num_aggrement = op.num_aggrement;
@@ -781,8 +826,9 @@ export class DetailOpPage {
     if(this.selectedUnionID !== 'AUTRE'){
       this.unions.forEach((u, i) => {
         if(u.data.num_aggrement === this.selectedUnionID){
-          this. op1.union = u.data.num_aggrement;
+          this.op1.union = u.data.num_aggrement;
           this.op1.union_nom = u.data.nom_union;
+          this.op1.code_union = u.data.code_union;
         }
       });
     }else{
@@ -863,7 +909,27 @@ export class DetailOpPage {
 
    ionViewDidEnter() {
 
-     this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        //this.getEssais()
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (err) {
+          // network error
+          //this.events.publish('user:login');
+          //alert('network')
+          this.aProfile = false;
+        } else if (!response.userCtx.name) {
+          // nobody's logged in
+          //this.events.publish('user:login');
+          //alert('nobady')
+          this.aProfile = false;
+        } else {
+          // response.userCtx.name is the current user
+          //this.events.publish('user:login', response.userCtx);
+          //alert(response.userCtx.name)
+          this.aProfile = true;
+        }
+      });
+
+    /* this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
         }else{
@@ -876,7 +942,7 @@ export class DetailOpPage {
         this.aProfile = false;
       }
       //console.log(err)
-    }); 
+    }); */
 
     //console.log('ionViewDidLoad DetailUnionPage');
     /*this.servicePouchdb.getDocById(this.opID).then((o) => {
@@ -888,14 +954,16 @@ export class DetailOpPage {
     this.getAllOp();
   }
 
-  editer(op){
+  editer(op, dbclick: boolean = false){
+    if(!dbclick || (dbclick && this.user && this.user.roles && global.estManager(this.user.roles))){
     //this.navCtrl.push('ModifierOpPage', {'op': op});
     this.modifierForm = true;
     //this.getAllOPs();
+    }
   }
 
-  membresOP(num_aggrement, nom_OP, code_OP){
-    this.navCtrl.push('MembresPage', {'num_aggrement_op': num_aggrement, 'nom_op': nom_OP, 'code_op': code_OP});
+  membresOP(num_aggrement, nom_OP, code_OP, code_union){
+    this.navCtrl.push('MembresPage', {'num_aggrement_op': num_aggrement, 'nom_op': nom_OP, 'code_op': code_OP, 'code_union': code_union});
   }
 
   supprimer(op){

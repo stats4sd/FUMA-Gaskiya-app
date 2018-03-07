@@ -34,9 +34,9 @@ export class RegisterPage {
     let d: Date = new Date();
     let s = this.createDate(d.getDate(), d.getMonth(), d.getFullYear());
     this.registerForm = this.formBuilder.group({
-        nom: [''],
-        username: ['', Validators.required],
-        email: [''],
+        nom: ['', Validators.required],
+        prenom: ['', Validators.required],
+        email: ['', Validators.required],
         mdpass: ['', Validators.required],
         confmdpass: ['', Validators.required],
         date: [s, Validators.required],
@@ -96,9 +96,12 @@ export class RegisterPage {
       let user = this.registerForm.value;
       let meta = {
         nom: user.nom,
+        prenom: user.prenom,
         email: user.email,
         date: user.date,
-        sex: user.sex
+        sex: user.sex,
+        db: 'frna',
+        codes_unions: []
       }
  
 
@@ -108,20 +111,22 @@ export class RegisterPage {
       loading.present();
 
       //let db = new PouchDB('http://localhost:5984/stock-fuma');
-      this.gestionService.remoteSaved.signup(user.username, user.mdpass,{metadata : meta}, (err, response) => {
+      this.gestionService.remoteSaved.signup(user.email, user.mdpass,{metadata : meta}, (err, response) => {
         if(err){
           loading.dismissAll();
           if (err.name === 'conflict') {
-              alert('Nom utilisateur existe déjà');
+              alert('L\'adresse mail existe déjà');
             }else  if (err.name === 'forbidden') {
-              alert('Nom utilisateur invalide');
+              alert('L\'adresse mail invalide');
             } else{
               alert('Une erreur s\'est produite lors de la tentative de connexion au serveur');
             }
         }else if(response){
           loading.dismissAll();
           this.afficheMsg('Compte créé avec succèes');
-          this.loginUser(user.username, user.mdpass)
+
+          //connexion au nouveau compte
+          ///this.loginUser(user.email, user.mdpass)
           this.navCtrl.pop();
           //this.navCtrl.setRoot(TabsPage);
         }else{
@@ -152,7 +157,7 @@ export class RegisterPage {
     };
     this.gestionService.remoteSaved.login(username, mdpass, ajaxOpts, (err, response) => {
       let user: any = {
-        'username': username,
+        'email': username,
         'mdpass': mdpass
       }
       if (err) {

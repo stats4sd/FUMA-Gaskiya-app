@@ -19,7 +19,7 @@
 
 <ion-content padding>
  <div *ngIf="!modifierForm">
-    <ion-card class="info-card" (dblclick)="editer(champ)"> 
+    <ion-card class="info-card" (dblclick)="editer(champ, true)"> 
       <ion-card-header>
         <strong>Information champs: {{champ.data.nom}}</strong>
       </ion-card-header>
@@ -34,7 +34,8 @@
           <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.matricule_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.nom_producteur}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Surnom producteur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.surnom_producteur}} </ion-col> </ion-row>
-          
+          <ion-row> <ion-col class='meta-key'><strong>Code union:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.code_union}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Appartenance:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.appartenance}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
           
           <!--ion-row> <ion-col class='meta-key'><strong>deviceid:</strong></ion-col> <ion-col class='meta-value'> {{union.data.deviceid}}</ion-col> </ion-row>
@@ -46,12 +47,14 @@
       </ion-card-content> 
     </ion-card>
 
-    <ion-card class="info-card" (dblclick)="editer(champ)"> 
+    <ion-card class="info-card" (dblclick)="editer(champ, true)"> 
       <ion-card-header>
         <strong>Plus d'informations</strong>
       </ion-card-header>
       <ion-card-content>
         <ion-grid>
+          <ion-row><ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'>{{champ._id}} </ion-col>   </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>No révision:</strong></ion-col> <ion-col class='meta-value'> {{champ._rev }} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.created_at | date: 'dd-MM-yyyy'}} à {{champ.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.created_by}} </ion-col> </ion-row>
           <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{champ.data.deviceid}} </ion-col> </ion-row>
@@ -126,6 +129,14 @@
   </ion-item>
   <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['superficie'].hasError('required') && champsForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
 
+  <ion-item> 
+    <ion-label floating>Appartenance <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="appartenance" cancelText="Annuler" okText="Ok">
+      <ion-option *ngFor="let st of appartenances" [value]=st >{{st}}</ion-option>
+    </ion-select> 
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="champsForm.controls['appartenance'].hasError('required') && champsForm.controls['appartenance'].touched">* l'appartenance du sole est obligatoir!</div>
+
   <ion-item>
     <ion-label floating>Latitude</ion-label>
     <ion-input type="text" formControlName="latitude"  [(ngModel)]="latitude" ></ion-input>
@@ -145,10 +156,10 @@
 
  </div>
 
-  <ion-fab bottom right *ngIf="!modifierForm" >
+  <ion-fab bottom right *ngIf="!modifierForm && user && user.roles && global.estAnimataire(user.roles)" >
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top">
-      <button ion-fab mini (click)="supprimer(champ)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini *ngIf="user && user.roles && global.estManager(user.roles)" (click)="supprimer(champ)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab mini (click)="editer(champ)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>
   </ion-fab>

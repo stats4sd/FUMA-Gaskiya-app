@@ -1,5 +1,5 @@
 import { Component, NgZone, ViewChild, ElementRef } from '@angular/core';
-import { NavController, NavParams, ViewController, Platform, AlertController, MenuController, ToastController, ModalController, Events, IonicPage } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, ViewController, Platform, AlertController, MenuController, ToastController, ModalController, Events, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 //import { AjouterMembrePage } from './ajouter-membre/ajouter-membre';
 //import { DetailMembrePage } from './detail-membre/detail-membre';
@@ -10,12 +10,16 @@ import { global } from '../../global-variables/variable';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
-import { Camera } from '@ionic-native/camera';
+import { Camera, CameraOptions } from '@ionic-native/camera';
 import { ImagePicker } from '@ionic-native/image-picker';
-import { File } from '@ionic-native/file';
+import { File, FileReader } from '@ionic-native/file';
 import JsBarcode from 'jsbarcode';
 import * as FileSaver from 'file-saver';
+import PouchDB from 'pouchdb';
 import { Printer, PrintOptions } from '@ionic-native/printer';
+import * as blobToBase64 from 'blob-to-base64';
+import blobUtil from 'blob-util';
+import { toBase64String } from '@angular/compiler/src/output/source_map';
 declare var cordova: any;
 
 /* 
@@ -32,6 +36,7 @@ declare var cordova: any;
 export class MembresPage {
 
   selectedSource: any = 'application';
+  age1: any;
   membres: any = [];
   membresApplication: any = [];
   membresKobo: any = [];
@@ -45,7 +50,8 @@ export class MembresPage {
   age: any;
   nom_op: any;
   code_op: any;
-  aProfile: boolean = true;
+  code_union: any;
+  aProfile: boolean = false;
   typeRecherche: any = 'matricule';
   selectedLimit: any = 10;
   limits: any = [10, 25, 50, 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 'Tous'];
@@ -127,37 +133,58 @@ export class MembresPage {
   ancien_OP: any;
   ancien_nom_op: any;
   ancien_code_op: any;
+  ancien_code_union: any;
   generate: boolean = false;
   photoID: any;
   photoRev: any;
 
   mes_champs: any = [];
   mes_essais: any = [];
+  user: any = global.info_user;
+  global:any = global;
+  estManager:boolean = false;
+  estAnimataire: boolean = false;
+  refresher: any = '';
+  getPhotoOk: boolean = false;
+  copie_db: any;
 
   @ViewChild('barcode') barcode: ElementRef;
 
 
 
-  constructor(public navCtrl: NavController,  public viewCtl: ViewController, public platform: Platform, public printer: Printer, public file: File, public imagePicker: ImagePicker, private camera: Camera, public sim: Sim, public device: Device, public toastCtl: ToastController, public formBuilder: FormBuilder, public modelCtl: ModalController, public zone: NgZone, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
+  constructor(public navCtrl: NavController, public loadingCtl: LoadingController,  public viewCtl: ViewController, public platform: Platform, public printer: Printer, public file: File, public imagePicker: ImagePicker, private camera: Camera, public sim: Sim, public device: Device, public toastCtl: ToastController, public formBuilder: FormBuilder, public modelCtl: ModalController, public zone: NgZone, public menuCtl: MenuController, public events: Events, public navParams: NavParams, public storage: Storage, public alertCtl: AlertController, public servicePouchdb: PouchdbProvider, private sanitizer: DomSanitizer) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
 
-    events.subscribe('user:login', () => {
-      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+    events.subscribe('user:login', (user) => {
+       if(user){
+        this.aProfile = true;
+        this.estMangerConnecter(user)
+        this.estAnimataireConnecter(user)
+      }else{
+        this.aProfile = false;
+        this.estManager = false;
+        this.estAnimataire = false;
+        this.user = global.info_user;
+      }
+     /* this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
+          this.user = global.info_user;
         }else{
           this.aProfile = false;
+          this.user = {};
         }
-      }, err => console.log(err));
+      }, err => console.log(err));*/
     });
     
     if(this.navParams.data.num_aggrement_op){
       this.num_aggrement_op = this.navParams.data.num_aggrement_op;
       this.nom_op = this.navParams.data.nom_op;
       this.code_op = this.navParams.data.code_op;
+      this.code_union = this.navParams.data.code_union;
       this.nom_autre_op= 'NA';
 
        this.selectedLimit = 'Tous';
@@ -167,7 +194,234 @@ export class MembresPage {
     }
 
     //this.initForm();
+
+
+    this.copie_db = new PouchDB('http://'+ global.info_db.ip+'/copie_db', {
+      auth: {
+        username: 'admin',
+        password: 'admin'
+      },
+      //inline_attachements: true,
+      ajax: {
+        //cache: false,
+        timeout: 4800000,
+      }
+    });
   } 
+
+  copierDB(){
+    //this.servicePouchdb.copierDB();
+  let codes_unions: any = {};
+    //let unions: any = ['WA', 'DO']
+    let loading = this.loadingCtl.create({
+      content: 'Transfert membres en cours...'
+    });
+    loading.present();
+      if(this.allMembres){
+        alert('nbdoc == '+this.allMembres.length);
+        this.allMembres.forEach((mbr) => {
+          let doc = mbr.doc;
+          //let photo = mbr.photo;
+          //copier les données vers la nouvelle base données
+          /*if(doc.type && doc.type != '' && doc.type != 'photo' && doc.data){
+            var newDoc: any = {};
+            newDoc._id = doc._id;
+            newDoc.type = doc.type;
+            newDoc.data = doc.data;
+            copie_db.put(newDoc);
+          }else */
+          if(doc.data.code_union == 'WA' || doc.data.code_union == 'DO' || doc.data.code_union == 'JA' || doc.data.code_union == 'HA' || doc.data.code_union == 'AM' || doc.data.code_union == 'SA' || !doc.data.code_union){
+            var newDoc: any = {};
+            newDoc._id = doc._id;
+            newDoc.data = doc.data;
+            newDoc.rev = doc._rev;
+            
+
+            this.updateCopieDoc(newDoc, this.copie_db)
+            
+            if(mbr.photoDocId){
+              //alert(mbr.photo)
+              //this.copiePhotoMembre(mbr)
+              this.copierPhotoDB(mbr);
+            }
+            //alert(doc._rev.substring(0, doc._rev.indexOf('-')))
+            /*copie_db.put(newDoc).then((res) => {
+              this.updateCopieDco(newDoc, doc);
+            }) .catch(err => { alert('err '+err) });*/
+
+          }/*else if(doc.type && doc.type != '' && doc.type == 'photo' && (doc.code_union == 'WA' || doc.code_union == 'DO' || doc.code_union == 'SA' || !doc.code_union)){
+    
+              //var fileName = photoDocId + '.jpeg';  
+              var newPhoto: any = {};
+              newPhoto._id = doc._id;
+              //newPhoto._attachments[fileName] = doc._attachments[fileName];
+              newPhoto.photoID =  doc.photoID;
+              newPhoto.timestamp = doc.timestamp;
+              newPhoto.type = doc.type;
+              newPhoto.code_union = doc.code_union;
+              newPhoto._attachments = doc._attachments;
+              newPhoto.rev = doc._rev;
+              this.updateCopieDoc(newPhoto)
+              //copie_db.put(doc).catch(err => { alert('err tof '+err) })
+        
+          }*//*else{
+
+          }*/
+        });
+
+        loading.dismiss();
+
+        //this.copierPhotoDB()
+      }
+
+  }
+
+  /*copiePhotoMembre(mbr){
+    blobUtil.imgSrcToBlob (mbr.url).then((blob) => {
+      alert(blob)
+      var photo_doc = {
+        _id: mbr.photoDocId,
+        rev: mbr.photoDocRev,
+        _attachments: {},
+        photoID: mbr.photoDocId,
+        timestamp: new Date().toString(),
+        type: 'photo',
+        code_union: mbr.doc.data.code_union,
+      }
+
+    
+
+      //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
+
+      let fileName = mbr.photoDocId + '.jpeg';
+      photo_doc._attachments[fileName] = {
+        content_type: 'image/jpeg', 
+        data: blob
+      }
+
+      this.updateCopieDoc(photo_doc);
+      
+    }).catch((error) => alert('erreur conversion image to blob => '+error)); 
+     
+   
+
+  }*/
+
+  copierPhotoDB(mbr){
+    //this.servicePouchdb.copierDB();
+  //let codes_unions: any = {};
+    //let unions: any = ['WA', 'DO']
+    let loading = this.loadingCtl.create({
+      content: 'Transfert photo en cours...'
+    });
+    //loading.present();
+    let filename = mbr.photoDocId + '.jpeg';
+    this.servicePouchdb.getMembreAttachment(mbr.photoDocId, filename).then((blob)=> {
+      if(blob){
+        if(!this.getPhotoOk && !this.detailMembre){
+          alert('photo trouvé b => '+ blob);
+          this.getPhotoOk = true;
+        }
+        
+
+        
+
+        let photo_doc = {
+            _id: mbr.photoDocId,
+            rev: mbr.photoDocRev,
+            _attachments: {},
+            photoID: mbr.photoDocId,
+            timestamp: new Date().toString(),
+            type: 'photo',
+            code_union: mbr.doc.data.code_union
+          }
+
+          //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
+
+          let fileName = mbr.photoDocId + '.jpeg';
+          photo_doc._attachments[fileName] = {
+            content_type: 'image/jpeg', 
+            data: blob,
+          };
+
+          //this.writeJSON('photo.json', photo_doc)
+
+          //photo_doc._id = mbr.photoDocId.toString();
+          //photo_doc.rev = mbr.photoDocRev.toString();
+          if(this.detailMembre){
+            alert('photo trouvé => b= '+blob/*++photo_doc._id*/);
+          }
+          this.updateCopieDoc(photo_doc, this.copie_db, blob)
+      }
+
+      }).catch((err) => alert('Erreur getAttachement : id= '+mbr.photoDocId+'  err => '+err));
+
+  }
+
+
+  replicate(){
+    this.servicePouchdb.replication(this.copie_db);
+  }
+  updateCopieDoc(newDoc, copie_db, blob: any = ''){
+
+     
+
+    //alert('transfert appeler '+newDoc._id)
+    copie_db.put(newDoc).then((res) => {
+      //newDoc._rev = res.rev;
+      //alert('doc trasferé '+res.id) 
+      //this.updateCopieDoc(newDoc);
+      if(this.detailMembre && newDoc.type == 'photo'){
+        alert('Photo tranferée avec succes')
+        newDoc._attachments[res.id + '.jpeg'].data = blob;
+        newDoc._rev = res.rev;
+        copie_db.put(newDoc).then((res) => {
+          alert('Photo tranferée et mise à avec succes')
+        }).catch(err => { alert('err mise à jour photo trasfert => '+err) })
+        /*this.copie_db.putAttachment(res.id, res.id + '.jpeg', res.rev, blob , 'image/jpeg').then((res) => {
+          alert('Photo tranferée avec succes et mis à jour');
+        }).catch((err) => alert('err mise à jour photo tranferée => '+err));*/
+      }
+    }).catch(err => { alert('err trasfert => '+err) })
+    //let i = parseInt(doc._rev.substring(0, doc._rev.indexOf('-')))
+   /* if(!newDoc._rev || newDoc._rev !== ''){
+      //var newDoc: any = {};
+      //newDoc._id = oldDoc._id;
+      //newDoc.data = oldDoc.data;
+      copie_db.put(newDoc).then((res) => {
+        newDoc._rev = res.rev;
+        //this.updateCopieDoc(newDoc);
+      }).catch(err => { alert('err '+err) })
+    }else{
+      if(parseInt(newDoc._rev.substring(0, newDoc._rev.indexOf('-'))) < parseInt(newDoc.rev.substring(0, newDoc.rev.indexOf('-')))){
+        copie_db.put(newDoc).then((res) => {
+          newDoc._rev = res.rev;
+          //this.updateCopieDoc(newDoc);
+        }).catch(err => { alert('err rec '+err) })
+      }
+    }*/
+    
+    
+  }
+
+  writeJSON(filename, object){
+    return this.file.writeFile(this.file.dataDirectory, filename, JSON.stringify(object), {replace: true})
+  }
+
+
+  estMangerConnecter(user){
+    if(user && user.roles){
+      this.estManager = global.estManager(user.roles);
+    }
+  }
+
+   estAnimataireConnecter(user){
+    if(user && user.roles){
+      this.estAnimataire = global.estAnimataire(user.roles);
+    }
+  }
+
+
 
 
     onPrint(){
@@ -178,7 +432,7 @@ export class MembresPage {
         landscape: true,
         grayscale: true
     };
-    let content = document.getElementById('tableau').innerHTML;
+    let content = document.getElementById('membre_tableau').innerHTML;
     this.printer.print(content, options);
   }
 
@@ -189,7 +443,7 @@ export class MembresPage {
     //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
     let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
 
-    let blob = new Blob([document.getElementById('tableau').innerHTML], {
+    let blob = new Blob([document.getElementById('membre_tableau').innerHTML], {
       //type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
       type: "text/plain;charset=utf-8"
       //type: 'application/vnd.ms-excel;charset=utf-8'
@@ -228,13 +482,15 @@ export class MembresPage {
     this.chargerVillages(loc.commune.id);
   }
 
-  setDate(){
-    if(this.age >= 15){
+  setDate(age){
+    if(age >= 15){
       let now: Date = new Date();
-      let annee = now.getFullYear() - this.age;
+      let annee = now.getFullYear() - age;
       //this.createDate(1,1, annee)
       this.date_naissance = this.createDate(1,0, annee);
       //alert(this.date_naissance)
+    }else{
+      this.date_naissance = '';
     }
     
   }
@@ -401,12 +657,16 @@ export class MembresPage {
             }
             });
         }
-      this.villages.push(this.autreVillage);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
       //this.nom_autre_departement = 'NA';
     }, err => console.log(err));
       
     }else{
-      this.villages.push(this.autreVillage);
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+        this.villages.push(this.autreVillage);
+      }
       //this.nom_autre_departement = '';
     }
 
@@ -450,6 +710,7 @@ export class MembresPage {
           this.membre1.op = o.data.num_aggrement;
           this.membre1.op_nom = o.data.nom_OP;
           this.membre1.op_code = o.data.code_OP;
+          this.membre1.code_union = o.data.code_union;
           this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
         }
       });
@@ -457,6 +718,7 @@ export class MembresPage {
       this.membre1.op = this.ancien_OP;
       this.membre1.op_nom = this.ancien_nom_op;
       this.membre1.op_code = this.ancien_code_op;
+      this.membre1.code_union = this.ancien_code_union;
       this.matricule = this.ancien_matricule;
     }
     if(op !== 'AUTRE'){
@@ -521,6 +783,23 @@ export class MembresPage {
   }
 
 
+  generateAtId(matricule){
+    var chars='ABCDEFGHIJKLMNPQRSTUVWYZ'
+    var numbers='0123456789'
+    var randomArray=[]
+    for(let i=0;i<3;i++){
+      var rand = Math.floor(Math.random()*10)
+      randomArray.push(numbers[rand])
+    }
+    //randomArray.push('-')
+    //var rand = Math.floor(Math.random()*24)
+    //randomArray.push(chars[rand])
+    var randomString=randomArray.join("");
+    var Id= matricule+' '+'AT-'+/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    return Id;
+  }
+
+
   verifierUniqueMatricule(membre){
     let res = 1;
     this.allMembres1.forEach((mm, index) => {
@@ -545,8 +824,10 @@ export class MembresPage {
             membre.op = this.selectedOP.data.num_aggrement;
             membre.op_nom = this.selectedOP.data.nom_OP;
             membre.op_code = this.selectedOP.data.code_OP;
+            membre.code_union = this.selectedOP.data.code_union;
           }else{
             membre.op_code = this.code_op;
+            membre.code_union = this.code_union;
           }
 
           if(this.selectedClasse){
@@ -565,7 +846,7 @@ export class MembresPage {
           let membreFinal: any = {};
           membreFinal._id = id;
         
-          let ida = 'fuma:photo:membre:'+ this.matricule;
+          let ida = 'fuma:photo:membre:'+ this.generateAtId(this.matricule)//this.matricule + ' AT'+;
           if(this.photo){
             membre.photoID = ida; 
           }
@@ -581,7 +862,9 @@ export class MembresPage {
                 // _id: ida,
                   _attachments: {},
                   photoID: ida,
-                  timestamp: new Date().toString()
+                  timestamp: new Date().toString(),
+                  type: 'photo',
+                  code_union: membre.code_union
                 }
 
                 //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
@@ -606,6 +889,8 @@ export class MembresPage {
                   this.nom_Membre = '';
                   this.surnom_Membre = '';
                   this.genre = '';
+                  this.age = '',
+                  this.date_naissance = '';
                   this.photo = null;
 
                   this.detail(m, false)
@@ -624,6 +909,8 @@ export class MembresPage {
                 this.nom_Membre = '';
                 this.surnom_Membre = '';
                 this.genre = '';
+                this.age = '',
+                this.date_naissance = '';
                 this.photo = null;
                 this.detail(m, false)
                 //this.detailMembre = true;
@@ -643,6 +930,9 @@ export class MembresPage {
         this.membre1.age = membre.age;
         this.membre1.date_naissance = membre.date_naissance;
         this.membre1.surnom_Membre = membre.surnom_Membre;
+        this.membre1.update_deviceid = this.device.uuid;
+        this.membre1.update_phonenumber = this.phonenumber;
+        this.membre1.update_imei = this.imei;
         if(this.ancien_matricule !== membre.matricule_Membre){
           this.membre1.ancien_matricule_Membre = this.membre1.matricule_Membre;
           this.membre1.matricule_Membre = membre.matricule_Membre;
@@ -656,12 +946,13 @@ export class MembresPage {
         this.membre1.village = membre.village;
         this.membre1.village_nom = membre.village_nom;
         this.membre1.village_autre = membre.village_autre;
-        this.membre1.op = membre.op;
-        this.membre1.op_nom = membre.op_nom; 
+        //this.membre1.op = membre.op;
+        //this.membre1.op_nom = membre.op_nom; 
+        //this.membre1.code_union = membre.code_union; 
         this.membre1.op_autre = membre.op_autre;
         let ida: any;
         if(!this.photoID && this.imageData){
-          ida = 'fuma:photo:membre:'+ membre.matricule_Membre;
+          ida = 'fuma:photo:membre:'+ this.generateAtId(membre.matricule_Membre)//membre.matricule_Membre;
           this.membre1.photoID = ida;
         }
 
@@ -672,21 +963,36 @@ export class MembresPage {
         }
       });
    
+      //en cas de changement d'op
+      if(this.membre1.op !== this.ancien_OP){
+        //créer nouveau id
+        let id = 'fuma:op:membre:' +this.membre1.op_code + ':' + membre.matricule_Membre;
+        //sauvegarder les ancienne donnees
+        let data: any = this.grandMembre.doc.data;
+        //supprimer l'ancien membre
+        this.servicePouchdb.deleteDoc(this.grandMembre.doc);
+        //restaurer les anciennes donnees
+        this.grandMembre.doc = {};
+        this.grandMembre.doc._id = id;
+        this.grandMembre.doc.data = data;
+        
+      }
+
       
       this.grandMembre.doc.data = this.membre1
       this.servicePouchdb.updateDocReturn(this.grandMembre.doc).then((res) => {
+        this.grandMembre.doc._rev = res.rev;
         //en cas de changement d'op
         if(this.membre1.op !== this.ancien_OP){
-          this.changerOP(this.ancien_matricule, membre.matricule_Membre, membre.nom_Membre, membre.surnom_Membre)
+          this.changerOP(this.ancien_matricule, membre.matricule_Membre, membre.nom_Membre, membre.surnom_Membre, this.membre1.code_union, this.membre1.photoID)
           actu_ch_es = true;
         }else if((this.membre1.nom_Membre !== this.ancien_nom) || this.membre1.surnom_Membre !== this.ancien_surnom){
           //alert('diff')
-          this.changerNom(this.ancien_nom, this.membre1.nom_Membre, this.membre1.surnom_Membre);
+          this.changerNom(this.ancien_nom, this.membre1.nom_Membre, this.membre1.surnom_Membre, this.membre1.code_union);
           actu_ch_es = true;
         }      
 
         //mise à jour de la photo
-        this.grandMembre.doc._rev = res.rev;
 
         if(this.photoID && this.imageData){
         //mise a jour
@@ -747,7 +1053,7 @@ export class MembresPage {
 
           this.reinitForm();
           //toast.present();
-          });
+          }).catch((err) => alert('erreur mise à jour photo: '+err));
 
           /*if(actu_ch_es){
             this.chargerMesChamps(this.membre.doc.data.matricule_Membre);
@@ -764,7 +1070,9 @@ export class MembresPage {
           // _id: ida,
             _attachments: {},
             photoID: ida,
-            timestamp: new Date().toString()
+            timestamp: new Date().toString(),
+            type: 'photo',
+            code_union: this.membre1.code_union
           }
 
           //this.imageBlob = this.getBase64Image(document.getElementById("imageid"));
@@ -903,7 +1211,7 @@ export class MembresPage {
           //toast.present();
         }
       
-      });
+      }).catch((err) => alert('erreur mise à jour membre: '+err));;
 
      }
 
@@ -919,7 +1227,8 @@ export class MembresPage {
     
   }
 
-   changerOP(ancienMatricule, nouveauMatricule, nomProducteur, surnomProducteur){
+   changerOP(ancienMatricule, nouveauMatricule, nomProducteur, surnomProducteur, code_union, idPhoto){
+    this.chagerAtachementId(idPhoto, code_union);
     let nouveauChamps: any = [];
     //let nouveauEssai: any = [];
     let id_champs: any = '';
@@ -936,7 +1245,7 @@ export class MembresPage {
       data.matricule_producteur = nouveauMatricule;
       data.ancien_matricule_producteur = ancienMatricule;
       data.nom_producteur = nomProducteur;
-      data.surnom_producteur = surnomProducteur;
+      data.code_union = code_union;
       nouveauChamp._id = id;
       nouveauChamp.data = data;
       
@@ -970,6 +1279,7 @@ export class MembresPage {
               data.ancien_matricule_producteur = ancienMatricule;
               data.nom_producteur = nomProducteur;
               data.surnom_producteur = surnomProducteur;
+              data.code_union = code_union;
               }
             });
         }else{
@@ -979,6 +1289,7 @@ export class MembresPage {
           data.ancien_matricule_producteur = ancienMatricule;
           data.nom_producteur = nomProducteur;
           data.surnom_producteur = surnomProducteur;
+          data.code_union = code_union;
         }
         nouveauEssai._id = id;
         nouveauEssai.data = data;
@@ -1004,6 +1315,7 @@ export class MembresPage {
         data.ancien_matricule_producteur = ancienMatricule;
         data.nom_producteur = nomProducteur;
         data.surnom_producteur = surnomProducteur;
+        data.code_union = code_union;
 
         nouveauEssai._id = id;
         nouveauEssai.data = data;
@@ -1018,12 +1330,22 @@ export class MembresPage {
     
   }
 
+  chagerAtachementId(idPhoto, code_union){
+    this.servicePouchdb.getDocById(idPhoto).then((at) => {
+      if(at){
+        at.code_union = code_union;
+        this.servicePouchdb.put(at, at._id);
+      }
+    })
+  }
 
-  changerNom(ancienNom, nouveauNom, surnouveauNom){
+
+  changerNom(ancienNom, nouveauNom, surnouveauNom, code_union){
     this.mes_champs.map((champs) => {
       champs = champs.doc
       champs.data.nom_producteur = nouveauNom;
       champs.data.surnom_producteur = surnouveauNom;
+      champs.data.code_union = code_union;
       //alert(champs._id + " -> " + champs.data.nom_producteur)
       this.servicePouchdb.updateDoc(champs)
     });   
@@ -1032,6 +1354,7 @@ export class MembresPage {
       essai = essai.doc;
       essai.data.nom_producteur = nouveauNom;
       essai.data.surnom_producteur = surnouveauNom;
+      essai.data.code_union = code_union;
       this.servicePouchdb.updateDoc(essai);
     });    
   }
@@ -1067,6 +1390,8 @@ export class MembresPage {
     var Id= matricule+' '+'CH-'+/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     return Id;
   }
+
+
 
 
    chargerMesChamps(matricule){
@@ -1211,7 +1536,7 @@ chargerOp(){
   }
 
   sync(){
-    this.servicePouchdb.syncAvecToast(this.getInitMemebre());
+    this.servicePouchdb.syncAvecToast();
   }
 
    choixLimit(){
@@ -1272,8 +1597,9 @@ chargerOp(){
     }, err => alert('Une erreur c\est produite lors du chergement de la localité de l\'enquette'));*/
   }
 
-  getInitMemebre(){
+  getInitMemebre(refresher: any = ''){
     //this.rechercher = true;
+    this.refresher = refresher;
     if(this.selectedSource === 'application'){
       if(this.selectedLimit === 'Tous'){
         this.getMembres('fuma:op:membre', 'fuma:op:membre:\uffff');
@@ -1334,21 +1660,26 @@ chargerOp(){
   }
 
   ionViewDidEnter() {
-   
+
+        //this.getEssais()
     this.servicePouchdb.remoteSaved.getSession((err, response) => {
-        if (response.userCtx.name) {
-          this.aProfile = true;
-        }else{
+        if (err) {
+          // network error
+          //this.events.publish('user:login');
+          //alert('network')
           this.aProfile = false;
+        } else if (!response.userCtx.name) {
+          // nobody's logged in
+          //this.events.publish('user:login');
+          //alert('nobady')
+          this.aProfile = false;
+        } else {
+          // response.userCtx.name is the current user
+          //this.events.publish('user:login', response.userCtx);
+          //alert(response.userCtx.name)
+          this.aProfile = true;
         }
-    }, err => {
-      if(global.info_user != null){
-        this.aProfile = true; 
-      }else{
-        this.aProfile = false;
-      }
-      //console.log(err)
-    }); 
+      });
 
     if(!this.estInitierMemebre){
       this.getInitMemebre();
@@ -1533,11 +1864,12 @@ chargerOp(){
   detail(membre, selectedSource){
     this.membre = membre;
     if(membre.doc.data.date_naissance){
+      //alert('oui');
       let now =new Date();
       let date_naiss = new Date(membre.doc.data.date_naissance);
-      this.age = now.getFullYear() - date_naiss.getFullYear();
+      this.age1 = now.getFullYear() - date_naiss.getFullYear();
     }else{
-      this.age = '';
+      this.age1 = '';
       this.date_naissance = '';
     }
     var membreID=this.membre.doc.data.matricule_Membre || 'pending'
@@ -1624,7 +1956,9 @@ chargerOp(){
   }
 
   getMembres(strk, endk) {
-    this.rechercher = true;
+    if(this.refresher === ''){
+      this.rechercher = true;
+    }
     if(this.num_aggrement_op){
       this.servicePouchdb.getAll(
       {
@@ -1649,6 +1983,9 @@ chargerOp(){
               this.membres = res
               this.allMembres=res
               this.rechercher = false;
+              if(this.refresher !== ''){
+                this.refresher.complete();
+              }
            
           }
         )
@@ -1679,7 +2016,10 @@ chargerOp(){
           res => {
               this.membres = res
               this.allMembres=res  
-              this.rechercher = false;         
+              this.rechercher = false;  
+              if(this.refresher !== ''){
+                this.refresher.complete();
+              }       
           }
         )
       }
@@ -1726,7 +2066,10 @@ chargerOp(){
   }
 
    getAllMembres(strk, endk) {
-    this.rechercher = true;
+    
+    if(this.refresher === ''){
+      this.rechercher = true;
+    }
     if(this.num_aggrement_op){
       this.servicePouchdb.getAll(
       {
@@ -1790,7 +2133,10 @@ chargerOp(){
   }
 
   getMembresAvecLimite(strk, endk, limit) {
-    this.rechercher = true;
+    
+    if(this.refresher === ''){
+      this.rechercher = true;
+    }
     if(this.num_aggrement_op){
       this.servicePouchdb.getAll(
       {
@@ -1815,7 +2161,10 @@ chargerOp(){
           res => {
               this.membres = res
               this.allMembres=res
-              this.rechercher = false;          
+              this.rechercher = false;  
+              if(this.refresher !== ''){
+                this.refresher.complete();
+              }        
           }
         );
       }
@@ -1846,6 +2195,9 @@ chargerOp(){
               this.membres = res
               this.allMembres=res
               this.rechercher = false;
+              if(this.refresher !== ''){
+                this.refresher.complete();
+              }
           }
         );
       }
@@ -1917,9 +2269,11 @@ chargerOp(){
          //membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
          if(url){
            if(!membre.doc.data.photoID){
-            membre.photo = this.sanitizer.bypassSecurityTrustUrl(url)
+            membre.photo = this.sanitizer.bypassSecurityTrustUrl(url);
+            
             if (url != "assets/images/no-photo.png") {
               membre.photoDocId = photoDocId;
+              //membre.url = url;
             } 
 
             this.servicePouchdb.getDocById(photoDocId).then((doc) => {
@@ -1933,8 +2287,10 @@ chargerOp(){
             //var blobURL = blobUtil.createObjectURL(url);
             //URL.createObjectURL()
             membre.photo = this.sanitizer.bypassSecurityTrustUrl(url);
+            
             if (url != "assets/images/no-photo.png") {
               membre.photoDocId = photoDocId;
+              //membre.url = url;
 
             } 
 
@@ -1957,92 +2313,118 @@ chargerOp(){
   }
 
 
-   editer(membre, photo, photoID, photoRev){
-    //this.navCtrl.push('ModifierMembrePage', {'membre': membre, 'photo': photo, 'photoID': photoID, 'photoRev': photoRev});
-    
-    this.grandMembre = membre;
-    this.photoID = this.grandMembre.photoDocId;
-    this.photoRev = this.grandMembre.photoDocRev;
-    this.photo = this.grandMembre.photo;
-    let now = new Date();
-    this.max_date = now.getFullYear() - 15;
-    // = maxAnnee;//this.createDate(1, 0, maxAnnee);
-
-    //this.classes.push(this.autreClasse);
-
-    this.membre1 = this.grandMembre.doc.data;
-    this.selectedClasseID = this.membre1.classe;
-    this.date_naissance = this.membre1.date_naissance;
-    if(this.date_naissance){
-      let date_naissance = new Date(this.date_naissance);
-      this.age = now.getFullYear() - date_naissance.getFullYear();
-    }else{
-      this.age = '';
-      this.date_naissance = '';
-    }
-    this.selectedOPID = this.membre1.op;
-    this.ancienSelectedOPID = this.membre1.op;
-    this.selectedVillageID = this.membre1.village;
-    this.matricule = this.membre1.matricule_Membre;
-    this.ancien_matricule = this.membre1.matricule_Membre;
-    this.ancien_OP = this.membre1.op;
-    this.ancien_nom_op = this.membre1.op_nom;
-    this.ancien_code_op = this.membre1.op_code;
-    this.nom = this.membre1.nom_Membre;
-    this.ancien_nom = this.membre1.nom_Membre;
-    this.ancien_surnom = this.membre1.surnom_Membre;
-    if(!this.matricule){
-      this.getMatricule();
-      this.generate = true;
-    }
-
-    this.selectedVillageID = this.membre1.village;
-    this.selectedOPID = this.membre1.op;
-    this.nom_Membre = this.membre1.nom_Membre;
-    this.surnom_Membre = this.membre1.surnom_Membre;
-    this.genre = this.membre1.genre;
-    this.today = this.membre1.today;
-
-    this.pays = this.membre1.pays;
-    this.pays_nom = this.membre1.pays_nom;
-    //this.pays_autre = loc.pays_autre;
-    this.region = this.membre1.region;
-    this.region_nom = this.membre1.region_nom;
-    //this.region_autre = loc.region_autre;
-    this.departement = this.membre1.departement;
-    this.departement_nom = this.membre1.departement_nom;
-    //this.departement_autre = loc.departement_autre;
-    this.commune = this.membre1.commune;
-    this.commune_nom = this.membre1.commune_nom;
-    //this.commune_autre = loc.commune_autre;
-
-    this.chargerVillages(this.membre1.commune);
+   editer(membre, photo, photoID, photoRev, dbclick: boolean = false){
+    if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
+      //this.navCtrl.push('ModifierMembrePage', {'membre': membre, 'photo': photo, 'photoID': photoID, 'photoRev': photoRev});
       
+      this.grandMembre = membre;
+      this.photoID = this.grandMembre.photoDocId;
+      this.photoRev = this.grandMembre.photoDocRev;
+      this.photo = this.grandMembre.photo;
+      let now = new Date();
+      this.max_date = now.getFullYear() - 15;
+      // = maxAnnee;//this.createDate(1, 0, maxAnnee);
 
-    /*if(this.membre1.village_autre){
-        this.nom_autre_village = this.membre1.village_autre;
+      //this.classes.push(this.autreClasse);
+
+      this.membre1 = this.grandMembre.doc.data;
+      this.selectedClasseID = this.membre1.classe;
+      this.date_naissance = this.membre1.date_naissance;
+      if(this.date_naissance){
+        let date_naissance = new Date(this.date_naissance);
+        this.age = now.getFullYear() - date_naissance.getFullYear();
       }else{
-        this.nom_autre_village = 'NA';
+        this.age = '';
+        this.date_naissance = '';
+      }
+      this.selectedOPID = this.membre1.op;
+      this.ancienSelectedOPID = this.membre1.op;
+      this.selectedVillageID = this.membre1.village;
+      this.matricule = this.membre1.matricule_Membre;
+      this.ancien_matricule = this.membre1.matricule_Membre;
+      this.ancien_OP = this.membre1.op;
+      this.ancien_nom_op = this.membre1.op_nom;
+      this.ancien_code_op = this.membre1.op_code;
+      this.ancien_code_union = this.membre1.code_union;
+      this.nom = this.membre1.nom_Membre;
+      this.ancien_nom = this.membre1.nom_Membre;
+      this.ancien_surnom = this.membre1.surnom_Membre;
+      if(!this.matricule){
+        this.getMatricule();
+        this.generate = true;
+      }
+
+      this.selectedVillageID = this.membre1.village;
+      this.selectedOPID = this.membre1.op;
+      this.nom_Membre = this.membre1.nom_Membre;
+      this.surnom_Membre = this.membre1.surnom_Membre;
+      this.genre = this.membre1.genre;
+      this.today = this.membre1.today;
+
+      this.pays = this.membre1.pays;
+      this.pays_nom = this.membre1.pays_nom;
+      //this.pays_autre = loc.pays_autre;
+      this.region = this.membre1.region;
+      this.region_nom = this.membre1.region_nom;
+      //this.region_autre = loc.region_autre;
+      this.departement = this.membre1.departement;
+      this.departement_nom = this.membre1.departement_nom;
+      //this.departement_autre = loc.departement_autre;
+      this.commune = this.membre1.commune;
+      this.commune_nom = this.membre1.commune_nom;
+      //this.commune_autre = loc.commune_autre;
+
+      this.chargerVillages(this.membre1.commune);
+
+      /*if(this.membre1.village_autre){
+          this.nom_autre_village = this.membre1.village_autre;
+        }else{
+          this.nom_autre_village = 'NA';
+        }*/
+
+      /*if(this.membre1.op_autre) {
+          this.nom_autre_op = this.membre1.op_autre;
+      }else{
+        this.nom_autre_op = 'NA';
       }*/
 
-    /*if(this.membre1.op_autre) {
-        this.nom_autre_op = this.membre1.op_autre;
-    }else{
-      this.nom_autre_op = 'NA';
-    }*/
+      /* if(this.membre1.classe_autre) {
+          this.nom_autre_classe = this.membre1.classe_autre;
+      }else{
+        this.nom_autre_classe = 'NA';
+      }*/
 
-    /* if(this.membre1.classe_autre) {
-        this.nom_autre_classe = this.membre1.classe_autre;
-    }else{
-      this.nom_autre_classe = 'NA';
-    }*/
+      //this.chargerVillages(this.membre1.commune);
 
-    //this.chargerVillages(this.membre1.commune);
+      
+      this.modifierForm = true;
+      this.detailMembre = false;
 
-    
-    this.modifierForm = true;
-    this.detailMembre = false;
 
+      if(!this.membre1.op_nom || this.membre1.op_nom === ''){
+        this.ops.forEach((o, i) => {
+          o = o.doc;
+          if(o.data.num_aggrement === this.membre1.op){
+            //this.membre1.op = o.data.num_aggrement;
+            this.membre1.op_nom = o.data.nom_OP;
+            this.membre1.op_code = o.data.code_OP;
+            //this.membre1.code_union = o.data.code_union;
+            //this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
+          }
+        });
+      }else if(!this.membre1.code_union || this.membre1.code_union === ''){
+        this.ops.forEach((o, i) => {
+          o = o.doc;
+          if(o.data.num_aggrement === this.membre1.op){
+            //this.membre1.op = o.data.num_aggrement;
+            //this.membre1.op_nom = o.data.nom_OP;
+            //this.membre1.op_code = o.data.code_OP;
+            this.membre1.code_union = o.data.code_union;
+            //this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
+          }
+        });
+      }
+    } 
   }
 
   reinitForm(){
@@ -2063,6 +2445,7 @@ chargerOp(){
     this.ancien_OP = '';
     this.ancien_nom_op = '';
     this.ancien_code_op = '';
+    this.ancien_code_union = '';
     this.nom = '';
     this.date_naissance = '';
     this.age = '';
@@ -2095,6 +2478,11 @@ chargerOp(){
 
   }
 
+    mesTypologies(membre){
+    let model =  this.modelCtl.create('TypologiePage', {'producteur': membre});
+    model.present();
+  }
+
   mesChamps(matricule, nom, membre){
     //this.navCtrl.push('ChampsPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre})
     let model = this.modelCtl.create('ChampsPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre});
@@ -2109,7 +2497,7 @@ chargerOp(){
 
   mesEssai(matricule, nom, membre){
     //this.navCtrl.push('EssaiPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre})
-    let model = this.modelCtl.create('EssaiPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre});
+    let model = this.modelCtl.create('Essai1Page', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre});
     model.present();
     model.onDidDismiss((ess) => {
       if(ess){
@@ -2122,6 +2510,14 @@ chargerOp(){
     let alert = this.alertCtl.create({
       title: 'Suppression membre OP',
       message: 'Etes vous sûr de vouloir supprimer ce membre ?',
+      inputs: [
+          {
+            type: 'checkbox',
+            label: 'Supprimer la photo du membre',
+            value: 'oui',
+            checked: true
+          }
+      ],
       buttons:[
         {
           text: 'Annuler',
@@ -2130,9 +2526,12 @@ chargerOp(){
         },
         {
           text: 'Confirmer',
-          handler: () => {
+          handler: (data) => {
+  
             this.servicePouchdb.deleteDocReturn(membre).then((res) => {
-               if(membre.data.photoID){
+
+              //Supprimer la photo si la case est cochée
+               if(membre.data.photoID && data.toString() === 'oui'){
                 this.servicePouchdb.getDocById(membre.data.photoID).then((doc) => {
                   if(doc){
                     this.servicePouchdb.deleteDocReturn(doc).then(res => console.log('ok'), err => console.log('err'));

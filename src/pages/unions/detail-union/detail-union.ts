@@ -7,6 +7,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Storage } from '@ionic/storage';
 //import { OpPage } from '../../op/op'
 import { global } from '../../../global-variables/variable';
+import { Device } from '@ionic-native/device';
+import { Sim } from '@ionic-native/sim';
  
 
 /*
@@ -24,7 +26,9 @@ export class DetailUnionPage {
   union: any = {};
   selectedSource: any;
   unionID: any;
-  aProfile: boolean = true;
+  aProfile: boolean = false;
+  imei: any = '';
+  phonenumber: any = '';
 
   union1: any;
   grandeUnion: any;
@@ -47,29 +51,68 @@ export class DetailUnionPage {
   ancien_num_a: any;
   ancien_nom: any;
   ancien_code: any;
+  user: any = global.info_user;
+  global:any = global;
+  estManger: boolean = false;
+  estAnimataire: boolean = false;
 
 
  
-  constructor(public servicePouchdb: PouchdbProvider, public loadinCtl: LoadingController, public modelCtl: ModalController, public formBuilder: FormBuilder, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController) {
+  constructor(public servicePouchdb: PouchdbProvider, public sim: Sim, public device: Device, public loadinCtl: LoadingController, public modelCtl: ModalController, public formBuilder: FormBuilder, public menuCtl: MenuController, public events: Events, public toastCtl: ToastController, public navCtrl: NavController, public navParams: NavParams, public alertCtl: AlertController) {
     
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
     
-    events.subscribe('user:login', () => {
-      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+    events.subscribe('user:login', (user) => {
+      if(user){
+        this.aProfile = true;
+        //this.user = global.info_user;
+        this.estMangerConnecter(user)
+      }else{
+        this.aProfile = false;
+        this.estManger = false;
+        this.estAnimataire = false;
+        this.user = global.info_user;
+      }
+      
+      /*this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
+          this.user = global.info_user;
         }else{
           this.aProfile = false;
+          this.user = {};
         }
-      }, err => console.log(err));
+      }, err => console.log(err));*/
     });
     
     this.union = this.navParams.data.union;
     this.selectedSource = this.navParams.data.selectedSource;
     this.unionID = this.union._id;
   }
+
+  estMangerConnecter(user){
+    //alert('entree')
+    if(user && user.roles){
+      //alert('ok')
+      this.estManger = global.estManager(user.roles);
+      this.estAnimataire = global.estAnimataire(user.roles);
+    }
+  }
+    calculStatisitque(code_union){
+    let model = this.modelCtl.create('RestitutionPage', {'type': 'union', 'code_union': code_union});
+    model.present();
+    //this.calculerMembreAyantFaitUnEssai(essais);
+    //this.calculerNombreEssaiParTraitement(essais, traitements);
+    //this.visualisation(essais);
+  }
+
+  openMap(code_union){
+    let modal = this.modelCtl.create('LeafletPage', { 'type': 'union', 'code_union': code_union });
+    modal.present();
+  }
+
 
   initForm(){
     this.grandeUnion = this.navParams.data.union;
@@ -163,11 +206,16 @@ export class DetailUnionPage {
             
           }
         });
-        this.villages.push(this.autreVillage);
+        if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
+        
         //this.nom_autre_departement = 'NA';
       });
     }else{
-      this.villages.push(this.autreVillage);
+      if(this.user && this.user.roles && global.estManager(this.user.roles)){
+          this.villages.push(this.autreVillage);
+        }
       //this.nom_autre_departement = '';
     }
 
@@ -201,6 +249,7 @@ export class DetailUnionPage {
 
     return res;
   }
+
 
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
   genererCodeUnion(){
@@ -280,44 +329,277 @@ export class DetailUnionPage {
   }
 
 
-  Change_update_ionfo_ops(ancien_num_a, num_a, nom, code) {
+  Change_update_ionfo_ops(ancien_num_a, num_a, nom, ancien_code, code) {
     let loadin = this.loadinCtl.create({
       content: 'Modification en cours....'
     });
 
     loadin.present();
-    this.servicePouchdb.getPlageDocsRapide('fuma:op','fuma:op:\uffff').then(((ops) => {
+    //modification du code union dans op
+    this.servicePouchdb.getPlageDocsRapide('fuma:op','fuma:op:\uffff').then((ops) => {
       ops.forEach((op) => {
           //return this.getPhoto(membre)
           if(op.doc.data.union === ancien_num_a){
                 op.doc.data.union = num_a;
                 op.doc.data.union_nom = nom;
-                op.doc.data.union_code = code;
+                op.doc.data.code_union = code;
                 this.servicePouchdb.updateDoc(op.doc);
                 //mbrs.push(mbr);
               }
         });
+        //modification du code union dans membres
+        this.servicePouchdb.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then((membres) => {
+          membres.forEach((membre) => {
+            if(membre.doc.data.code_union === ancien_code){
+              membre.doc.data.code_union = code;
+              this.servicePouchdb.updateDoc(membre.doc);
+            }
+          })
 
-        loadin.dismissAll();
+          //modification du code union dans essais
+          this.servicePouchdb.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+            essais.forEach((essai) => {
+                if(essai.doc.data.code_union === ancien_code){
+                  essai.doc.data.code_union = code;
+                  this.servicePouchdb.updateDoc(essai.doc);
+                }
+              });
+
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            }).catch((err) => {
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            } ) ;
+
+
+          }).catch((err) => {
+            //modification du code union dans essais
+          this.servicePouchdb.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+            essais.forEach((essai) => {
+                if(essai.doc.data.code_union === ancien_code){
+                  essai.doc.data.code_union = code;
+                  this.servicePouchdb.updateDoc(essai.doc);
+                }
+              });
+
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            }).catch((err) => {
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            });
+
+
+          }) ;
+
+       /* loadin.dismissAll();
           let toast = this.toastCtl.create({
             message: 'Union bien sauvegardée!',
             position: 'top',
             duration: 1000
           });
+
+          this.modifierForm  = false;
+          toast.present();*/
           
           //this.navCtrl.pop();
           //this.modifierForm = false;
           
 
-          this.modifierForm  = false;
-          toast.present();
+        
           //this.union = this.grandeUnion
 
           //this.membres = mbrs
           //this.allMembres=mbrs
-    }))
+    }).catch((err) => {
+         //modification du code union dans membres
+        this.servicePouchdb.getPlageDocsRapide('fuma:op:membre', 'fuma:op:membre:\uffff').then((membres) => {
+          membres.forEach((membre) => {
+            if(membre.doc.data.code_union === ancien_code){
+              membre.doc.data.code_union = code;
+              this.servicePouchdb.updateDoc(membre.doc);
+            }
+          })
+
+          //modification du code union dans essais
+          this.servicePouchdb.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+            essais.forEach((essai) => {
+                if(essai.doc.data.code_union === ancien_code){
+                  essai.doc.data.code_union = code;
+                  this.servicePouchdb.updateDoc(essai.doc);
+                }
+              });
+
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            });
+
+
+          }).catch((err) => {
+          //modification du code union dans essais
+          this.servicePouchdb.getPlageDocsRapide('fuma:essai', 'fuma:essai:\uffff').then((essais) => {
+            essais.forEach((essai) => {
+                if(essai.doc.data.code_union === ancien_code){
+                  essai.doc.data.code_union = code;
+                  this.servicePouchdb.updateDoc(essai.doc);
+                }
+              });
+
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            }).catch((err) => {
+
+              //modification du code union dans champs
+              this.servicePouchdb.getPlageDocsRapide('fuma:champs','fuma:champs:\uffff').then((champs) => {
+                champs.forEach((champ) => {
+                  if(champ.doc.data.code_union === ancien_code){
+                    champ.doc.data.code_union = code;
+                    this.servicePouchdb.updateDoc(champ.doc);
+                  }
+                })
+
+                loadin.dismiss();
+                let toast = this.toastCtl.create({
+                  message: 'Union bien sauvegardée!',
+                  position: 'top',
+                  duration: 1000
+                });
+
+                this.modifierForm  = false;
+                toast.present();
+              });
+            }) ;
+
+          });
+    })
     
           
+  }
+
+   getInfoSimEmei(){
+
+    this.sim.getSimInfo().then(
+      (info) => {
+        if(info.cards.length > 0){
+          info.cards.forEach((infoCard) => {
+            if(infoCard.phoneNumber){
+              this.phonenumber = infoCard.phoneNumber;
+            }
+            if(infoCard.deviceId){
+              this.imei = infoCard.deviceId;
+            }
+          })
+        }else{
+          this.phonenumber = info.phoneNumber;
+          this.imei = info.deviceId;
+        }
+
+      },
+      (err) => console.log('Unable to get sim info: ', err)
+    );
   }
 
 
@@ -336,6 +618,9 @@ export class DetailUnionPage {
     this.union1.num_membre = union.num_membre;
     this.union1.num_hommes = union.num_hommes;
     this.union1.num_femmes = union.num_femmes;
+    this.union1.update_deviceid = this.device.uuid;
+    this.union1.update_phonenumber = this.phonenumber;
+    this.union1.update_imei = this.imei;
 
     this.villages.forEach((v, i) => {
       if(v.id === this.selectedVillageID){
@@ -353,7 +638,7 @@ export class DetailUnionPage {
         this.union = this.grandeUnion
 
         if(this.ancien_num_a !== this.union1.num_aggrement || this.ancien_code !== this.union1.code_union || this.ancien_nom !== this.union1.nom_union){
-          this.Change_update_ionfo_ops(this.ancien_num_a, union.num_aggrement, union.nom_union, union.code_union);
+          this.Change_update_ionfo_ops(this.ancien_num_a, union.num_aggrement, union.nom_union, this.ancien_code, union.code_union);
         }else{
 
         let toast = this.toastCtl.create({
@@ -398,20 +683,28 @@ export class DetailUnionPage {
 
   ionViewDidEnter() {
 
-     this.servicePouchdb.remoteSaved.getSession((err, response) => {
-        if (response.userCtx.name) {
-          this.aProfile = true;
-        }else{
+    this.getInfoSimEmei();
+
+         //this.getEssais()
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (err) {
+          // network error
+          //this.events.publish('user:login');
+          //alert('network')
           this.aProfile = false;
+        } else if (!response.userCtx.name) {
+          // nobody's logged in
+          //this.events.publish('user:login');
+          //alert('nobady')
+          this.aProfile = false;
+        } else {
+          // response.userCtx.name is the current user
+          //this.events.publish('user:login', response.userCtx);
+          //alert(response.userCtx.name)
+          this.aProfile = true;
         }
-    }, err => {
-      if(global.info_user != null){
-        this.aProfile = true;
-      }else{
-        this.aProfile = false;
-      }
-      //console.log(err)
-    }); 
+      });
+
 
     this.initForm();
     this.getAllUnion();
@@ -422,13 +715,15 @@ export class DetailUnionPage {
     }, err => console.log(err))*/
   } 
 
-  editer(union){
+  editer(union, dbclick: boolean = false){
+    if(!dbclick || (dbclick && this.user && this.user.roles && global.estManager(this.user.roles))){
     //this.navCtrl.push('ModifierUnionPage', {'union': union});
     this.modifierForm  = true;
+    }
   }
 
-  opUnion(num_aggrement, nom_union){
-    this.navCtrl.push('OpPage', {'num_aggrement_union': num_aggrement, 'nom_union': nom_union});
+  opUnion(num_aggrement, nom_union, code_union){
+    this.navCtrl.push('OpPage', {'num_aggrement_union': num_aggrement, 'nom_union': nom_union, 'code_union': code_union});
   }
 
   supprimer(union){

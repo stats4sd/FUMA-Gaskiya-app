@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, AlertController, ViewController, ModalController, IonicPage } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, Platform, ToastController, AlertController, ViewController, ModalController, IonicPage } from 'ionic-angular';
 import { PouchdbProvider } from '../../providers/pouchdb-provider';
 //import { AjouterChampsPage } from './ajouter-champs/ajouter-champs';
 //import { DetailChampsPage } from './detail-champs/detail-champs';
@@ -9,7 +9,14 @@ import { Validators, FormBuilder } from '@angular/forms';
 import { AutoCompletion } from '../../providers/auto-completion';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
-import { Geolocation } from '@ionic-native/geolocation'
+import { Geolocation } from '@ionic-native/geolocation';
+import * as FileSaver from 'file-saver';
+import { Printer, PrintOptions } from '@ionic-native/printer';
+import { File } from '@ionic-native/file';
+import {global} from '../../global-variables/variable';
+import PouchDB from 'pouchdb';
+declare var cordova: any;
+
 
 /*
   Generated class for the Champs page.
@@ -35,10 +42,14 @@ export class ChampsPage {
   matricule_producteur: any;
   matricule_producteur1: any;
   nom_producteur: any;
+  code_union: any;
   surnom_producteur: any;
   membre: any;
   typeSolesSelected: any = [];
   typeRecherche: any = 'matricule';
+  selectedStyle: any = 'liste';
+  appartenance: any = '';
+  appartenances: any = ['Achât', 'Donnation', 'Gage', 'Héritage', 'Location', 'Prêt'];
 
   champsForm: any;
   producteurs: any = [];
@@ -53,15 +64,18 @@ export class ChampsPage {
   code_champs: any = '';
   ajoutForm: boolean = false;
   a_matricule: boolean = false;
+  user: any = global.info_user;
+  global:any = global;
 
 
-  constructor(public navCtrl: NavController, public viewCtl: ViewController, public toastCtl: ToastController, public formBuilder: FormBuilder, public modelCtl: ModalController, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public geolocation: Geolocation, public device: Device,  public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
+  constructor(public navCtrl: NavController, public loadtingCtl: LoadingController, public viewCtl: ViewController, public platform: Platform, public printer: Printer, public file: File, public toastCtl: ToastController, public formBuilder: FormBuilder, public modelCtl: ModalController, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public geolocation: Geolocation, public device: Device,  public navParams: NavParams, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
     if(this.navParams.data.matricule_producteur){
       this.matricule_producteur = this.navParams.data.matricule_producteur;
       this.matricule_producteur1 = this.navParams.data.matricule_producteur;
       this.nom_producteur = this.navParams.data.nom_producteur;
       this.membre = this.navParams.data.membre;
-      
+      this.surnom_producteur = this.membre.data.surnom_Membre;
+       
       //this.viewCtl.showBackButton(false)
       
       this.selectedProducteur = this.navParams.data.membre
@@ -70,6 +84,136 @@ export class ChampsPage {
       
     }
   }
+
+   copierDB(){
+    //this.servicePouchdb.copierDB();
+  let codes_unions: any = {};
+    //let unions: any = ['WA', 'DO']
+    let loading = this.loadtingCtl.create({
+      content: 'Transfert champs en cours...'
+    });
+    loading.present();
+      if(this.allChamps){
+        alert('nbdoc == '+this.allChamps.length);
+        this.allChamps.forEach((ch) => {
+          let doc = ch.doc
+          //copier les données vers la nouvelle base données
+          /*if(doc.type && doc.type != '' && doc.type != 'photo' && doc.data){
+            var newDoc: any = {};
+            newDoc._id = doc._id;
+            newDoc.type = doc.type;
+            newDoc.data = doc.data;
+            copie_db.put(newDoc);
+          }else */
+          if(doc.data.code_union == 'WA' || doc.data.code_union == 'DO' || doc.data.code_union == 'JA' || doc.data.code_union == 'HA' || doc.data.code_union == 'AM' || doc.data.code_union == 'SA' || !doc.data.code_union){
+            var newDoc: any = {};
+            newDoc._id = doc._id;
+            newDoc.data = doc.data;
+            newDoc.rev = doc._rev;
+
+            this.updateCopieDoc(newDoc)
+            //alert(doc._rev.substring(0, doc._rev.indexOf('-')))
+            /*copie_db.put(newDoc).then((res) => {
+              this.updateCopieDco(newDoc, doc);
+            }) .catch(err => { alert('err '+err) });*/
+
+          }/*else if(doc.type && doc.type != '' && doc.type == 'photo' && (doc.code_union == 'WA' || doc.code_union == 'DO' || doc.code_union == 'SA' || !doc.code_union)){
+    
+              //var fileName = photoDocId + '.jpeg';  
+              var newPhoto: any = {};
+              newPhoto._id = doc._id;
+              //newPhoto._attachments[fileName] = doc._attachments[fileName];
+              newPhoto.photoID =  doc.photoID;
+              newPhoto.timestamp = doc.timestamp;
+              newPhoto.type = doc.type;
+              newPhoto.code_union = doc.code_union;
+              newPhoto._attachments = doc._attachments;
+              newPhoto.rev = doc._rev;
+              this.updateCopieDoc(newPhoto)
+              //copie_db.put(doc).catch(err => { alert('err tof '+err) })
+        
+          }*//*else{
+
+          }*/
+        });
+
+        loading.dismiss();
+      }
+
+  }
+
+  updateCopieDoc(newDoc){
+
+     var copie_db = new PouchDB('http://'+ global.info_db.ip+'/copie_db', {
+      /*auth: {
+        username: 'admin',
+        password: 'admin'
+      }*/
+      ajax: {
+        timeout: 4800000,
+      }
+    });
+    //let i = parseInt(doc._rev.substring(0, doc._rev.indexOf('-')))
+    if(!newDoc._rev || newDoc._rev !== ''){
+      //var newDoc: any = {};
+      //newDoc._id = oldDoc._id;
+      //newDoc.data = oldDoc.data;
+      copie_db.put(newDoc).then((res) => {
+        newDoc._rev = res.rev;
+        //this.updateCopieDoc(newDoc);
+      }).catch(err => { alert('err '+err) })
+    }else{
+      if(parseInt(newDoc._rev.substring(0, newDoc._rev.indexOf('-'))) < parseInt(newDoc.rev.substring(0, newDoc.rev.indexOf('-')))){
+        copie_db.put(newDoc).then((res) => {
+          newDoc._rev = res.rev;
+          //this.updateCopieDoc(newDoc);
+        }).catch(err => { alert('err rec '+err) })
+      }
+    }
+    
+    
+  }
+
+
+  onPrint(){
+    let options: PrintOptions = {
+        //name: 'Rapport',
+        //printerId: 'printer007',
+        duplex: true,
+        landscape: true,
+        grayscale: true
+    };
+    let content = document.getElementById('champs_tableau').innerHTML;
+    this.printer.print(content, options);
+  }
+
+  exportExcel(){
+
+    let date = new Date();
+    //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
+    let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
+
+    let blob = new Blob([document.getElementById('champs_tableau').innerHTML], {
+      //type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+      type: "text/plain;charset=utf-8"
+      //type: 'application/vnd.ms-excel;charset=utf-8'
+      //type: "application/vnd.ms-excel;charset=utf-8"
+    });
+
+    if(!this.platform.is('android')){
+      FileSaver.saveAs(blob, 'Champs_'+nom+'.xls');
+    }else{
+
+      let fileDestiny: string = cordova.file.externalRootDirectory;
+      this.file.writeFile(fileDestiny, 'Membres_'+nom+'.xls', blob).then(()=> {
+          alert("Fichier créé dans: " + fileDestiny);
+      }).catch(()=>{
+          alert("Erreur de création du fichier dans: " + fileDestiny);
+      })
+    }
+  }
+
+
 
   typeRechercheChange(){
     this.champs = this.allChamps;
@@ -108,6 +252,7 @@ initForm(){
      // _id:[''],
       type:['champs'],
       nom: ['', Validators.required],
+      appartenance: ['', Validators.required],
       longitude: [''],
       latitude: [''],
       superficie: ['', Validators.required],
@@ -149,7 +294,7 @@ initForm(){
 
   getPosition(){
     this.msg('Obtention des coordonnées en cours...');
-    this.geolocation.getCurrentPosition().then((resp) => {
+  this.geolocation.getCurrentPosition({enableHighAccuracy: true/*, maximumAge: 3000, timeout: 5000 */}).then((resp) => {
       this.longitude = resp.coords.longitude;
       this.latitude = resp.coords.latitude;
       this.msg('Coordonnées obtenues avec succes!')
@@ -228,6 +373,7 @@ initForm(){
       if(prod.doc.data.matricule_Membre === ev.matricule_Membre){
         this.selectedProducteur = prod.doc;
         this.nom_producteur = prod.doc.data.nom_Membre;
+        this.code_union = prod.doc.data.code_union;
         this.surnom_producteur = prod.doc.data.surnom_Membre;
         this.generecodeChamps(this.selectedProducteur.data.matricule_Membre)
       }
@@ -251,6 +397,7 @@ initForm(){
     this.nom = '';
     this.type_sole = '';
     this.superficie = '';
+    this.appartenance = '';
     this.generecodeChamps(this.selectedProducteur.data.matricule_Membre)
   }
  
@@ -262,6 +409,8 @@ initForm(){
     let date = new Date();
     let champs = this.champsForm.value;
     champs.matricule_producteur = this.selectedProducteur.data.matricule_Membre;
+    champs.code_union = this.selectedProducteur.data.code_union;
+    champs.surnom_producteur = this.selectedProducteur.data.surnom_Membre;
     //champs.nom_producteur = this.selectedProducteur.data.nom_Membre;
     champs.deviceid = this.device.uuid;
     champs.phonenumber = this.phonenumber;
@@ -531,7 +680,7 @@ initForm(){
   }
 
   detail(champ){
-    this.navCtrl.push('DetailChampsPage', {'champ': champ});
+    this.navCtrl.push('DetailChampsPage', {'champ': champ, 'membre': this.membre});
   }
 
   getItems(ev: any) {

@@ -19,6 +19,15 @@ page-essai {
         color: map-get($colors,fuma-yellow);
         margin:0
     }
+
+    .sans-fond-gris{
+        width:100%;
+        text-align: center;
+        font-size: small;
+        background-color: map-get($colors,fuma-yellow-background);
+        color: map-get($colors,fuma-yellow);
+        margin:0
+    }
     ion-col{
         padding:0
     }

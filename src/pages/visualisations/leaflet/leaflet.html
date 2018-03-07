@@ -1,13 +1,49 @@
 <ion-header>
-<ion-buttons end>
+<!--ion-buttons end>
   <button icon-right ion-button (click)="close()">
         {{'CLOSE' | translate}}
         <ion-icon name="close-circle"></ion-icon>
       </button>
-</ion-buttons>
+</ion-buttons-->
+
+<ion-navbar color="fuma_primary">
+    <ion-buttons left>
+      <button ion-button icon-only color="royal" (click)="close()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons> 
+    <ion-title>Carte</ion-title>
+  </ion-navbar>
 </ion-header>
 
-<ion-content >
+<!--ion-content padding>
   <p class="zoom-warning" *ngIf="zoomWarning==true">{{'ZOOMINGWILL' | translate}}</p>
 <div id="mapid"></div>
+</ion-content-->
+<ion-content padding>
+  <ion-card  class="info-card">
+    <h2 class="fond-gris"><strong>Zone coverte</strong></h2>
+      <!--ion-card-header  style="width: 100vw"-->
+      <!--/ion-card-header-->
+    <ion-row>
+      <ion-col>
+        <ng-template  #withFlags1 let-attrs="attrs">
+          <span [innerHTML]="attrs.data.id | boldprefix:attrs.keyword"></span> -- <span [innerHTML]="attrs.data.nom"></span>
+        </ng-template>
+        <ion-auto-complete style="width: 99%" [dataProvider]="SiteServiceAutoCompletion" [template]="withFlags1" [options]="{ placeholder : 'Nom du site' }" (itemSelected)="selectSite($event)" ></ion-auto-complete>  
+      </ion-col>
+      <ion-col>
+        <ng-template  #withFlags1 let-attrs="attrs">
+          <span [innerHTML]="attrs.data.id | boldprefix:attrs.keyword"></span> -- <span [innerHTML]="attrs.data.nom"></span>
+        </ng-template>
+        <ion-auto-complete style="width: 99%" [dataProvider]="VillageServiceAutoCompletion" [template]="withFlags1" [options]="{ placeholder : 'Nom du village' }" (itemSelected)="selectVillage($event)"></ion-auto-complete>  
+      </ion-col>
+    </ion-row>  
+    
+    <ion-row>
+      <p class="zoom-warning" *ngIf="zoomWarning==true">{{'ZOOMINGWILL' | translate}}</p>
+      <div id="mapid" style="width: 100vw; height: 100vh"></div>
+    </ion-row>
+  </ion-card>
+
+  <br>
+      
 </ion-content>

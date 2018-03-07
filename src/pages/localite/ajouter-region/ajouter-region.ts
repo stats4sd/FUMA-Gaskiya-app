@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, IonicPage, ToastController, ViewController, MenuController, Events } from 'ionic-angular';
+import { NavController, NavParams, IonicPage, ToastController, LoadingController, AlertController, ViewController, MenuController, Events } from 'ionic-angular';
 import { Validators, FormBuilder } from '@angular/forms';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 /**
@@ -8,7 +8,7 @@ import { PouchdbProvider } from '../../../providers/pouchdb-provider';
  * See http://ionicframework.com/docs/components/#navigation for more info
  * on Ionic pages and navigation.
  */
-@IonicPage()
+@IonicPage() 
 @Component({
   selector: 'page-ajouter-region',
   templateUrl: 'ajouter-region.html',
@@ -21,16 +21,40 @@ export class AjouterRegionPage {
   id_pays: any;
   id: any = '';
   nom: any = '';
+
+  //pays: any;
+  allRegions: any = [];
+  ancien_nom: any = '';
+  ancien_id: any = '';
+
+  liste: boolean = false;
+  ajouter:boolean = true;
+  modifier: boolean = false;
+  pays_defini: boolean = false;
+  allPays: any = [];
+  gestion_region: boolean = false;
+
  
-  constructor(public navCtrl: NavController, public menuCtl: MenuController, public viewCtrl: ViewController, public navParams: NavParams,public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder) {
-    this.id_pays = this.navParams.data.id_pays;
-    this.nom_pays = this.navParams.data.nom_pays;
+  constructor(public navCtrl: NavController, public loadingCtl: LoadingController, public alertCtl: AlertController, public menuCtl: MenuController, public viewCtrl: ViewController, public navParams: NavParams,public toastCtl: ToastController, public servicePouchdb: PouchdbProvider, public formBuilder: FormBuilder) {
+  
+
+    if(this.navParams.data.liste){
+      this.liste = true;
+      this.gestion_region = true;
+      this.ajouter = false;
+    }
+
+    if(this.navParams.data.id_pays){
+      this.id_pays = this.navParams.data.id_pays;
+      this.nom_pays = this.navParams.data.nom_pays;
+      this.pays_defini = true;
+    }
     
     this.regionForm = this.formBuilder.group({
       id:['', Validators.required],
       nom:['', Validators.required],
-      id_pays:[this.id_pays, Validators.required],
-      nom_pays:[this.nom_pays],
+      id_pays:[''],
+      nom_pays:[''],
     });
   }
 
@@ -39,7 +63,12 @@ export class AjouterRegionPage {
        this.allRegion = region.data;
        this.region = region;
        //alert(this.pays._id)
-     })
+     });
+
+       this.servicePouchdb.getDocById('pays').then((pays) => {
+          this.allPays = pays.data;
+        });
+
   }
 
   //fait la conbinaison de caractere de gauche vers la droite en variant la taille a la recherche d'un code disponible
@@ -118,7 +147,7 @@ export class AjouterRegionPage {
   }
 
 
-  ajouter(){
+ /* ajouter(){
     
     let region = this.regionForm.value;
   //  if(this.verifierUniqueNon(region) === 0){
@@ -138,12 +167,220 @@ export class AjouterRegionPage {
       toast.present();
       this.viewCtrl.dismiss();
   //  }
+  } */
+
+
+    actionForm(){
+    if(this.ajouter){
+        let region = this.regionForm.value;
+      if(this.verifierUniqueNon(region) === 0){
+        alert('Les noms des regions doivent être uniques!');
+      }else{
+
+        //let region = this.regionForm.value;
+  //  if(this.verifierUniqueNon(region) === 0){
+    //  alert('Les noms des régions doivent être uniques!');
+    //}else{
+        let data = [];
+        data = this.region.data;
+        if(!this.pays_defini){
+          region.id_pays = this.id_pays.id;
+          region.nom_pays = this.id_pays.nom;
+        }
+        data.push(region);
+        this.region.data = data;
+        this.region.type = 'region';
+        this.allRegion = data;
+        this.servicePouchdb.updateLocalite(this.region).then((res) => {
+          this.region._rev = res.rev;
+        })
+        let toast = this.toastCtl.create({
+          message: 'Région bien enregistré!',
+          position: 'top',
+          duration: 1000
+        });
+
+        toast.present();
+        this.ajouter = false;
+
+        if(!this.gestion_region){
+          this.viewCtrl.dismiss();
+        }else{
+          this.liste = true;
+          this.ajouter = false;
+        }
+      }
+    }else if(this.modifier){
+      let loading = this.loadingCtl.create({
+        content: 'Application des changements en cours...'
+      });
+
+      //loading.present();
+      let region = this.regionForm.value;
+      if(!this.pays_defini){
+        region.id_pays = this.id_pays.id;
+        region.nom_pays = this.id_pays.nom;
+      }
+      this.allRegion.forEach((r, i) => {
+        if(r.id === region.id){
+          this.allRegion[i] = region;
+        }
+      });
+
+      this.region.data = this.allRegion;
+      //this.allPays.splice(this.pays.indesOf())
+      //this.servicePouchdb.updateLocalite(this.region);
+      this.servicePouchdb.updateLocalite(this.region).then((res) => {
+          this.region._rev = res.rev;
+      })
+        //recuperer tous les doc pour modifier le nom du pays
+        /*this.servicePouchdb.getPlageDocsRapide('fuma', 'fuma:\uffff').then((allDocs) => {
+          allDocs.map((doc) => {
+            //pour les essais
+            ******if(doc.doc.data.type === 'essai' && doc.doc.data.village_producteur === this.ancien_nom ){
+              doc.doc.data0village_producteur = pays.nom;
+              this.servicePouchdb.updateDoc(doc.doc);
+            }else *******
+            //pour les memebres
+            if(doc.doc.data.type === 'membre_op' && doc.doc.data.region === this.ancien_id ){
+              doc.doc.data.region_nom = region.nom;
+              this.servicePouchdb.updateDoc(doc.doc);
+            }
+            else 
+            //pour les union
+            if(doc.doc.data.type === 'union' && doc.doc.data.region === this.ancien_id ){
+              doc.doc.data.region_nom = region.nom;
+              this.servicePouchdb.updateDoc(doc.doc);
+            }
+            else 
+            //pour les op
+            if(doc.doc.data.type === 'op' && doc.doc.data.region === this.ancien_id ){
+              doc.doc.data.region_nom = region.nom;
+              this.servicePouchdb.updateDoc(doc.doc);
+            }
+           ****** else 
+            //pour les champs
+            if(doc.doc.data.type === 'champs' && doc.doc.data.village === this.ancien_nom ){
+              doc.doc.data.village = pays.nom;
+              this.servicePouchdb.updateDoc(doc.doc);
+            }*******
+          });
+
+           let toast = this.toastCtl.create({
+              message: 'Région bien modifier!',
+              position: 'top',
+              duration: 1000
+            });
+            toast.present();  
+            loading.dismissAll();
+        });
+      */
+
+      let toast = this.toastCtl.create({
+        message: 'Région bien modifier!',
+        position: 'top',
+        duration: 1000
+      });
+      toast.present();
+
+      this.ajouter = false;
+        this.modifier = false;
+        this.liste = true;
+    }
   } 
 
-  annuler(){
-     this.viewCtrl.dismiss();
+  ajouterRegion(){
+    this.id = '';
+    this.nom = '';
+    this.id_pays = '';
+    this.nom_pays;
+    this.liste = false;
+    this.ajouter = true;
   }
 
+  modifierRegion(region){
+
+    this.id = region.id;
+    this.nom = region.nom;
+    this.id_pays = region.id_pays;
+    this.nom_pays = region.nom_pays;
+    this.ancien_nom = this.nom;
+    this.ancien_id = this.id;
+    this.liste = false;
+    this.modifier = true;
+
+    this.allPays.forEach((pays) => {
+      if(this.id_pays === pays.id){
+        this.id_pays = pays;
+      }
+    })
+  }
+
+  supprimerRegion(region){
+    let e: any = {};
+    let alert = this.alertCtl.create({
+      title: 'Suppression Région',
+      message: 'Etes vous sûr de supprimer cette région ?',
+      buttons:[
+        {
+          text: 'Non',
+          handler: () => console.log('suppression annulée')
+ 
+        },
+        {
+          text: 'Oui',
+          handler: () => {
+            this.allRegion.forEach((r, i) => {
+              if(r.id === region.id){
+                this.allRegion.splice(i, 1);
+              }
+            });
+
+            this.region.data = this.allRegion;
+            //this.allPays.splice(this.pays.indesOf())
+            //this.servicePouchdb.updateLocalite(this.region);
+            this.servicePouchdb.updateLocalite(this.region).then((res) => {
+              this.region._rev = res.rev;
+            })
+            let toast = this.toastCtl.create({
+              message: 'Région bien suprimé!',
+              position: 'top',
+              duration: 1000
+            });
+            toast.present();           
+          }
+        }
+      ]
+    });
+
+    alert.present();
+  }
+
+  annuler(){
+    if(this.gestion_region){
+      if(this.liste){
+        this.viewCtrl.dismiss();
+      }else if(this.ajouter){
+        this.liste = true;
+        this.ajouter = false;
+      } else{
+        this.liste = true;
+        this.modifier = false;
+      }
+
+    }else{
+      this.viewCtrl.dismiss();
+    }
+     
+  }
+
+
+
+
+/*  annuler(){
+     this.viewCtrl.dismiss();
+  }
+*/
 
 
 }

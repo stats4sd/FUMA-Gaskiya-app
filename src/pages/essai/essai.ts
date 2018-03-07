@@ -12,6 +12,8 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { AutoCompletion } from '../../providers/auto-completion';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
+import PouchDB from 'pouchdb';
+import {TableExport} from 'tableexport';
 
 //import 'vega';
 //import 'vega-util';
@@ -60,7 +62,8 @@ export class EssaiPage {
   detailEssai: boolean = false;
   allTraitements: any = [];
   statistiqueTraitement: any = [];
-  essais: any[] = [];
+  essais: any = [];
+  essais_pour_annalyse: any = [];
   essais1: any = [];
   allEssais: any = [];
   allOP: any = [];
@@ -83,6 +86,7 @@ export class EssaiPage {
   selectedMed: any = 'PDE';
   vegaData: any = [];
   medianeData: any = [];
+  selectedStyleTableau: any = 'standard';
 
   annees: any = [];
   selectedStyle: any = 'liste';
@@ -94,12 +98,12 @@ export class EssaiPage {
   mode_semi: any = '';
   mode_semi_controle: any = '';
   typeRecherche: any = 'matricule';
-  gerants: any = ['Arachide', 'Mil', 'Niébé', 'Sorgho', 'Souchet'];
-  precedante_cultures: any = ['Moi', 'Mon mari', 'Ma femme', 'Mes fils', 'Mes frères', 'Mes soeurs', 'Manoeuvres'];
+  precedante_cultures: any = ['Arachide', 'Mil', 'Niébé', 'Sorgho', 'Souchet'];
+  gerants: any = ['Moi', 'Mon mari', 'Ma femme', 'Mes fils', 'Mes frères', 'Mes soeurs', 'Manoeuvres'];
   //champs: any = [];
   //traitements: any = [];
 
-
+  code_union: any = '';
   essai1: any;
   grandEssai: any;
   essaiForm: any;
@@ -116,7 +120,7 @@ export class EssaiPage {
   nbTotalEssa: any = 0;
   uniqueMembres: any = [];
   statistique: boolean = false;
-  classe_producteur: any;
+  //classe_producteur: any;
   villages: any = [];
   selectedVillage: any;
   village_producteur: any;
@@ -182,26 +186,41 @@ export class EssaiPage {
   dateRecolte: any;
   testData: any = [];
   data:any
+  user: any = global.info_user;
+  global:any = global;
+  estManager: boolean = false;
+  estAnimataire: boolean = false;
 
 
   constructor(public navCtrl: NavController, public loadtingCtl: LoadingController, public toastCtl: ToastController, public ionicApp: IonicApp, public viewCtl: ViewController, public formBuilder: FormBuilder, public ServiceAutoCompletion: AutoCompletion, public sim: Sim, public device: Device, public modelCtl: ModalController, public a: App, public events: Events, public zone: NgZone, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
-  
     
     //this.servicePouchdb.reset()
     //this.zone = new NgZone({enableLongStackTrace: true})
-    events.subscribe('user:login', () => {
-      this.servicePouchdb.remoteSaved.getSession((err, response) => {
+    events.subscribe('user:login', (user) => {
+      if(user){
+        this.aProfile = true;
+        this.estMangerConnecter(user)
+        this.estAnimataireConnecter(user)
+      }else{
+        this.aProfile = false;
+        this.estManager = false;
+        this.estAnimataire = false;
+        this.user = global.info_user;
+      }
+      //alert(user)
+      /*this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
-          this.aProfile = true;
+          //this.aProfile = true;
+          this.user = global.info_user;
         }else{
           this.aProfile = false;
+          this.user = {};
         }
-      }, err => console.log(err));
+      }, err => console.log(err));*/
     });
-
 
     
 
@@ -215,9 +234,9 @@ export class EssaiPage {
       this.matricule_producteur = this.navParams.data.matricule_producteur;
       this.matricule_producteur1 = this.navParams.data.matricule_producteur;
       this.nom_producteur1 = this.navParams.data.nom_producteur;
-      this.nom_producteur = this.navParams.data.nom_producteur;
-      this.surnom_producteur = this.navParams.data.surnom_producteur;
+      this.nom_producteur = this.navParams.data.nom_producteur;      
       this.membre = this.navParams.data.membre;
+      this.surnom_producteur = this.navParams.data.surnom_producteur;
 
       //this.viewCtl.showBackButton(false);
       this.a_matricule = true;
@@ -237,11 +256,124 @@ export class EssaiPage {
    // this.getEssais()
   }
 
+
  /* exportExcel() {
     //let blob = new Blob([],
     let table = document.getElementById('tableau').innerHTML;
     this.fileService.save(this.storageDirectory, "exportEssais.xls", "application/vnd.ms-excel", table);
   }*/
+
+   estMangerConnecter(user){
+    if(user && user.roles){
+      this.estManager = global.estManager(user.roles);
+    }
+  }
+
+
+  export(){
+    let date = new Date();
+    //let dateHeure = date.toLocaleDateString()+ date.toLocaleTimeString();// + date.getTime().toLocaleString();
+    let nom = date.getDate().toString() +'_'+ (date.getMonth() + 1).toString() +'_'+ date.getFullYear().toString() +'_'+ date.getHours().toString() +'_'+ date.getMinutes().toString() +'_'+ date.getSeconds().toString();
+
+    new TableExport(document.getElementsByTagName("table"), {
+        filename: 'Essais_'+nom,    // (id, String), filename for the downloaded file, (default: 'id')
+    });
+  }
+
+  copierDB(){
+    //this.servicePouchdb.copierDB();
+  let codes_unions: any = {};
+    //let unions: any = ['WA', 'DO']
+    let loading = this.loadtingCtl.create({
+      content: 'Transfert essais en cours...'
+    });
+    loading.present();
+      if(this.allEssais){
+        //alert('nbdoc == '+this.allEssais.length);
+        this.allEssais.forEach((ess) => {
+          let doc = ess.doc
+          //copier les données vers la nouvelle base données
+          /*if(doc.type && doc.type != '' && doc.type != 'photo' && doc.data){
+            var newDoc: any = {};
+            newDoc._id = doc._id;
+            newDoc.type = doc.type;
+            newDoc.data = doc.data;
+            copie_db.put(newDoc);
+          }else */
+          if(doc.data.code_union == 'WA' || doc.data.code_union == 'DO' || doc.data.code_union == 'JA' || doc.data.code_union == 'HA' || doc.data.code_union == 'AM' || doc.data.code_union == 'SA' || !doc.data.code_union){
+            var newDoc: any = {};
+            newDoc._id = doc._id;
+            newDoc.data = doc.data;
+            newDoc.rev = doc._rev;
+
+            this.updateCopieDoc(newDoc)
+            //alert(doc._rev.substring(0, doc._rev.indexOf('-')))
+            /*copie_db.put(newDoc).then((res) => {
+              this.updateCopieDco(newDoc, doc);
+            }) .catch(err => { alert('err '+err) });*/
+
+          }/*else if(doc.type && doc.type != '' && doc.type == 'photo' && (doc.code_union == 'WA' || doc.code_union == 'DO' || doc.code_union == 'SA' || !doc.code_union)){
+    
+              //var fileName = photoDocId + '.jpeg';  
+              var newPhoto: any = {};
+              newPhoto._id = doc._id;
+              //newPhoto._attachments[fileName] = doc._attachments[fileName];
+              newPhoto.photoID =  doc.photoID;
+              newPhoto.timestamp = doc.timestamp;
+              newPhoto.type = doc.type;
+              newPhoto.code_union = doc.code_union;
+              newPhoto._attachments = doc._attachments;
+              newPhoto.rev = doc._rev;
+              this.updateCopieDoc(newPhoto)
+              //copie_db.put(doc).catch(err => { alert('err tof '+err) })
+        
+          }*//*else{
+
+          }*/
+        });
+
+        loading.dismiss();
+      }
+
+  }
+
+  updateCopieDoc(newDoc){
+
+     var copie_db = new PouchDB('http://'+ global.info_db.ip+'/copie_db', {
+      /*auth: {
+        username: 'admin',
+        password: 'admin'
+      }*/
+      ajax: {
+        timeout: 4800000,
+      }
+    });
+    //let i = parseInt(doc._rev.substring(0, doc._rev.indexOf('-')))
+    if(!newDoc._rev || newDoc._rev !== ''){
+      //var newDoc: any = {};
+      //newDoc._id = oldDoc._id;
+      //newDoc.data = oldDoc.data;
+      copie_db.put(newDoc).then((res) => {
+        newDoc._rev = res.rev;
+        //this.updateCopieDoc(newDoc);
+      }).catch(err => { alert('err '+err) })
+    }else{
+      if(parseInt(newDoc._rev.substring(0, newDoc._rev.indexOf('-'))) < parseInt(newDoc.rev.substring(0, newDoc.rev.indexOf('-')))){
+        copie_db.put(newDoc).then((res) => {
+          newDoc._rev = res.rev;
+          //this.updateCopieDoc(newDoc);
+        }).catch(err => { alert('err rec '+err) })
+      }
+    }
+    
+    
+  }
+
+   estAnimataireConnecter(user){
+    if(user && user.roles){
+      this.estAnimataire = global.estAnimataire(user.roles);
+    }
+  }
 
   identify(index, essai){
     return essai.doc._id;
@@ -269,6 +401,11 @@ export class EssaiPage {
   viewResearch(spec) {
     //this.navCtrl.push('ResearchViewPage', {'res': res})
     let modal = this.modelCtl.create('VegaLitePage', { 'visSpec': this.data });
+    modal.present();
+  }
+
+  openMap(essais){
+    let modal = this.modelCtl.create('LeafletPage', { 'essais': essais, 'type': 'essai' });
     modal.present();
   }
 
@@ -598,7 +735,7 @@ var opt = {
   }
 
   calculStatisitque(essais, traitements){
-    let model = this.modelCtl.create('RestitutionPage', {'essais': essais, 'traitements': traitements, 'producteurs': this.producteurs});
+    let model = this.modelCtl.create('RestitutionPage', {'type': 'essai', 'essais': essais, 'traitements': traitements, 'producteurs': this.producteurs});
     model.present();
     //this.calculerMembreAyantFaitUnEssai(essais);
     //this.calculerNombreEssaiParTraitement(essais, traitements);
@@ -1109,7 +1246,7 @@ var opt = {
       surnom_producteur: [''],
       sex_producteur: ['', Validators.required],
       //id_classe_producteur: [''],
-      classe_producteur: [''],
+      //classe_producteur: [''],
       //id_traitement: [''],
       code_traitement: [''],
       nom_entree: ['', Validators.required],
@@ -1304,6 +1441,7 @@ var opt = {
           //nom producteur
           this.nom_producteur = prod.data.nom_Membre;
           this.surnom_producteur = prod.data.surnom_Membre;
+          this.code_union = prod.data.code_union;
 
           //sex producteur
           this.sex_producteur = prod.data.genre;
@@ -1325,7 +1463,7 @@ var opt = {
           }else{
             this.village_producteur = prod.data.village_autre;
           }
-
+/*
           //classe
           if((prod.data.classe != 'AUTRE') && (!prod.data.classe_nom)){
             this.classe_producteur = prod.data.classe
@@ -1334,6 +1472,7 @@ var opt = {
           }else{
             this.classe_producteur = prod.data.classe_autre
           }
+          */
         }
       });
     }
@@ -1353,6 +1492,7 @@ var opt = {
     //nom producteur
     this.nom_producteur = '';
     this.surnom_producteur = '';
+    this.code_union = '';
 
     //sex producteur
     this.sex_producteur = '';
@@ -1366,7 +1506,7 @@ var opt = {
     
       this.village_producteur = '';
     
-      this.classe_producteur = '';
+      //this.classe_producteur = [];
   }
 
    producteurSelectedProdConnu(matricule){
@@ -1399,7 +1539,7 @@ var opt = {
         }else{
           this.village_producteur = this.membre.data.village_autre;
         }
-
+/*
         //classe
         if((this.membre.data.classe != 'AUTRE') && (!this.membre.data.classe_nom)){
           this.classe_producteur = this.membre.data.classe
@@ -1407,7 +1547,7 @@ var opt = {
           this.classe_producteur = this.membre.data.classe_nom;
         }else{
           this.classe_producteur = this.membre.data.classe_autre
-        }
+        }*/
   }
 
     producteurSelected(matricule, nom){
@@ -1424,6 +1564,7 @@ var opt = {
 
         //sex producteur
         this.sex_producteur = this.membre.data.genre;
+        this.code_union = this.membre.data.code_union;
         
         //site
         if((this.membre.data.commune != 'AUTRE') && (!this.membre.data.commune_nom)){
@@ -1442,7 +1583,7 @@ var opt = {
         }else{
           this.village_producteur = this.membre.data.village_autre;
         }
-
+/*
         //classe
         if((this.membre.data.classe != 'AUTRE') && (!this.membre.data.classe_nom)){
           this.classe_producteur = this.membre.data.classe
@@ -1450,7 +1591,7 @@ var opt = {
           this.classe_producteur = this.membre.data.classe_nom;
         }else{
           this.classe_producteur = this.membre.data.classe_autre
-        }
+        }*/
   }
 
   producteurSelected1(matricule){
@@ -1485,7 +1626,7 @@ var opt = {
         }else{
           this.village_producteur = this.membre.data.village_autre;
         }
-
+/*
         //classe
         if((this.membre.data.classe != 'AUTRE') && (!this.membre.data.classe_nom)){
           this.classe_producteur = this.membre.data.classe
@@ -1493,7 +1634,7 @@ var opt = {
           this.classe_producteur = this.membre.data.classe_nom;
         }else{
           this.classe_producteur = this.membre.data.classe_autre
-        }
+        }*/
   }
 
 
@@ -1770,6 +1911,7 @@ var opt = {
           /*if(this.verifierUniqueNon(traitement) === 0){
             alert('Le nom et code du traitement doivent être uniques par an!');
           }else{*/
+          essai.code_union = this.code_union;
           essai.code_traitement = this.selectedTraitement.data.code_traitement;
           essai.nom_entree = this.selectedTraitement.data.nom_entree;
           essai.nom_controle = this.selectedTraitement.data.nom_controle;
@@ -1867,7 +2009,8 @@ var opt = {
         this.essai1.surnom_producteur = essai.surnom_producteur;
         this.essai1.sex_producteur = essai.sex_producteur;
         //id_classe_producteur: [''],
-        this.essai1.classe_producteur = essai.classe_producteur;
+        //this.essai1.classes_producteur = essai.classes_producteur;
+        this.essai1.code_union = this.code_union;
         //id_traitement: [''],
         this.essai1.code_traitement = essai.code_traitement;
         this.essai1.nom_entree = essai.nom_entree;
@@ -2046,8 +2189,16 @@ var opt = {
   }
 
   sync(){
-    this.servicePouchdb.syncAvecToast(this.getEssais());
+    this.servicePouchdb.syncAvecToast();
     this.pourCreerForm();
+  }
+
+  replicationDepuisServeur(){
+    this.servicePouchdb.replicationDepuisServeur();
+  }
+
+  replicationVersServeur(){
+    this.servicePouchdb.replicationVersServeur();
   }
 
   exportExcel(){
@@ -2097,6 +2248,28 @@ var opt = {
   }*/
 
   ionViewDidEnter(){
+        //this.getEssais()
+    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+        if (err) {
+          // network error
+          //this.events.publish('user:login');
+          //alert('network')
+          this.aProfile = false;
+        } else if (!response.userCtx.name) {
+          // nobody's logged in
+          //this.events.publish('user:login');
+          //alert('nobady')
+          this.aProfile = false;
+        } else {
+          // response.userCtx.name is the current user
+          //this.events.publish('user:login', response.userCtx);
+          //alert(response.userCtx.name)
+          this.aProfile = true;
+        }
+      });
+    
+
+    //setInterval(this.servicePouchdb.testConnexion(), 2000)
     if(!this.estInstancier){
       this.getEssais();
       this.estInstancier = true;
@@ -2120,7 +2293,24 @@ var opt = {
   }
 
   ionViewDidLoad() { 
-    //this.getEssais()
+   /* this.servicePouchdb.remoteSaved.getSession((err, response) => {
+      alert('oui')
+        if (response.userCtx.name) {
+          this.aProfile = true;
+        }else{
+          this.aProfile = false;
+        }
+    }, err => {
+      alert('oui '+err)
+      this.aProfile = false;
+      /*if(global.info_user != null){
+        this.aProfile = true;
+      }else{
+        this.aProfile = false;
+      }****
+      //console.log(err)
+    }); */
+
     this.initForm();
 //    this.storage.remove('info_db')
   }
@@ -2467,22 +2657,26 @@ var opt = {
       });
 }
 
-  getEssais(){
-    this.rechercher = true;
-    this.servicePouchdb.remoteSaved.getSession((err, response) => {
+  getEssais(refresher: any = ''){
+    if(refresher === ''){
+      this.rechercher = true;
+    }
+    /*this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (response.userCtx.name) {
           this.aProfile = true;
         }else{
           this.aProfile = false;
         }
     }, err => {
-      if(global.info_user != null){
+      this.aProfile = false;
+      /*if(global.info_user != null){
         this.aProfile = true;
       }else{
         this.aProfile = false;
-      }
+      }****
       //console.log(err)
-    }); 
+    }); */
+
 
     if(this.selectedAnnee === 'Tous'){
       if(this.selectedLimit === 'Tous'){
@@ -2495,8 +2689,14 @@ var opt = {
                     this.essais = e;
                     this.allEssais = e;
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                  // this.champs = c;
                   //this.allChamps = c;
@@ -2519,8 +2719,14 @@ var opt = {
                      this.essais = e;
                      this.allEssais = e;
                      this.rechercher = false;
+                     if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                 });
                
@@ -2538,8 +2744,14 @@ var opt = {
                     this.essais = e;
                     //this.allEssais = e;
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                 });
 
@@ -2568,8 +2780,14 @@ var opt = {
                     this.essais = e;
                     //this.allEssais = e;
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
 
                 });
@@ -2611,8 +2829,14 @@ var opt = {
                     this.essais = ess;
                     this.allEssais = ess;
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                 });
 
@@ -2641,8 +2865,14 @@ var opt = {
                     this.essais = ess;
                     this.allEssais = ess;
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                 });
                 
@@ -2671,8 +2901,14 @@ var opt = {
                     this.essais = ess;
                    // this.allEssais = ess;
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                 });
 
@@ -2716,8 +2952,14 @@ var opt = {
                       this.essais = ess;//.slice(0, 5);
                       //this.allEssais = ess;
                       this.rechercher = false;
+                      if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }else{
                     this.rechercher = false;
+                    if(refresher !== ''){
+                      refresher.complete();
+                    }
                   }
                    });
 
@@ -3245,152 +3487,166 @@ var opt = {
     }*/
   }
 
-  editer(essai){
-    this.grandEssai = essai;
-    this.essai1 = this.grandEssai.data;
-    //this.nom_producteur = this.essai1.nom_producteur;
-    this.selectedProducteur = this.essai1.matricule_producteur;
-    this.ancienSelectedProducteur = this.essai1.matricule_producteur;
-    this.selectedChamps = this.essai1.id_champs;
-    this.selectedTraitement = this.essai1.code_traitement;
-    this.selectedGerants = this.essai1.gerants;
-    this.selectedPrecedanteCultures = this.essai1.precedante_cultures;
-    this.ancien_code_traitement = this.essai1.code_traitement;
-    this.nom_entree = this.essai1.nom_entree;
-    this.nom_controle = this.essai1.nom_controle;
-    this.site_producteur = this.essai1.site_producteur;
-    this.sex_producteur = this.essai1.sex_producteur;
-    this.classe_producteur = this.essai1.classe_producteur;
-    this.village_producteur = this.essai1.village_producteur;
-    this.superficie = this.essai1.superficie;
-    this.superficie_tr = this.essai1.superficie_essai;
-    this.type_sole = this.essai1.type_sole;
-    this.longitude = this.essai1.longitude;
-    this.latitude = this.essai1.latitude;
-    this.code_essai = this.essai1.code_essai;
-    this.ancientCode_essai = this.essai1.code_essai;
-    this.nom_champs = this.essai1.nom_champs;
-    this.nom_producteur = this.essai1.nom_producteur;
-    this.surnom_producteur = this.essai1.surnom_producteur;
-    //this.sex_producteur = this.essai1.sex_producteur;
-    //this.site_producteur = this.essai1.site_producteur;
-    //this.village_producteur = this.essai1.village_producteur;
-    this.classe_producteur = this.essai1.classe_producteur;
-    this.NPL = this.essai1.NPL;
-    this.NPL_controle = this.essai1.NPL_controle;
-    this.NPR = this.essai1.NPR;
-    this.NPR_controle = this.essai1.NPR_controle;
-    this.ancien_NPL = this.essai1.NPL;
-    this.ancien_NPL_controle = this.essai1.NPL_controle;
-    this.ancien_NPR = this.essai1.NPR;
-    this.ancien_NPR_controle = this.essai1.NPR_controle;
-    this.ancien_PDE = this.essai1.PDE;
-    this.ancien_PDE_controle = this.essai1.PDE_controle;
-    //this.code_essai = this.essai1.code_essai;
-    this.annee_essai = this.essai1.annee_essai;
-    this.today = this.essai1.today;
-    if(this.essai1.today){
-      this.dateAjout = new Date(this.essai1.today);
-    }else if(!this.dateAjout){
-      this.dateAjout = new Date();
-    }
-    //this.site_producteur = this.essai1.site_producteur;
-    this.matricule_producteur = this.essai1.matricule_producteur;
-    //this.sex_producteur = this.essai1.sex_producteur;
-    this.code_traitement = this.essai1.code_traitement;
-    this.id_champs = this.essai1.id_champs;
-    this.superficie_essai = this.essai1.superficie_essai;
-    
-    if(this.essai1.date_semis){
-      this.date_semis = this.essai1.date_semis;
-      this.dateSemis = new Date(this.essai1.date_semis);
-    }else if(!this.dateSemis){
-      this.dateSemis = new Date();
-    }
-
-    if(this.essai1.date_semis_controle){
-      this.date_semis_controle = this.essai1.date_semis_controle;
-      this.dateSemisControle = new Date(this.essai1.date_semis_controle);
-    }else if(!this.dateSemisControle){
-      this.dateSemisControle = new Date();
-    }
-
-    if(this.essai1.gestion){
-      this.gestion = this.essai1.gestion;
-    }
-
-    if(this.essai1.gestion_controle){
-      this.gestion_controle = this.essai1.gestion_controle;
-    }
-    
-    if(this.essai1.date_recolte){
-      this.dateRecolte = new Date(this.essai1.date_recolte);
-      //this.date_recolte = this.essai1.date_recolte;
-      if(this.dateSemis > this.dateRecolte){
-        this.date_recolte = '';
-        this.dateRecolte = this.dateSemis;
-      }else{
-        this.date_recolte = this.essai1.date_recolte;
+  editer(essai, dbclick: boolean = false){
+    if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
+      this.grandEssai = essai;
+      this.essai1 = this.grandEssai.data;
+      //this.nom_producteur = this.essai1.nom_producteur;
+      this.selectedProducteur = this.essai1.matricule_producteur;
+      this.ancienSelectedProducteur = this.essai1.matricule_producteur;
+      this.selectedChamps = this.essai1.id_champs;
+      this.selectedTraitement = this.essai1.code_traitement;
+      this.selectedGerants = this.essai1.gerants;
+      this.selectedPrecedanteCultures = this.essai1.precedante_cultures;
+      this.ancien_code_traitement = this.essai1.code_traitement;
+      this.nom_entree = this.essai1.nom_entree;
+      this.nom_controle = this.essai1.nom_controle;
+      this.site_producteur = this.essai1.site_producteur;
+      this.sex_producteur = this.essai1.sex_producteur;
+      //this.classes_producteur = this.essai1.classes_producteur;
+      this.village_producteur = this.essai1.village_producteur;
+      this.superficie = this.essai1.superficie;
+      this.superficie_tr = this.essai1.superficie_essai;
+      this.type_sole = this.essai1.type_sole;
+      this.longitude = this.essai1.longitude;
+      this.latitude = this.essai1.latitude;
+      this.code_essai = this.essai1.code_essai;
+      this.ancientCode_essai = this.essai1.code_essai;
+      this.nom_champs = this.essai1.nom_champs;
+      this.nom_producteur = this.essai1.nom_producteur;
+      this.surnom_producteur = this.essai1.surnom_producteur;
+      //this.sex_producteur = this.essai1.sex_producteur;
+      //this.site_producteur = this.essai1.site_producteur;
+      //this.village_producteur = this.essai1.village_producteur;
+      //this.classe_producteur = this.essai1.classe_producteur;
+      this.NPL = this.essai1.NPL;
+      this.NPL_controle = this.essai1.NPL_controle;
+      this.NPR = this.essai1.NPR;
+      this.NPR_controle = this.essai1.NPR_controle;
+      this.ancien_NPL = this.essai1.NPL;
+      this.ancien_NPL_controle = this.essai1.NPL_controle;
+      this.ancien_NPR = this.essai1.NPR;
+      this.ancien_NPR_controle = this.essai1.NPR_controle;
+      this.ancien_PDE = this.essai1.PDE;
+      this.ancien_PDE_controle = this.essai1.PDE_controle;
+      //this.code_essai = this.essai1.code_essai;
+      this.annee_essai = this.essai1.annee_essai;
+      this.today = this.essai1.today;
+      if(this.essai1.today){
+        this.dateAjout = new Date(this.essai1.today);
+      }else if(!this.dateAjout){
+        this.dateAjout = new Date();
+      }
+      //this.site_producteur = this.essai1.site_producteur;
+      this.matricule_producteur = this.essai1.matricule_producteur;
+      //this.sex_producteur = this.essai1.sex_producteur;
+      this.code_traitement = this.essai1.code_traitement;
+      this.id_champs = this.essai1.id_champs;
+      this.superficie_essai = this.essai1.superficie_essai;
+      
+      if(this.essai1.date_semis){
+        this.date_semis = this.essai1.date_semis;
+        this.dateSemis = new Date(this.essai1.date_semis);
+      }else if(!this.dateSemis){
+        this.dateSemis = new Date();
       }
 
-    }else if(!this.dateRecolte) {
-      this.dateRecolte = this.dateSemis;// new Date();
-    }
-    
-    this.PDE = this.essai1.PDE;
-    this.PDE_controle = this.essai1.PDE_controle;
-    if(this.essai1.mode_semis && this.essai1.mode_semis !== ''){
-      this.mode_semi = this.essai1.mode_semis;
-    }
+      if(this.essai1.date_semis_controle){
+        this.date_semis_controle = this.essai1.date_semis_controle;
+        this.dateSemisControle = new Date(this.essai1.date_semis_controle);
+      }else if(!this.dateSemisControle){
+        this.dateSemisControle = new Date();
+      }
 
-    if(this.essai1.mode_semis_controle && this.essai1.mode_semis_controle !== ''){
-      this.mode_semi_controle = this.essai1.mode_semis_controle;
-    }
-    
-    if(this.essai1.observation){
-      this.observation = this.essai1.observation;
-    }else{
-      this.observation = '';
-    }
-    
-    if(this.essai1.observation_controle){
-      this.observation_controle = this.essai1.observation_controle;
-    }else{
-      this.observation_controle = '';
-    }
-    
-    this.objectif_essai = this.essai1.objectif_essai;
-    this.estValide = this.essai1.estValide;
-    this.effort_personnel = this.essai1.effort_personnel;
-    this.chargerInfoTraitement1(this.selectedTraitement); 
-  
-    //this.navCtrl.push('ModifierEssaiPage', {'essai': essai});
-    this.detailEssai = false;
+      if(this.essai1.gestion){
+        this.gestion = this.essai1.gestion;
+      }
 
-    this.ajoutForm = true;
-
-    this.modifierFrom = true;
-    this.essaiAModifier = essai;
-    if(!this.matricule_producteur1){
-
-      this.chargerChamps(this.matricule_producteur, this.nom_producteur);
-       if(this.essai1.date_semis){
-          this.dateSemis = new Date(this.essai1.date_semis);
+      if(this.essai1.gestion_controle){
+        this.gestion_controle = this.essai1.gestion_controle;
+      }
+      
+      if(this.essai1.date_recolte){
+        this.dateRecolte = new Date(this.essai1.date_recolte);
+        //this.date_recolte = this.essai1.date_recolte;
+        if(this.dateSemis > this.dateRecolte){
+          this.date_recolte = '';
+          this.dateRecolte = this.dateSemis;
         }else{
-          this.dateSemis = new Date();
+          this.date_recolte = this.essai1.date_recolte;
         }
 
-        if(this.essai1.date_semis_controle){
-          this.dateSemisControle = new Date(this.essai1.date_semis_controle);
-        }else{
-          this.dateSemisControle = new Date();
+      }else if(!this.dateRecolte) {
+        this.dateRecolte = this.dateSemis;// new Date();
+      }
+      
+      this.PDE = this.essai1.PDE;
+      this.PDE_controle = this.essai1.PDE_controle;
+      if(this.essai1.mode_semis && this.essai1.mode_semis !== ''){
+        this.mode_semi = this.essai1.mode_semis;
+      }
+
+      if(this.essai1.mode_semis_controle && this.essai1.mode_semis_controle !== ''){
+        this.mode_semi_controle = this.essai1.mode_semis_controle;
+      }
+      
+      if(this.essai1.observation){
+        this.observation = this.essai1.observation;
+      }else{
+        this.observation = '';
+      }
+      
+      if(this.essai1.observation_controle){
+        this.observation_controle = this.essai1.observation_controle;
+      }else{
+        this.observation_controle = '';
+      }
+      
+      this.objectif_essai = this.essai1.objectif_essai;
+      this.estValide = this.essai1.estValide;
+      this.effort_personnel = this.essai1.effort_personnel;
+      this.chargerInfoTraitement1(this.selectedTraitement); 
+    
+      //this.navCtrl.push('ModifierEssaiPage', {'essai': essai});
+      this.detailEssai = false;
+
+      this.ajoutForm = true;
+
+      this.modifierFrom = true;
+      this.essaiAModifier = essai;
+      if(!this.matricule_producteur1){
+
+        this.chargerChamps(this.matricule_producteur, this.nom_producteur);
+        if(this.essai1.date_semis){
+            this.dateSemis = new Date(this.essai1.date_semis);
+          }else{
+            this.dateSemis = new Date();
+          }
+
+          if(this.essai1.date_semis_controle){
+            this.dateSemisControle = new Date(this.essai1.date_semis_controle);
+          }else{
+            this.dateSemisControle = new Date();
+          }
+          if(this.essai1.date_recolte){
+            this.dateRecolte = new Date(this.essai1.date_recolte);
+          }else{
+            this.dateRecolte = new Date();
+          }
+      }
+
+      //pour le code d'union
+      if(this.essai1.code_union && this.essai1.code_union !== ''){
+        this.code_union = this.essai1.code_union
+      }else{
+        for(let k = 0; k < this.producteurs.length; k++) {
+          if(this.producteurs[k].doc.data.matricule_Membre === this.selectedProducteur){
+            this.code_union = this.producteurs[k].doc.data.code_union;
+            break;
+          }
         }
-        if(this.essai1.date_recolte){
-          this.dateRecolte = new Date(this.essai1.date_recolte);
-        }else{
-          this.dateRecolte = new Date();
-        }
-    }
+      }
+   }
   }
 
   reinitFormModifier(){
@@ -3407,7 +3663,7 @@ var opt = {
     this.nom_controle = '';
     this.site_producteur ='';
     this.sex_producteur = "";
-    this.classe_producteur = '';
+    //this.classe_producteur = [];
     this.village_producteur = '';
     this.superficie = '';
     this.superficie_tr = '';
@@ -3421,7 +3677,7 @@ var opt = {
     this.sex_producteur = '';
     this.site_producteur = '';
     this.village_producteur = '';
-    this.classe_producteur = '';
+    //this.classe_producteur = [];
     this.NPL = '';
     this.NPL_controle = '';
     this.NPR = '';
@@ -3754,7 +4010,7 @@ var opt = {
       }else{
         this.village_producteur = this.membre.data.village_autre;
       }
-
+/*
       //classe
       if((this.membre.data.classe != 'AUTRE') && (!this.membre.data.classe_nom)){
         this.classe_producteur = this.membre.data.classe
@@ -3762,7 +4018,59 @@ var opt = {
         this.classe_producteur = this.membre.data.classe_nom;
       }else{
         this.classe_producteur = this.membre.data.classe_autre
+      }*/
+  }
+
+  trasformerEssaisPourAnnalyse(old_essais){
+    let new_essais: any = [];
+     let new_essais1: any = [];
+    new_essais = old_essais;
+    let new_essai: any = {};
+    /*old_essais.forEach((essai) => {
+       new_essais.push(essai);
+    })*/
+      for(let i = 0; i < old_essais.length; i++){
+       new_essais.push(old_essais[i]);
       }
+
+    /* for(let i = 0; i < old_essais.length; i++){
+       new_essai = old_essais[i];
+        new_essai.doc.data.nom_entree = old_essais[i].doc.data.nom_controle;
+        new_essai.doc.data.date_semis = old_essais[i].doc.data.date_semis_controle;
+        new_essai.doc.data.NPL = old_essais[i].doc.data.NPL_controle;
+        new_essai.doc.data.gestion = old_essais[i].doc.data.gestion_controle;
+        new_essai.doc.data.NPR = old_essais[i].doc.data.NPR_controle;
+        new_essai.doc.data.PDE = old_essais[i].doc.data.PDE_controle;
+        //new_essai.doc.data.date_semis = essai.doc.data.date_semis_controle;
+        new_essais.push(new_essai);
+        new_essai = {}
+     }*/
+
+    old_essais.forEach((essai) => {
+      new_essai = essai;
+      new_essai.doc.data.nom_entree = essai.doc.data.nom_controle;
+      new_essai.doc.data.date_semis = essai.doc.data.date_semis_controle;
+      new_essai.doc.data.NPL = essai.doc.data.NPL_controle;
+      new_essai.doc.data.gestion = essai.doc.data.gestion_controle;
+      new_essai.doc.data.NPR = essai.doc.data.NPR_controle;
+      new_essai.doc.data.PDE = essai.doc.data.PDE_controle;
+      //new_essai.doc.data.date_semis = essai.doc.data.date_semis_controle;
+      new_essais1.push(new_essai);
+      new_essai = {}
+    });
+
+    //let E: any = this.essais;
+      this.essais_pour_annalyse = new_essais.concat(new_essais1);
+
+    //this.essais_pour_annalyse = new_essais;
+  }
+
+  changerStyleAffichageTableau(essais, selectedStyleTableau){
+    if(selectedStyleTableau === 'avance'){
+      this.trasformerEssaisPourAnnalyse(essais)
+    }else{
+
+    }
   }
 
 
