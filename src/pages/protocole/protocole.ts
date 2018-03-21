@@ -54,6 +54,14 @@ export class ProtocolePage {
   projet: any = '';
   nom: any = '';
   titre_essais: any = '';
+  contexte: any = '';
+  methodologie: any = '';
+  choix_varietes: any = '';
+  type_culture: any = '';
+  avec_repetition: any = '';
+  nb_repetition: any;
+  traitement: any = '';
+  type_essais: any = '';
   objectifs: any = '';
   nb_e_r_d_e: any = '';
   taille_parcelle: any = '';
@@ -142,12 +150,20 @@ export class ProtocolePage {
        // _id:[''],
         type:['protocole'],
         annee:['', Validators.required],
-        projet:['', Validators.required],
         nom:['', Validators.required],
-        titre_essais: [''],
+        projet:['', Validators.required],
+        titre_essais: ['', Validators.required],
+        contexte:[''],
+        objectifs:[''],
+        methodologie:[''],
+        choix_varietes:[''],
+        type_culture:['', Validators.required],
+        avec_repetition:['', Validators.required],
+        nb_repetition:['', ],
+        traitement:['', Validators.required],
+        type_essais:[''],
         //today: [today],
         //id_site:['', , Validators.required],
-        objectifs:[''],
         //id_village:['', , Validators.required],
         nb_e_r_d_e:[''], 
         taille_parcelle: [''],
@@ -218,6 +234,14 @@ export class ProtocolePage {
       //this.chargerChamps('');
       this.annee = '';
       this.titre_essais = '';
+      this.contexte = '';
+      this.methodologie = '';
+      this.choix_varietes = '';
+      this.type_culture = '';
+      this.avec_repetition = '';
+      this.nb_repetition = '';
+      this.traitement = '';
+      this.type_essais = '';
       this.objectifs = '';
       this.nb_e_r_d_e = '';
       this.taille_parcelle = '';
@@ -250,11 +274,11 @@ export class ProtocolePage {
     }
   
     
-  existe(protocole, code, ajout){
+  existe(protocole, modifierFrom){
     //let c: any = {};
     let res: number = 0;
     //alert(producteur_connu+'  '+matricule_producteur)
-    if(ajout){
+    if(!modifierFrom){
       for(let i = 0; i < this.allProtocoles.length; i++){ 
         //c = this.allCultures[i];
         if((this.allProtocoles[i].doc.data.nom == protocole.nom) && (this.allProtocoles[i].doc.data.annee == protocole.annee)){
@@ -265,7 +289,7 @@ export class ProtocolePage {
     }else{
       for(let i = 0; i < this.allProtocoles.length; i++){ 
         //c = this.allCultures[i];
-        if(((this.allProtocoles[i].doc.data.nom == protocole.nom) && (this.allProtocoles[i].doc.data.annee == protocole.annee)) && (code && this.allProtocoles[i].doc.data.code !== code)){
+        if(((this.allProtocoles[i].doc.data.nom === protocole.nom) && (this.allProtocoles[i].doc.data.annee === protocole.annee)) && (protocole.code && this.allProtocoles[i].doc.data.code !== protocole.code)){
           res = 1;
           break;
         }
@@ -281,7 +305,11 @@ export class ProtocolePage {
 
     actionForm(){
       let protocole = this.protocoleForm.value;
-      if(this.existe(protocole, this.code, this.ajouter) == 1){
+
+      if(this.modifierFrom){
+        protocole.code = this.protocole1.code;
+      }
+      if(this.existe(protocole, this.modifierFrom) == 1){
         alert('Erreur! Enregistrement impossible, ce protocole existe déjà');
       }else{
         if(this.ajoutForm && !this.modifierFrom){
@@ -341,6 +369,14 @@ export class ProtocolePage {
         //today: [today],
         //id_site:['', , Validators.required],
         this.protocole1.titre_essais = protocole.titre_essais;
+        this.protocole1.contexte = protocole.contexte;
+        this.protocole1.methodologie = protocole.methodologie;
+        this.protocole1.choix_varietes = protocole.choix_varietes;
+        this.protocole1.type_culture = protocole.type_culture;
+        this.protocole1.avec_repetition = protocole.avec_repetition;
+        this.protocole1.nb_repetition = protocole.nb_repetition;
+        this.protocole1.traitement = protocole.traitement;
+        this.protocole1.type_essais = protocole.type_essais;
         //id_village:['', , Validators.required],
         this.protocole1.projet = protocole.projet; 
         this.protocole1.nom = protocole.nom; 
@@ -676,6 +712,14 @@ export class ProtocolePage {
       this.nom = this.protocole1.nom;
       this.objectifs = this.protocole1.objectifs;
       this.titre_essais = this.protocole1.titre_essais;
+      this.contexte = this.protocole1.contexte;
+      this.methodologie = this.protocole1.methodologie;
+      this.choix_varietes = this.protocole1.choix_varietes;
+      this.type_culture = this.protocole1.type_culture;
+      this.avec_repetition = this.protocole1.avec_repetition;
+      this.nb_repetition = this.protocole1.nb_repetition;
+      this.traitement = this.protocole1.traitement;
+      this.type_essais = this.protocole1.type_essais;
       this.nb_e_r_d_e = this.protocole1.nb_e_r_d_e;
       this.taille_parcelle = this.protocole1.taille_parcelle;
       this.d_e_p_d_u_l = this.protocole1.d_e_p_d_u_l;
@@ -702,6 +746,14 @@ export class ProtocolePage {
     this.projet = '';
     this.nom = '';
     this.titre_essais = '';
+    this.contexte = '';
+    this.methodologie = '';
+    this.choix_varietes = '';
+    this.type_culture = '';
+    this.avec_repetition = '';
+    this.nb_repetition = '';
+    this.traitement = '';
+    this.type_essais = '';
     this.objectifs = '';
     this.nb_e_r_d_e ='';
     this.taille_parcelle ='';
@@ -718,6 +770,9 @@ export class ProtocolePage {
       let maDate = new Date();
       this.today = this.createDate(maDate.getDate(), maDate.getMonth(), maDate.getFullYear());
       this.id = this.generateId();
+      this.traitement = 'oui';
+      this.avec_repetition = 'non';
+      this.nb_repetition = 0;
       this.ajoutForm = true;
       
   }
