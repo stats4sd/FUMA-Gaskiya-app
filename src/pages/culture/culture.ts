@@ -11,10 +11,10 @@ import { Printer, PrintOptions } from '@ionic-native/printer';
 import { Device } from '@ionic-native/device';
 import { Sim } from '@ionic-native/sim';
 
-import {Culture} from '../../app/culture.interface'
+//import {Culture} from '../../app/culture.interface'
 //import { from } from 'rxjs/observable/from';
 import { Validators, FormGroup, FormArray, FormBuilder } from '@angular/forms';
-import { variable } from '@angular/compiler/src/output/output_ast';
+//import { variable } from '@angular/compiler/src/output/output_ast';
 
 declare var cordova: any;
 /**
@@ -62,6 +62,7 @@ export class CulturePage {
   modifierFrom: boolean = false;
   estInstancier: boolean = false;
   ajoutForm: boolean = false;
+  listeCultures:any  = ['Arachide', 'Igname', 'Maïs', 'Manioc', 'Mil', 'Niébé', 'Oignon', 'Pomme de terre', 'Riz', 'Sorgho', 'Tomate'];
 
 
   constructor(public navCtrl: NavController, public loadtingCtl: LoadingController, public toastCtl: ToastController, public ionicApp: IonicApp, public viewCtl: ViewController, public formBuilder: FormBuilder, public sim: Sim, public device: Device, public modelCtl: ModalController, public a: App, public events: Events, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
@@ -159,9 +160,9 @@ export class CulturePage {
   initVariable() {
     
     return this.formBuilder.group({
-      code_variable: ['', [Validators.required, Validators.pattern('[A-Za-z0-9_-]{1,10}')]],  
+      code_variable: ['', [Validators.required, Validators.pattern('[A-Za-z0-9_-]{1,50}')]],  
       nom_variable: ['', Validators.required],    
-      type_variable: [''],
+      type_variable: ['', Validators.required],
       valeur_variable: [''],
       unite: [''],
       est_obligatoire: [false],
@@ -578,16 +579,16 @@ choixLimit1(){
       //   if(e){
           //cas ou le producteur est connu
 
-            this.servicePouchdb.getPlageDocsRapide('fuma:culture', 'fuma:culture:\uffff').then((c) => {
+            this.servicePouchdb.getPlageDocsRapide('fuma:culture:', 'fuma:culture:\uffff').then((c) => {
               if(c){
-                let cs:any = [];
+                /*let cs:any = [];
                 c.forEach((cultrue) => {
                   if(cultrue.doc.data.type == 'culture'){
                     cs.push(cultrue);
                   }
-                })
-                  this.cultures = cs;
-                  this.allCultures = cs;
+                })*/
+                  this.cultures = c;
+                  this.allCultures = c;
                   this.rechercher = false;
                   if(refresher !== ''){
                   refresher.complete();
@@ -606,15 +607,15 @@ choixLimit1(){
     }else{
 
   
-        this.servicePouchdb.getPlageDocsRapideAvecLimit('fuma:culture', 'fuma:culture:\uffff', this.selectedLimit).then((c) => {
+        this.servicePouchdb.getPlageDocsRapideAvecLimit('fuma:culture:', 'fuma:culture:\uffff', this.selectedLimit).then((c) => {
           if(c){
-            let cs: any = [];
+            /*let cs: any = [];
             c.forEach((culture) => {
               if(culture.doc.data.type == 'culture'){
                 cs.push(culture);
               }
-            })
-            this.cultures = cs;
+            })*/
+            this.cultures = c;
             //this.allEssais = e;
             this.rechercher = false;
             if(refresher !== ''){
@@ -629,15 +630,15 @@ choixLimit1(){
 
         });
 
-        this.servicePouchdb.getPlageDocsRapide('fuma:culture', 'fuma:culture:\uffff').then((c) => {
+        this.servicePouchdb.getPlageDocsRapide('fuma:culture:', 'fuma:culture:\uffff').then((c) => {
           if(c){
-            let cs: any = [];
+            /*let cs: any = [];
             c.forEach((culture) => {
               if(culture.doc.data.type == 'culture'){
                 cs.push(culture);
               }
-            })
-            this.allCultures = cs;
+            })*/
+            this.allCultures = c;
             //this.rechercher = false;
           }
         });
@@ -666,9 +667,9 @@ editer(culture, dbclick: boolean = false){
           this.formBuilder.group({
             code_variable: [variable.code_variable, Validators.required],  
             nom_variable: [variable.nom_variable, Validators.required],    
-            type_variable: [variable.type_variable],
+            type_variable: [variable.type_variable, Validators.required],
             valeur_variable: [variable.valeur_variable],
-            unite: [variable.unite],
+            unite: [variable.unite, Validators.required],
             est_obligatoire: [variable.est_obligatoire],
             est_selectionne: [false],
             description_variable: [variable.description_variable]

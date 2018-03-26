@@ -596,9 +596,11 @@ export class MembresPage {
       sourceType: this.camera.PictureSourceType.CAMERA,
       //destinationType: this.camera.DestinationType.NATIVE_URI,
       destinationType: this.camera.DestinationType.DATA_URL,
-      quality: 50,
-      targetWidth: 500,
-      targetHeight: 500,
+      //quality: 50,
+      quality: 10,
+      //targetWidth: 500,
+      targetWidth: 100,
+      targetHeight: 100,
       correctOrientation: true,
       saveToPhotoAlbum: true
     };
@@ -1440,9 +1442,10 @@ export class MembresPage {
 
     let option = {
       maximumImagesCount: 1,
-      quality: 50,
-      width: 500,
-      height: 500,
+      //quality: 50,
+      quality: 10,
+      width: 100,
+      height: 100,
       outputType: 1
     };
 

@@ -209,7 +209,10 @@
 
         <ion-item>
           <ion-label floating>Nom <span class="error-box">*</span></ion-label>
-          <ion-input type="text" formControlName="nom"></ion-input>
+          <!--ion-input type="text" formControlName="nom"></ion-input-->
+          <ion-select formControlName="nom" cancelText="Annuler" okText="Ok">
+            <ion-option *ngFor="let c of listeCultures" [value]=c>{{c}}</ion-option>
+          </ion-select>
         </ion-item>
         <div style="padding-left: 15px;" class="error-box" *ngIf="cultureForm.controls['nom'].hasError('required') && cultureForm.controls['nom'].touched">* le nom de la culture est obligatoir!</div>
           
