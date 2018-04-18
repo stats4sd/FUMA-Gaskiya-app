@@ -70,7 +70,7 @@
       </ion-card-content>
     </ion-card>
 
-    <ion-card class="info-card" (dblclick)="editer(union, true)"> 
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(union, true)"> 
       <ion-card-header>
         <strong>Plus d'informations</strong>
       </ion-card-header>
@@ -187,7 +187,7 @@
     <ion-fab-list side="top">
       <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" (click)="supprimer(union)" color="delete" ><ion-icon name="trash"></ion-icon></button>
       <button ion-fab mini *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="openMap(union.data.code_union)" color="my_primary"><ion-icon name="pin"></ion-icon></button>
-      <button ion-fab mini *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="calculStatisitque(union.data.code_union)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
+      <!--button ion-fab mini *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="calculStatisitque(union.data.code_union)" color="my_primary"><ion-icon name="stats"></ion-icon></button-->
       <button ion-fab *ngIf="(user && user.roles && global.estAnimataire(user.roles)) || estAnimataire" (click)="opUnion(union.data.num_aggrement, union.data.nom_union, union.data.code_union)" color="my_primary"><strong>OP</strong></button>
       <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" (click)="editer(union)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
     </ion-fab-list>

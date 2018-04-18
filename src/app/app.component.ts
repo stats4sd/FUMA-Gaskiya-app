@@ -27,7 +27,7 @@ import { global } from '../global-variables/variable';
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage: any = '';
+  rootPage: any = 'LoadingPage';
   pages: Array<{title: string, component: any, role: string}> = [];
   profiles: Array<{title: string, component: any}>; 
   connexions: Array<{title: string, component: any}>; 
@@ -36,6 +36,7 @@ export class MyApp {
   user: any = global.info_user;
   global:any = global;
   mon_role = '';
+  infoApp: any = "Infos de l\'App";
 
   @ViewChild(Nav) nav: Nav;
   //@ViewChild('content') nav: Nav;
@@ -46,6 +47,7 @@ export class MyApp {
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       splashScreen.hide();
+      
       //this.chergerInfoDB();
       //back button handle
       //Registration of push in Android and Windows Phone
@@ -83,6 +85,11 @@ export class MyApp {
       //this.setPage();
 
       this.storage.get('langue').then((langue) => {
+        let activeModal = this.ionicApp._loadingPortal.getActive();
+        if(activeModal){
+          activeModal.dismiss();
+        }
+
         if(langue){
           this.rootPage = 'TabsPage'
           //alert(this.nav.getActive().component.name)
@@ -90,7 +97,14 @@ export class MyApp {
           this.rootPage = 'HomePage';
           //alert(this.nav.getActive().component.name)
         }
-      }, err => this.rootPage = 'HomePage')
+      }, err =>{ 
+        let activeModal = this.ionicApp._loadingPortal.getActive();
+        if(activeModal){
+          activeModal.dismiss();
+        }
+        
+        this.rootPage = 'HomePage'
+      })
 
     });
 
@@ -199,19 +213,21 @@ export class MyApp {
   setPage(){
 
     this.pages = [ 
+            { title: 'Infos de l\'App', component: 'InfoAppPage', role: 'any' },
+            //{ title: 'Config app', component: 'ConfigAppPage', role: 'any' },
             { title: 'Changer la langue', component: 'LanguePage', role: 'any' },
             { title: 'Gestion des utilisateurs', component: 'UsersManagementPage', role: 'admin'},
             { title: 'Formulaires ODK', component: 'CollectPage', role: 'animataire' },
             { title: 'Config Localité Enquete', component: 'ConfLocaliteEnquetePage', role: 'animataire' },
-            { title: 'Gestion types soles', component: 'TypeSolePage', role: 'moderateur' },
+            { title: 'Gestion types soles', component: 'TypeSolePage', role: 'animataire' },
             { title: 'Gestion champs', component: 'ChampsPage', role: 'animataire' },
-            { title: 'Gestion protocoles', component: 'ProtocolePage', role: 'any' },
-            { title: 'Gestion cultures protocole', component: 'CultureProtocolePage', role: 'any' },
-            { title: 'Gestion cultures', component: 'CulturePage', role: 'any' },
-            { title: 'Gestion traitements', component: 'TraitementPage', role: 'moderateur' },
+            { title: 'Gestion protocoles', component: 'ProtocolePage', role: 'animataire' },
+            { title: 'Gestion cultures protocole', component: 'CultureProtocolePage', role: 'animataire' },
+            { title: 'Gestion cultures', component: 'CulturePage', role: 'animataire' },
+            { title: 'Gestion traitements', component: 'TraitementPage', role: 'animataire' },
             { title: 'Gestion typologie', component: 'TypologiePage', role: 'animataire' },
-            { title: 'Gestion variétés', component: 'GestionVarietePage', role: 'moderateur' },
-            { title: 'Gestion Essais old', component: 'EssaiPage', role: 'any' },
+            { title: 'Gestion variétés', component: 'GestionVarietePage', role: 'animataire' },
+            { title: 'Gestion Essais old', component: 'EssaiPage', role: 'moderateur' },
             { title: 'Admin', component: 'AdminPage', role: 'any' },           
      ];
 

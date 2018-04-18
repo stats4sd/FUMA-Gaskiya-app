@@ -27,12 +27,12 @@
  
   <ion-content>
     
-    <ion-list *ngIf="pages.length">
-      <div  *ngFor="let page of pages">
-      <!--button ion-item *ngIf="verifierRole(page) || (mon_role == 'user' && page.role == 'any') || (mon_role != 'user' && (page.role == 'any' || mon_role == 'admin' || (page.role == 'animataire' && (mon_role == 'admin' || mon_role == 'moderateur' || mon_role == 'animataire')) || (page.role == 'moderateur' && (mon_role == 'admin' || mon_role == 'moderateur')) || (page.role == 'admin' && mon_role == 'admin')))" (click)="openPage(page)"-->
-      <button ion-item *ngIf="(mon_role == 'user' && page.role == 'any') || (mon_role != 'user' && (page.role == 'any' || mon_role == 'admin' || (page.role == 'animataire' && (mon_role == 'admin' || mon_role == 'moderateur' || mon_role == 'animataire')) || (page.role == 'moderateur' && (mon_role == 'admin' || mon_role == 'moderateur')) || (page.role == 'admin' && mon_role == 'admin')))" (click)="openPage(page)">
-        {{page.title}}
-      </button>
+    <ion-list *ngIf="pages.length > 0">
+        <div  *ngFor="let page of pages">
+        <!--button ion-item *ngIf="verifierRole(page) || (mon_role == 'user' && page.role == 'any') || (mon_role != 'user' && (page.role == 'any' || mon_role == 'admin' || (page.role == 'animataire' && (mon_role == 'admin' || mon_role == 'moderateur' || mon_role == 'animataire')) || (page.role == 'moderateur' && (mon_role == 'admin' || mon_role == 'moderateur')) || (page.role == 'admin' && mon_role == 'admin')))" (click)="openPage(page)"-->
+        <button ion-item *ngIf="(mon_role == 'user' && page.role == 'any') || (mon_role != 'user' && (page.role == 'any' || mon_role == 'admin' || (page.role == 'animataire' && (mon_role == 'admin' || mon_role == 'moderateur' || mon_role == 'animataire')) || (page.role == 'moderateur' && (mon_role == 'admin' || mon_role == 'moderateur')) || (page.role == 'admin' && mon_role == 'admin')))" (click)="openPage(page)">
+            <ion-icon name="information-circle" *ngIf="page.title == infoApp"></ion-icon> {{page.title}}
+        </button>
       </div>
       <!--button ion-item *ngFor="let p of pages">
         {{p.title}}

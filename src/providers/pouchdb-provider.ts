@@ -6,16 +6,19 @@ import { Observable } from 'rxjs/Rx';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Storage } from '@ionic/storage';
 import { global } from '../global-variables/variable';
+
 //pouchDB made available to compiler through  @types/pouchdb (npm install @types/pouchdb --save --save-exact)
 //import PouchDB from 'pouchdb'
 declare var require: any;
 import PouchDB from 'pouchdb';
+//import * as cordovaSqlitePlugin from 'pouchdb-adapter-cordova-sqlite';
 import * as pouchdbAuthentication from 'pouchdb-authentication';
 
 //import * as pouchdbQuickSearch from 'pouchdb-quick-search';
 
 //import * as pouchdbdesign from 'pouchdb-design';
-//PouchDB.plugin(require('pouchdb-adapter-cordova-sqlite'));
+PouchDB.plugin(require('pouchdb-adapter-cordova-sqlite'));
+
 PouchDB.plugin(pouchdbAuthentication);
 //PouchDB.plugin(require('pouchdb-design'));
 //PouchDB.plugin(require('relational-pouch'));
@@ -62,7 +65,7 @@ export class PouchdbProvider {
 
  
     constructor(public http: Http, private sanitizer: DomSanitizer, public platform: Platform, public toastCtl: ToastController, public pl: Platform, public events: Events, public loadingCtrl: LoadingController, public storage: Storage) {
-        
+      //PouchDB.plugin(cordovaSqlitePlugin);
         //PouchDB.plugin(pouchdbFind);
         //this.remoteDetails = this.http.get('assets/app-config.json').subscribe(res => this.remoteDetails = (res.json()))
         //setup db to connect to single database
@@ -72,12 +75,17 @@ export class PouchdbProvider {
   //  var wr = fs.createWriteStream('output.txt')
         //createWriteStream('output.txt');
 
-        if(!this.platform.is('android')){
-          this.batch_size = 1000;
+        //le pour appreil autres que les mobiles
+        if(!this.platform.is('android') && !this.platform.is('ios')){
+          this.batch_size = 100;
           this.batches_limit = 10
         }
 
         if (!this.isInstantiated) { 
+
+            this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}*/);
+            //this.database.info().then(console.log.bind(console))
+            
             this.storage.get('info_db').then((info_db) => {
               if(info_db){
                 global.info_db.ip = info_db.ip.toString();
@@ -87,7 +95,7 @@ export class PouchdbProvider {
                 global.remoteSaved = this.remoteSaved;
                 //this.database = new PouchDB('app-database');
                 //this.sync()
-                this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}*/);////base production
+              //this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}*/);////base production
                 //alert(this.database.adapter);
                 //this.database = new PouchDB("moriben-frn-app-db");////base production moriben
                 //this.sync()
@@ -106,7 +114,7 @@ export class PouchdbProvider {
                   global.remoteSaved = this.remoteSaved;
                 }
                 
-                this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}*/);
+                //this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}**/);
                 //alert(this.database.adapter);
                 //this.database = new PouchDB("moriben-frn-app-db");////base production moriben
                 //this.database = new PouchDB('app-database');
@@ -116,7 +124,7 @@ export class PouchdbProvider {
                   this.remoteSaved = new PouchDB('http://'+ global.info_db.ip +'/'+ global.info_db.nom_db, this.pouchOpts);
                   global.remoteSaved = this.remoteSaved;
               }
-              this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}*/);
+              //this.database = new PouchDB("frna-db"/*, {adapter: 'cordova-sqlite'}*/);
               //alert(this.database.adapter);
               //this.database = new PouchDB("fuma-frn-app-db");
               //this.database = new PouchDB("moriben-frn-app-db");////base production moriben
@@ -182,6 +190,85 @@ export class PouchdbProvider {
       }).catch((err) => alert('err catch replication => '+err));
     }
 
+
+    replicationByDocsId(ids: any = [], ip, nom_db, username, paswd){
+
+      let t: boolean = false;
+      //this.affichierMsg('Synchronisation en cours...');
+      let toast = this.toastCtl.create({
+        message: 'Replication de l\'enregistrement en cours...',
+        position: 'top',
+        duration: 1000,
+        showCloseButton: true,
+        closeButtonText: 'ok',
+        dismissOnPageChange: true
+          });
+  
+          toast.present();
+          t = true
+          toast.onDidDismiss(() => t = false)
+    
+      var optionsSaved = {
+        skip_setup: true
+         // "auth.username": "fumagaskiya-app",
+         //"auth.password": "AA61E1481D12534A9CABE87465474"
+        //"auth.username": "admin",
+        //"auth.password": "admin"
+      }
+  
+      let remote = new PouchDB('http://'+ ip +'/'+ nom_db,  {
+        auth: {
+          username: username,
+          password: paswd
+        },
+        ajax: {
+          timeout: 4800000,
+        }
+      });
+
+      this.database.replicate.to(remote, {
+        timeout: 60000,
+        batch_size: this.batch_size,
+        batches_limit: this.batches_limit,
+        doc_ids: ids
+      }).on('change',  (info) => {
+      }).on('paused',  (err) => {
+          //console.log('paused', err)
+          if(err){
+            alert('pause replication de l\'enregistrement => '+err)
+          }
+          
+      }).on('active',  ()  => {
+          // replicate resumed (e.g. new changes replicating, user went back online)
+          //this.affichierMsg('Active')
+      }).on('denied',  (err) => {
+          //console.log('denied', err)
+          if(t){
+            toast.dismiss()
+          }
+          this.affichierMsg('Erreur replication de l\'enregistrement, accès réfusé par le serveur!')
+          remote.close();
+      }).on('complete',  (info) => {
+          //console.log('complete', info)
+          if(t){
+            toast.dismiss()
+          }
+          this.affichierMsg('Replication de l\'enregistrement terminée avec succes')
+          remote.close();
+          //metode;
+      }).on('error',  (err) => {
+          //console.log('error', err)
+          if(t){
+            toast.dismiss()
+          }
+  
+          alert('Erruer  de l\'enregistrement => '+err+ '. hote ==> '+'http://'+ ip +'/'+ nom_db)
+          this.affichierMsg('Erreur replication de l\'enregistrement, problème réseau!')
+          remote.close();
+          //metode;
+      });
+    }
+
   copierDB(){
    
     let codes_unions: any = {};
@@ -192,7 +279,7 @@ export class PouchdbProvider {
     loading.present();
     this.getAllDoc().then((allDoc) => {
       if(allDoc){
-        alert('nbdoc == '+allDoc.length);
+       // alert('nbdoc == '+allDoc.length);
         allDoc.forEach((doc) => {
           //copier les données vers la nouvelle base données
           /*if(doc.type && doc.type != '' && doc.type != 'photo' && doc.data){
@@ -245,10 +332,10 @@ export class PouchdbProvider {
   updateCopieDoc(newDoc){
 
      var copie_db = new PouchDB('http://'+ global.info_db.ip+'/copie_db', {
-      /*auth: {
+      auth: {
         username: 'admin',
         password: 'admin'
-      }*/
+      },
       ajax: {
         timeout: 4800000,
       }

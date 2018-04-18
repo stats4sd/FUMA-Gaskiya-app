@@ -269,7 +269,7 @@ export class UnionsPage {
 
     this.sim.getSimInfo().then(
       (info) => {
-        if(info.cards.length > 0){
+        if(info && info.cards && info.cards.length > 0){
           info.cards.forEach((infoCard) => {
             if(infoCard.phoneNumber){
               this.phonenumber = infoCard.phoneNumber;
@@ -472,6 +472,65 @@ export class UnionsPage {
 
     }
 
+  }
+
+  partager(_id){
+    let ids: any = [];
+    ids.push(_id);
+
+    let alert = this.alertCtl.create({
+      title: 'Information de connexion au du serveur',
+      //cssClass: 'error',
+      inputs: [
+        {
+          type: 'text',
+          placeholder: 'Adrèsse hôte',
+          name: 'ip',
+          value: '@ip:5984'
+        },
+        {
+          type: 'text',
+          placeholder: 'Nom DB',
+          name: 'nom_db',
+          value: 'nom_db'
+        },
+        {
+          type: 'text',
+          placeholder: 'Nom d\'utilisateur',
+          name: 'username',
+          //value: info_db.ip
+        },
+        {
+          type: 'password',
+          placeholder: 'Mot de passe',
+          name: 'passwd',
+          //value: info_db.nom_db
+        }
+      ],
+      buttons: [
+        {
+          //cssClass: 'error-border',
+          text: 'Annuler',
+          role: 'Cancel',
+          handler: () => console.log('Changement ip serveur annuler')
+        },
+        {
+          text: 'Valider',
+          handler: (data) => {
+            let ip = data.ip.toString();
+            let nom_db = data.nom_db.toString();
+            let username = data.username.toString();
+            let passwd = data.passwd.toString();
+            let ids:any = [];
+            ids.push(_id);
+            this.servicePouchdb.replicationByDocsId(ids, ip, nom_db, username, passwd);
+          }
+        }
+      ]
+    }); 
+
+    alert.present();
+    
   }
 
 

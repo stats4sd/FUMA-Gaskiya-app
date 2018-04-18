@@ -157,6 +157,66 @@ export class CulturePage {
 }
 
 
+partager(_id){
+  let ids: any = [];
+  ids.push(_id);
+
+  let alert = this.alertCtl.create({
+    title: 'Information de connexion au du serveur',
+    //cssClass: 'error',
+    inputs: [
+      {
+        type: 'text',
+        placeholder: 'Adrèsse hôte',
+        name: 'ip',
+        value: '@ip:5984'
+      },
+      {
+        type: 'text',
+        placeholder: 'Nom DB',
+        name: 'nom_db',
+        value: 'nom_db'
+      },
+      {
+        type: 'text',
+        placeholder: 'Nom d\'utilisateur',
+        name: 'username',
+        //value: info_db.ip
+      },
+      {
+        type: 'password',
+        placeholder: 'Mot de passe',
+        name: 'passwd',
+        //value: info_db.nom_db
+      }
+    ],
+    buttons: [
+      {
+        //cssClass: 'error-border',
+        text: 'Annuler',
+        role: 'Cancel',
+        handler: () => console.log('Changement ip serveur annuler')
+      },
+      {
+        text: 'Valider',
+        handler: (data) => {
+          let ip = data.ip.toString();
+          let nom_db = data.nom_db.toString();
+          let username = data.username.toString();
+          let passwd = data.passwd.toString();
+          let ids:any = [];
+          ids.push(_id);
+          this.servicePouchdb.replicationByDocsId(ids, ip, nom_db, username, passwd);
+        }
+      }
+    ]
+  }); 
+
+  alert.present();
+  
+}
+
+
   initVariable() {
     
     return this.formBuilder.group({
@@ -649,7 +709,7 @@ choixLimit1(){
 
 
 editer(culture, dbclick: boolean = false){
-  //if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
+  if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
     this.grandCulture = culture;
     this.culture1 = this.grandCulture.data;
     let Culture = {
@@ -685,7 +745,7 @@ editer(culture, dbclick: boolean = false){
 
     this.modifierFrom = true;
     this.cultureAModifier = culture;
-// }
+ }
 }
 
 reinitFormModifier(){

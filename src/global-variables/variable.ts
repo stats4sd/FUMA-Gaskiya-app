@@ -43,6 +43,10 @@ export var global = {
     remoteSaved: null,
     info_user: null,
     info_connexion: null,
+    config_app: {
+        nom_structure: null,
+        code_structure: null,
+    },
     info_db:{
         ip: '@ip:5984',
         nom_db: 'nom_db'// 'fuma_frn_app',

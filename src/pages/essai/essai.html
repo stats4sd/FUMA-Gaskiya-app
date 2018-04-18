@@ -952,7 +952,7 @@
       </ion-card-content> 
     </ion-card>
 
-    <ion-card class="info-card" (dblclick)="editer(essai, true)"> 
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(essai, true)"> 
       <ion-card-header>
         <h2 class="fond-gris"><strong>Plus d'informations</strong></h2>
       </ion-card-header>
@@ -1439,7 +1439,7 @@
       <button ion-fab mini *ngIf="essais.length > 0" (click)="export()" color="my_primary"><ion-icon name="share-alt"></ion-icon></button>
     
       <button ion-fab mini *ngIf="statistiqueOk" (click)="openMap(allEssais)" color="my_primary"><ion-icon name="pin"></ion-icon></button>
-      <button ion-fab mini *ngIf="statistiqueOk" (click)="calculStatisitque(allEssais, traitements)" color="my_primary"><ion-icon name="stats"></ion-icon></button>
+      <!--button ion-fab mini *ngIf="statistiqueOk" (click)="calculStatisitque(allEssais, traitements)" color="my_primary"><ion-icon name="stats"></ion-icon></button-->
       <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
       
     </ion-fab-list>

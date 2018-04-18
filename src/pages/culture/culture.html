@@ -82,7 +82,7 @@
             <!--ion-item-divider *virtualHeader="let header" class="message">
               <strong style="width: 100%" >cultures {{selectedAnnee}}: {{header}}</strong>
             </ion-item-divider-->
-    
+        <!--ion-item-sliding *ngFor="let c of cultures; let i = index"-->
     
           <ion-item *ngFor="let c of cultures; let i = index" (click)="detail(c.doc)"> 
           <!--ion-item *virtualItem="let ess" (click)="detail(ess.doc)" --> 
@@ -91,6 +91,12 @@
             <h6><strong>Nom:</strong> {{c.doc.data.nom}}</h6>
             <!--h6><strong>Cycle semis:</strong> {{v.doc.data.cycle_semis}}</h6-->
           </ion-item>
+          <!--ion-item-options side="right"> 
+              <button ion-button icon-only color="my_primary" (click)="partager(c.doc._id)">
+                <ion-icon name="share"></ion-icon>
+              </button>
+            </ion-item-options>
+        </ion-item-sliding-->
         </ion-list>
     
       <ion-card class="info-card" *ngIf="cultures.length > 0 && selectedStyle === 'tableau'">
@@ -171,7 +177,7 @@
       </ion-card-content> 
     </ion-card>
   
-    <ion-card class="info-card" (dblclick)="editer(culture, true)"> 
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(culture, true)"> 
       <ion-card-header>
         <h2 class="fond-gris"><strong>Plus d'informations</strong></h2>
       </ion-card-header>
@@ -279,9 +285,9 @@
     <ion-fab bottom right *ngIf="detailCulture">
       <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
       <ion-fab-list side="top">
-        <button ion-fab mini (click)="supprimer(culture)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+        <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" (click)="supprimer(culture)" color="delete" ><ion-icon name="trash"></ion-icon></button>
         <button ion-fab mini (click)="varietes(culture)" color="my_primary" ><strong>VR</strong></button>
-        <button ion-fab mini (click)="editer(culture)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+        <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" (click)="editer(culture)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
       </ion-fab-list>
     </ion-fab>
   

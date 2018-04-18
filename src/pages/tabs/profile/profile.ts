@@ -11,8 +11,8 @@ import { global } from '../../../global-variables/variable'
   templateUrl: 'profile.html'
 })
 export class ProfilePage {
-  profiles: any;
-  allProfiles: any;
+  profiles: any = [];
+  allProfiles: any = [];
   empty: boolean;
   photos: any;
   photoArray: any[] = [];

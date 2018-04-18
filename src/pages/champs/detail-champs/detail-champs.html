@@ -47,7 +47,7 @@
       </ion-card-content> 
     </ion-card>
 
-    <ion-card class="info-card" (dblclick)="editer(champ, true)"> 
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(champ, true)"> 
       <ion-card-header>
         <strong>Plus d'informations</strong>
       </ion-card-header>

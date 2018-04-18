@@ -113,7 +113,7 @@ export class AdminPage {
           _id: '_design/filtrerDoc',
           filters: {
             myfilter: function (doc, req) {
-              var public_doc_type = ['pays', 'region', 'commune', 'departement', 'village', 'traitement', 'type-sole', 'protocole', 'variete', 'culture'];
+              var public_doc_type = ['pays', 'region', 'commune', 'departement', 'village', 'traitement', 'type-sole', 'protocole', 'variete', 'culture', 'config-app', 'culture-protocole'];
               var doc_pour_union_type = ['union', 'op', 'membre_op', 'champs', 'essai', 'typologie'];
               /*//tous le monde a acces au filtre
               if(doc._id == '_design/filtrerDoc'/* || doc._deleted*****){
@@ -203,7 +203,7 @@ export class AdminPage {
           _id: '_design/filtrerDoc',
           filters: {
             myfilter: function (doc, req) {
-              var public_doc_type = ['pays', 'region', 'commune', 'departement', 'village', 'traitement', 'type-sole', 'protocole', 'variete', 'culture'];
+              var public_doc_type = ['pays', 'region', 'commune', 'departement', 'village', 'traitement', 'type-sole', 'protocole', 'variete', 'culture', 'config-app', 'culture-protocole'];
               var doc_pour_union_type = ['union', 'op', 'membre_op', 'champs', 'essai', 'typologie'];
               /*//tous le monde a acces au filtre
               if(doc._id == '_design/filtrerDoc'/* || doc._deleted*****){
@@ -505,6 +505,10 @@ export class AdminPage {
 
   }
 
+  infoStructure(){
+    let model = this.modalCtl.create('ConfigAppPage');
+    model.present();
+  }
 
   gestionPays(){
     let model = this.modalCtl.create('AjouterPaysPage', {'liste': true});
@@ -1190,7 +1194,7 @@ export class AdminPage {
         info_db = global.info_db
       }//else{
         let alert = this.alertCtl.create({
-        title: 'Information de connexion au du serveur',
+        title: 'Information de connexion au serveur',
         //cssClass: 'error',
         inputs: [
           {

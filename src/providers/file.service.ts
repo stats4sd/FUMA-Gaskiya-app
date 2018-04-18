@@ -18,7 +18,7 @@ export class FileService {
         if (!this.platform.is('android')) {
             FileSaver.saveAs(blob, fileName); 
         } else {
-            this.file.writeFile(fileDestiny, fileName, blob, true).then(()=> {
+            this.file.writeFile(fileDestiny, fileName, blob).then(()=> {
                 alert("Fichier créé dans: " + fileDestiny);
             }).catch(()=>{
             alert("Erreur de création du fichier dans:" + fileDestiny);

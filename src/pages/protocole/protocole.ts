@@ -53,7 +53,7 @@ export class ProtocolePage {
   code: any;
   projet: any = '';
   nom: any = '';
-  titre_essais: any = '';
+  titre_essais: any = ''; 
   contexte: any = '';
   methodologie: any = '';
   choix_varietes: any = '';
@@ -63,6 +63,7 @@ export class ProtocolePage {
   avec_parcelle: any = '';
   nb_parcelle: any;
   avec_bloc: any = '';
+  typologie:any = '';
   nb_bloc: any;
   traitement: any = '';
   type_essais: any = '';
@@ -85,6 +86,7 @@ export class ProtocolePage {
   modifierFrom: boolean = false;
   estInstancier: boolean = false;
   ajoutForm: boolean = false;
+  annees_typologie: any = [];
 
   constructor(public navCtrl: NavController, public loadtingCtl: LoadingController, public toastCtl: ToastController, public ionicApp: IonicApp, public viewCtl: ViewController, public formBuilder: FormBuilder, public sim: Sim, public device: Device, public modelCtl: ModalController, public a: App, public events: Events, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
   
@@ -123,7 +125,10 @@ export class ProtocolePage {
 
       let date = new Date();
       this.selectedAnnee = date.getFullYear();
-  
+
+      for(let i= (date.getFullYear() - 10); i <= date.getFullYear(); i++){
+        this.annees_typologie.push(i)
+      }
   }
   
     dismiss(){
@@ -172,8 +177,12 @@ export class ProtocolePage {
         avec_parcelle:['non', Validators.required],
         nb_parcelle:['', ],
         avec_bloc:['non', Validators.required],
+        typologie:['non', Validators.required],
+        annee_typologie:[''],
         nb_bloc:['', ],
-        avec_code_association:['non', Validators.required],
+        //avec_code_association:['non', Validators.required],
+        superficie_essais:[''],
+        superficie_essais_modifiable:['non', Validators.required],
         //today: [today],
         //id_site:['', , Validators.required],
         //id_village:['', , Validators.required],
@@ -262,6 +271,7 @@ export class ProtocolePage {
       this.avec_repetition = 'non';
       this.avec_parcelle = 'non';
       this.avec_bloc = 'non';
+      this.typologie = 'non';
       this.traitement = 'oui';
       /*let maDate = new Date();
       //this.dateAjout = maDate;
@@ -361,6 +371,9 @@ export class ProtocolePage {
             protocole.update_phonenumber = this.phonenumber;
             protocole.update_imei = this.imei;
             protocole.code = this.id;
+            if(protocole.traitement == 'oui'){
+              protocole.superficie_essais  = '';
+            }
             
             //union._id = 'fuma'+ id;
             protocole.end = date.toJSON();
@@ -419,9 +432,16 @@ export class ProtocolePage {
           this.protocole1.avec_parcelle = protocole.avec_parcelle;
           this.protocole1.nb_parcelle = protocole.nb_parcelle;
           this.protocole1.avec_bloc = protocole.avec_bloc;
+          this.protocole1.typologie = protocole.typologie;
+          this.protocole1.annee_typologie = protocole.annee_typologie;
           this.protocole1.nb_bloc = protocole.nb_bloc;
-          this.protocole1.avec_code_association = protocole.avec_code_association;
+          //this.protocole1.avec_code_association = protocole.avec_code_association;
+          this.protocole1.superficie_essais = protocole.superficie_essais;
+          this.protocole1.superficie_essais_modifiable = protocole.superficie_essais_modifiable;
           this.protocole1.attributs = protocole.attributs;
+          if(this.protocole1.traitement == 'oui'){
+            this.protocole1.superficie_essais  = '';
+          }
           
           /*this.protocole1.contexte = protocole.contexte;
           this.protocole1.methodologie = protocole.methodologie;
@@ -751,7 +771,7 @@ export class ProtocolePage {
   }
 
   editer(protocole, dbclick: boolean = false){
-    //if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
+    if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
       this.grandProtocole = protocole;
       this.protocole1 = this.grandProtocole.data;
       //this.nom_producteur = this.protocole1.nom_producteur;
@@ -772,8 +792,12 @@ export class ProtocolePage {
         avec_parcelle: protocole.data.avec_parcelle,
         nb_parcelle: protocole.data.nb_parcelle,
         avec_bloc: protocole.data.avec_bloc,
+        typologie:protocole.data.typologie,
+        annee_typologie: protocole.data.annee_typologie,
         nb_bloc: protocole.data.nb_bloc,
-        avec_code_association: protocole.data.avec_code_association,
+        //avec_code_association: protocole.data.avec_code_association,
+        superficie_essais: protocole.data.superficie_essais,
+        superficie_essais_modifiable: protocole.data.superficie_essais_modifiable,
         today: protocole.data.today,
         start: protocole.data.start,
         deviceid: protocole.data.deviceId,
@@ -781,6 +805,7 @@ export class ProtocolePage {
         phonenumber: protocole.data.phonenumber,
         end: protocole.data.end
     }
+
     this.protocoleForm.patchValue(Protocole);
     protocole.data.attributs.forEach((attribut, index)=> {
         if(index > 0){
@@ -812,6 +837,7 @@ export class ProtocolePage {
       this.avec_parcelle = this.protocole1.avec_parcelle;
       this.nb_parcelle = this.protocole1.nb_parcelle;
       this.avec_bloc = this.protocole1.avec_bloc;
+      this.typologie = this.protocole1.typologie;
       this.nb_bloc = this.protocole1.nb_bloc;
       this.traitement = this.protocole1.traitement;
       this.type_essais = this.protocole1.type_essais;
@@ -830,7 +856,7 @@ export class ProtocolePage {
 
       this.modifierFrom = true;
       this.protocoleAModifier = protocole;
-  // }
+   }
   }
 
   reinitFormModifier(){
@@ -840,6 +866,7 @@ export class ProtocolePage {
     this.avec_repetition = 'non';
     this.avec_parcelle = 'non';
     this.avec_bloc = 'non';
+    this.typologie = 'non';
     this.traitement = 'oui';
     /*//this.type_culture = '';
     this.annee = '';
@@ -866,6 +893,9 @@ export class ProtocolePage {
 
   valider(protocole){
     let msg: string = '';
+    if(protocole.traitement == 'non' && (!protocole.superficie_essais || protocole.superficie_essais == '')){
+      msg += '\nLa superficie des essais est vide!'
+    }
     if(protocole.avec_bloc == 'oui' && (!protocole.nb_bloc || protocole.nb_bloc < 1)){
       msg += '\nLe nombre de bloc doit etre non vide et supperieur à 0!'
     }
@@ -874,6 +904,10 @@ export class ProtocolePage {
     }
     if(protocole.avec_repetition == 'oui' && (!protocole.nb_repetition || protocole.nb_repetition < 1)){
       msg += '\nLe nombre de répétition doit etre non vide et supperieur à 0!'
+    }
+
+    if(protocole.typologie == 'oui' && (!protocole.annee_typologie || protocole.annee_typologie == '')){
+      msg += '\nL\'année de la typologie est vide!'
     }
 
     return msg;
@@ -887,6 +921,7 @@ export class ProtocolePage {
       this.traitement = 'oui';
       this.avec_repetition = 'non';
       this.avec_bloc = 'non';
+      this.typologie = 'non';
       this.avec_parcelle = 'non';
       //this.nb_repetition = 0;
       this.ajoutForm = true;

@@ -104,20 +104,27 @@
       <ion-list-header>
         <h2  class="fond-gris"><strong>Liste des unions</strong></h2>
       </ion-list-header>
-      <ion-item *ngFor="let union of unions" (click)="detail(union.doc, selectedSource)" >
-        <!--ion-row>
-          <ion-col-->
-              <h6><strong>Numéro d'aggrément:</strong> {{union.doc.data.num_aggrement}}</h6>
-              <h6><strong>Code union:</strong> {{union.doc.data.code_union}}</h6>
-              <h6><strong>Nom union:</strong> {{union.doc.data.nom_union}}</h6>
-          <!--/ion-col>
-          <ion-col class="aligneDate"-->
-            <p><strong>Date:</strong> {{union.doc.data.today | date: 'dd-MM-yyyy'}}</p>
-          <!--/ion-col>
-        </ion-row-->
-      </ion-item>  
+      <ion-item-sliding *ngFor="let union of unions">
+        <ion-item (click)="detail(union.doc, selectedSource)" >
+          <!--ion-row>
+            <ion-col-->
+                <h6><strong>Numéro d'aggrément:</strong> {{union.doc.data.num_aggrement}}</h6>
+                <h6><strong>Code union:</strong> {{union.doc.data.code_union}}</h6>
+                <h6><strong>Nom union:</strong> {{union.doc.data.nom_union}}</h6>
+            <!--/ion-col>
+            <ion-col class="aligneDate"-->
+              <p><strong>Date:</strong> {{union.doc.data.today | date: 'dd-MM-yyyy'}}</p>
+            <!--/ion-col>
+          </ion-row-->
+        </ion-item> 
+        <ion-item-options *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" side="right">
+          <button ion-button icon-only color="my_primary" (click)="partager(union.doc._id)">
+            <ion-icon name="share"></ion-icon>   
+          </button>
+        </ion-item-options>
+    </ion-item-sliding> 
     </ion-list>
- 
+
 
   <ion-card class="info-card" *ngIf="unions.length > 0 && selectedStyle === 'tableau'">
     <ion-card-header>

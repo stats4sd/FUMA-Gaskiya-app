@@ -11,11 +11,11 @@
 
 
 <ion-content padding>
-  <div *ngIf="user && user.roles && global.estManager(user.roles)">
+  <!--div *ngIf="user && user.roles && global.estManager(user.roles)">
     <p>{{ 'TOTALPROFILES' | translate }}: {{profiles.length}}</p>
     <p>{{'PENDINGAPPROVAL' | translate}}: {{pendingProfiles.length}}</p>
     <button ion-button color="fuma-green-dark" (click)="approveProfiles()">{{'APPROVEALL' | translate}}</button>
-  </div>
+  </div-->
 
     <!--ion-card (click)="changeLangue()">
       <ion-item style="text-align: center">Changer la langue
@@ -37,20 +37,25 @@
     </ion-item>
   </ion-card>
 
-  <ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="ajouterLoalDesignDoc()">
+  <ion-card (click)="infoStructure()">
+      <ion-item style="text-align: center">Info structure / organisation
+      </ion-item>
+    </ion-card>
+
+  <!--ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="ajouterLoalDesignDoc()">
     <ion-item style="text-align: center">Ajouter Local Design Doc
     </ion-item>
-  </ion-card>
+  </ion-card-->
 
-  <ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="removeNouveauFilter()">
+  <!--ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="removeNouveauFilter()">
     <ion-item style="text-align: center">Supprimer nouveau filter
     </ion-item>
-  </ion-card>
+  </ion-card-->
 
-  <ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="removeAncienFilter()">
+  <!--ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="removeAncienFilter()">
     <ion-item style="text-align: center">Supprimer ancien filter
     </ion-item>
-  </ion-card>
+  </ion-card-->
 
   <ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="gestionPays()">
     <ion-item style="text-align: center">Geston des pays

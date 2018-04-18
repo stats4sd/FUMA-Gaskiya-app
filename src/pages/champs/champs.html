@@ -18,9 +18,9 @@
         <ion-badge color="fuma-green" item-right>{{champs.length}}</ion-badge>
       </button>
 
-       <button ion-button icon-only color="royal" (click) = "copierDB()" >
+       <!--button ion-button icon-only color="royal" (click) = "copierDB()" >
          <ion-icon name="arrow-dropup-circle"></ion-icon>
-      </button>
+      </button-->
     </ion-buttons>
 
     <ion-title>champs</ion-title>
@@ -85,13 +85,20 @@
     de M. {{nom_producteur}} - mat. {{matricule_producteur1}}
   </span></strong></h2>
       </ion-list-header>
-    <ion-item *ngFor="let champ of champs" (click)="detail(champ.doc)" > 
+    <ion-item-sliding *ngFor="let champ of champs">
+    <ion-item (click)="detail(champ.doc)" > 
       <!--h6><strong>Id:</strong> {{champ.doc.data.id_champs}}</h6-->
       <h6><strong>Nom du champ:</strong> {{champ.doc.data.nom}}</h6>
       <h6><strong>Matricule producteur:</strong> {{champ.doc.data.matricule_producteur}}</h6>
       <h6><strong>Nom producteur:</strong> {{champ.doc.data.nom_producteur}} <span *ngIf="champ.doc.data.surnom_producteur">({{champ.doc.data.surnom_producteur}})</span> </h6>
       <!--p><strong>Date:</strong> {{champ.doc.data.today | date: 'dd-MM-yyyy'}}</p-->
     </ion-item> 
+    <ion-item-options *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger)" side="right">
+        <button ion-button icon-only color="my_primary" (click)="partager(champ.doc._id)">
+          <ion-icon name="share"></ion-icon>
+        </button>
+      </ion-item-options>
+  </ion-item-sliding>
   </ion-list>
 
   <ion-list class="info-card" *ngIf="!champs.length > 0">

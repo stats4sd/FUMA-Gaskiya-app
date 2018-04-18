@@ -20,7 +20,7 @@ import {TableExport} from 'tableexport';
 //import 'vega-tooltip';
 //import 'vega-event-selector';
 //import 'vega-lite';
-import embed from 'vega-embed';
+//import embed from 'vega-embed';
 
 //declare var vg;
 //declare var vega
@@ -574,10 +574,10 @@ var opt = {
   'mode': 'vega'
 
 }*/
-
+/*
     embed('#vis1', vlSpec, { mode: "vega-lite"}).then(function(result) {
       // access view as result.view
-    }).catch(console.error);
+    }).catch(console.error);*/
   }
 
 
@@ -653,10 +653,10 @@ var opt = {
 
     var opt = {
     }*/
-      
+      /*
     embed('#visDiff1', vlSpec, { mode: "vega-lite"}).then(function(result) {
       // access view as result.view
-    }).catch(console.error);
+    }).catch(console.error);*/
     this.loading = false
   }
 
@@ -728,10 +728,10 @@ var opt = {
 
     var opt = {
     }*/
-
+/*
     embed('#visMediane1', vlSpec, { mode: "vega-lite"}).then(function(result) {
       // access view as result.view
-    }).catch(console.error);
+    }).catch(console.error);*/
   }
 
   calculStatisitque(essais, traitements){

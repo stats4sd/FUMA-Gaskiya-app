@@ -55,7 +55,7 @@ export class MembresPage {
   typeRecherche: any = 'matricule';
   selectedLimit: any = 10;
   limits: any = [10, 25, 50, 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 'Tous'];
-  recherche: any = 'FM-';
+  recherche: any = global.config_app.code_structure+'-';
 
   membreForm: any;
   villages: any = [];
@@ -306,6 +306,76 @@ export class MembresPage {
    
 
   }*/
+
+  partager(membre){
+    //let ids: any = [];
+    //ids.push(_id);
+
+    let alert = this.alertCtl.create({
+      title: 'Information de connexion au du serveur',
+      //cssClass: 'error',
+      inputs: [
+        {
+          type: 'text',
+          placeholder: 'Adrèsse hôte',
+          name: 'ip',
+          value: '@ip:5984'
+        },
+        {
+          type: 'text',
+          placeholder: 'Nom DB',
+          name: 'nom_db',
+          value: 'nom_db'
+        },
+        {
+          type: 'text',
+          placeholder: 'Nom d\'utilisateur',
+          name: 'username',
+          //value: info_db.ip
+        },
+        {
+          type: 'password',
+          placeholder: 'Mot de passe',
+          name: 'passwd',
+          //value: info_db.nom_db
+        },
+        {
+          type: 'checkbox',
+          label: 'Inclure la photo du membre',
+          name: 'photossss',
+          //checked: true
+        }
+
+      ],
+      buttons: [
+        {
+          //cssClass: 'error-border',
+          text: 'Annuler',
+          role: 'Cancel',
+          handler: () => console.log('Changement ip serveur annuler')
+        },
+        {
+          text: 'Valider',
+          handler: (data) => {
+            let ip = data.ip.toString();
+            let nom_db = data.nom_db.toString();
+            let username = data.username.toString();
+            let passwd = data.passwd.toString();
+            let ids:any = [];
+            ids.push(membre._id);
+            if(data.photo === 'oui' && membre.data.photoID){
+              ids.push(membre.data.photoID);
+            }
+
+            this.servicePouchdb.replicationByDocsId(ids, ip, nom_db, username, passwd);
+          }
+        }
+      ]
+    }); 
+
+    alert.present();
+    
+  }
 
   copierPhotoDB(mbr){
     //this.servicePouchdb.copierDB();
@@ -596,8 +666,7 @@ export class MembresPage {
       sourceType: this.camera.PictureSourceType.CAMERA,
       //destinationType: this.camera.DestinationType.NATIVE_URI,
       destinationType: this.camera.DestinationType.DATA_URL,
-      //quality: 50,
-      quality: 10,
+      quality: 50,
       //targetWidth: 500,
       targetWidth: 100,
       targetHeight: 100,
@@ -619,7 +688,7 @@ export class MembresPage {
  getInfoSimEmei(){
     this.sim.getSimInfo().then(
       (info) => {
-        if(info.cards.length > 0){
+        if(info && info.cards && info.cards.length > 0){
           info.cards.forEach((infoCard) => {
             if(infoCard.phoneNumber){
               this.phonenumber = infoCard.phoneNumber;
@@ -751,7 +820,7 @@ export class MembresPage {
     var randomString=randomArray.join("");
     //var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     
-    var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    var Id= global.config_app.code_structure+'-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     //var Id= 'MR-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     
     return Id
@@ -1442,8 +1511,7 @@ export class MembresPage {
 
     let option = {
       maximumImagesCount: 1,
-      //quality: 50,
-      quality: 10,
+      quality: 50,
       width: 100,
       height: 100,
       outputType: 1
@@ -1508,7 +1576,7 @@ chargerOp(){
     randomArray.push(chars[rand])
     var randomString=randomArray.join("");
     //var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
-    var Id= 'FM-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
+    var Id= global.config_app.code_structure+'-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     //var Id= 'MR-'+ code_op + ' ' + randomString// operation+' '/*+pays+'-'+region+'-'+department+'-'+commune +'-' +village+ */+randomString 
     
     return Id
@@ -1664,6 +1732,7 @@ chargerOp(){
 
   ionViewDidEnter() {
 
+    this.getConfig();
         //this.getEssais()
     this.servicePouchdb.remoteSaved.getSession((err, response) => {
         if (err) {
@@ -1765,12 +1834,24 @@ chargerOp(){
 
   }
 
+  getConfig(){
+    this.servicePouchdb.getDocById('config-app').then((c) => {
+      if(c){
+          global.config_app.nom_structure = c.data.nom_structure;
+          global.config_app.code_structure = c.data.code_structure
+        }
+    }).catch((err) => console.log(err));
+  }
+
   ajouter(){
     this.photo = '';
     this.photoID = '';
     this.photoRev = '';
     this.imageData = '';
     this.imageBlob = '';
+    if(!global.config_app.code_structure){
+      alert('Impossible d\'éffectuer cette opération, le code de la strucutre n\'est pas encore défini!\nVeuillez le définir dans options => Admin');
+    }else
     if(this.confLocaliteEnquete){
 
       this.pourCreerForm();
@@ -1904,12 +1985,12 @@ chargerOp(){
     let val = ev.target.value;
 
     // if the value is an empty string don't filter the items
-    if (val && val.trim() != '' && val.trim() != 'FM-' && val.trim() != 'fm-') {
+    if (val && val.trim() != '' && val.trim() != global.config_app.code_structure+'-' && val.trim() != global.config_app.code_structure.toString().toLowerCase()+'-') {
       this.membres = this.allMembres.filter((item) => {
         if(this.typeRecherche === 'nom'){
           return (item.doc.data.nom_Membre.toLowerCase().indexOf(val.toLowerCase()) > -1);
         }else if(this.typeRecherche === 'matricule'){
-          if(val.trim() > 'FM-' || val.trim() > 'fm-'){
+          if(val.trim() > global.config_app.code_structure+'-' || val.trim() > global.config_app.code_structure.toString().toLowerCase()+'-'){
             return (item.doc.data.matricule_Membre.toLowerCase().indexOf(val.toLowerCase()) > -1);
           }
         }else if(this.typeRecherche === 'site'){
@@ -2319,114 +2400,118 @@ chargerOp(){
    editer(membre, photo, photoID, photoRev, dbclick: boolean = false){
     if(!dbclick || (dbclick && this.user && this.user.roles && global.estAnimataire(this.user.roles))){
       //this.navCtrl.push('ModifierMembrePage', {'membre': membre, 'photo': photo, 'photoID': photoID, 'photoRev': photoRev});
-      
-      this.grandMembre = membre;
-      this.photoID = this.grandMembre.photoDocId;
-      this.photoRev = this.grandMembre.photoDocRev;
-      this.photo = this.grandMembre.photo;
-      let now = new Date();
-      this.max_date = now.getFullYear() - 15;
-      // = maxAnnee;//this.createDate(1, 0, maxAnnee);
-
-      //this.classes.push(this.autreClasse);
-
-      this.membre1 = this.grandMembre.doc.data;
-      this.selectedClasseID = this.membre1.classe;
-      this.date_naissance = this.membre1.date_naissance;
-      if(this.date_naissance){
-        let date_naissance = new Date(this.date_naissance);
-        this.age = now.getFullYear() - date_naissance.getFullYear();
+      if(!global.config_app.code_structure){
+        alert('Impossible d\'éffectuer cette opération, le code de la strucutre n\'est pas encore défini!\nVeuillez le définir dans options => Admin');
       }else{
-        this.age = '';
-        this.date_naissance = '';
-      }
-      this.selectedOPID = this.membre1.op;
-      this.ancienSelectedOPID = this.membre1.op;
-      this.selectedVillageID = this.membre1.village;
-      this.matricule = this.membre1.matricule_Membre;
-      this.ancien_matricule = this.membre1.matricule_Membre;
-      this.ancien_OP = this.membre1.op;
-      this.ancien_nom_op = this.membre1.op_nom;
-      this.ancien_code_op = this.membre1.op_code;
-      this.ancien_code_union = this.membre1.code_union;
-      this.nom = this.membre1.nom_Membre;
-      this.ancien_nom = this.membre1.nom_Membre;
-      this.ancien_surnom = this.membre1.surnom_Membre;
-      if(!this.matricule){
-        this.getMatricule();
-        this.generate = true;
-      }
+        this.grandMembre = membre;
+        this.photoID = this.grandMembre.photoDocId;
+        this.photoRev = this.grandMembre.photoDocRev;
+        this.photo = this.grandMembre.photo;
+        let now = new Date();
+        this.max_date = now.getFullYear() - 15;
+        // = maxAnnee;//this.createDate(1, 0, maxAnnee);
 
-      this.selectedVillageID = this.membre1.village;
-      this.selectedOPID = this.membre1.op;
-      this.nom_Membre = this.membre1.nom_Membre;
-      this.surnom_Membre = this.membre1.surnom_Membre;
-      this.genre = this.membre1.genre;
-      this.today = this.membre1.today;
+        //this.classes.push(this.autreClasse);
 
-      this.pays = this.membre1.pays;
-      this.pays_nom = this.membre1.pays_nom;
-      //this.pays_autre = loc.pays_autre;
-      this.region = this.membre1.region;
-      this.region_nom = this.membre1.region_nom;
-      //this.region_autre = loc.region_autre;
-      this.departement = this.membre1.departement;
-      this.departement_nom = this.membre1.departement_nom;
-      //this.departement_autre = loc.departement_autre;
-      this.commune = this.membre1.commune;
-      this.commune_nom = this.membre1.commune_nom;
-      //this.commune_autre = loc.commune_autre;
-
-      this.chargerVillages(this.membre1.commune);
-
-      /*if(this.membre1.village_autre){
-          this.nom_autre_village = this.membre1.village_autre;
+        this.membre1 = this.grandMembre.doc.data;
+        this.selectedClasseID = this.membre1.classe;
+        this.date_naissance = this.membre1.date_naissance;
+        if(this.date_naissance){
+          let date_naissance = new Date(this.date_naissance);
+          this.age = now.getFullYear() - date_naissance.getFullYear();
         }else{
-          this.nom_autre_village = 'NA';
+          this.age = '';
+          this.date_naissance = '';
+        }
+        this.selectedOPID = this.membre1.op;
+        this.ancienSelectedOPID = this.membre1.op;
+        this.selectedVillageID = this.membre1.village;
+        this.matricule = this.membre1.matricule_Membre;
+        this.ancien_matricule = this.membre1.matricule_Membre;
+        this.ancien_OP = this.membre1.op;
+        this.ancien_nom_op = this.membre1.op_nom;
+        this.ancien_code_op = this.membre1.op_code;
+        this.ancien_code_union = this.membre1.code_union;
+        this.nom = this.membre1.nom_Membre;
+        this.ancien_nom = this.membre1.nom_Membre;
+        this.ancien_surnom = this.membre1.surnom_Membre;
+        if(!this.matricule){
+          this.getMatricule();
+          this.generate = true;
+        }
+
+        this.selectedVillageID = this.membre1.village;
+        this.selectedOPID = this.membre1.op;
+        this.nom_Membre = this.membre1.nom_Membre;
+        this.surnom_Membre = this.membre1.surnom_Membre;
+        this.genre = this.membre1.genre;
+        this.today = this.membre1.today;
+
+        this.pays = this.membre1.pays;
+        this.pays_nom = this.membre1.pays_nom;
+        //this.pays_autre = loc.pays_autre;
+        this.region = this.membre1.region;
+        this.region_nom = this.membre1.region_nom;
+        //this.region_autre = loc.region_autre;
+        this.departement = this.membre1.departement;
+        this.departement_nom = this.membre1.departement_nom;
+        //this.departement_autre = loc.departement_autre;
+        this.commune = this.membre1.commune;
+        this.commune_nom = this.membre1.commune_nom;
+        //this.commune_autre = loc.commune_autre;
+
+        this.chargerVillages(this.membre1.commune);
+
+        /*if(this.membre1.village_autre){
+            this.nom_autre_village = this.membre1.village_autre;
+          }else{
+            this.nom_autre_village = 'NA';
+          }*/
+
+        /*if(this.membre1.op_autre) {
+            this.nom_autre_op = this.membre1.op_autre;
+        }else{
+          this.nom_autre_op = 'NA';
         }*/
 
-      /*if(this.membre1.op_autre) {
-          this.nom_autre_op = this.membre1.op_autre;
-      }else{
-        this.nom_autre_op = 'NA';
-      }*/
+        /* if(this.membre1.classe_autre) {
+            this.nom_autre_classe = this.membre1.classe_autre;
+        }else{
+          this.nom_autre_classe = 'NA';
+        }*/
 
-      /* if(this.membre1.classe_autre) {
-          this.nom_autre_classe = this.membre1.classe_autre;
-      }else{
-        this.nom_autre_classe = 'NA';
-      }*/
+        //this.chargerVillages(this.membre1.commune);
 
-      //this.chargerVillages(this.membre1.commune);
-
-      
-      this.modifierForm = true;
-      this.detailMembre = false;
+        
+        this.modifierForm = true;
+        this.detailMembre = false;
 
 
-      if(!this.membre1.op_nom || this.membre1.op_nom === ''){
-        this.ops.forEach((o, i) => {
-          o = o.doc;
-          if(o.data.num_aggrement === this.membre1.op){
-            //this.membre1.op = o.data.num_aggrement;
-            this.membre1.op_nom = o.data.nom_OP;
-            this.membre1.op_code = o.data.code_OP;
-            //this.membre1.code_union = o.data.code_union;
-            //this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
-          }
-        });
-      }else if(!this.membre1.code_union || this.membre1.code_union === ''){
-        this.ops.forEach((o, i) => {
-          o = o.doc;
-          if(o.data.num_aggrement === this.membre1.op){
-            //this.membre1.op = o.data.num_aggrement;
-            //this.membre1.op_nom = o.data.nom_OP;
-            //this.membre1.op_code = o.data.code_OP;
-            this.membre1.code_union = o.data.code_union;
-            //this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
-          }
-        });
+        if(!this.membre1.op_nom || this.membre1.op_nom === ''){
+          this.ops.forEach((o, i) => {
+            o = o.doc;
+            if(o.data.num_aggrement === this.membre1.op){
+              //this.membre1.op = o.data.num_aggrement;
+              this.membre1.op_nom = o.data.nom_OP;
+              this.membre1.op_code = o.data.code_OP;
+              //this.membre1.code_union = o.data.code_union;
+              //this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
+            }
+          });
+        }else if(!this.membre1.code_union || this.membre1.code_union === ''){
+          this.ops.forEach((o, i) => {
+            o = o.doc;
+            if(o.data.num_aggrement === this.membre1.op){
+              //this.membre1.op = o.data.num_aggrement;
+              //this.membre1.op_nom = o.data.nom_OP;
+              //this.membre1.op_code = o.data.code_OP;
+              this.membre1.code_union = o.data.code_union;
+              //this.matricule = this.generateMatriculeNouveau(o.data.code_OP);
+            }
+          });
+        }
       }
+      
     } 
   }
 
@@ -2497,6 +2582,8 @@ chargerOp(){
       }
     });
   }
+
+
 
   mesEssai(matricule, nom, membre){
     //this.navCtrl.push('EssaiPage', {'matricule_producteur': matricule, 'nom_producteur': nom, 'membre': membre})

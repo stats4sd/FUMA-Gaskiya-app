@@ -137,7 +137,8 @@
     de l'OP: {{nom_op}} - N.A: {{num_aggrement_op}}
   </span> </strong></h2>
       </ion-list-header>
-    <ion-item *ngFor="let membre of membres">
+      <ion-item-sliding *ngFor="let membre of membres">
+    <ion-item >
   <!--ion-list [virtualScroll]="membres">
     <ion-item *virtualItem="let membre"-->
       <!--ion-row>
@@ -156,6 +157,12 @@
         <!--/ion-col>
       </ion-row-->
     </ion-item>
+    <ion-item-options *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" side="right">
+        <button ion-button icon-only color="my_primary" (click)="partager(membre.doc)">
+          <ion-icon name="share"></ion-icon>
+        </button>
+      </ion-item-options>
+  </ion-item-sliding>
   </ion-list>
 
   <ion-list *ngIf="!membres.length > 0">
@@ -499,7 +506,7 @@
     </ion-card>
 
 
-    <ion-card class="info-card" (dblclick)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev, true)"> 
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(membre, membre.photo, membre.photoDocId, membre.photoDocRev, true)"> 
       <ion-card-header>
         <strong>Plus d'informations</strong>
       </ion-card-header>
