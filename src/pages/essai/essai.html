@@ -314,6 +314,12 @@
         <th  >
           <strong>Est valide ?</strong> 
         </th>
+        <th  >
+          <strong>Observation essai</strong> 
+        </th>
+        <th  >
+          <strong>Observation controle</strong> 
+        </th>
         </tr>
       </thead>
       <!--hr style="width: 375%"-->
@@ -437,7 +443,13 @@
             </td>
             <td  >
               <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
-            </td>          
+            </td>  
+            <td  >
+              {{ess.doc.data.observation}}
+            </td>
+            <td  >
+              {{ess.doc.data.observation_controle}}
+            </td>        
           </tr>
       </tbody>
     </table>
@@ -520,6 +532,9 @@
         </th>
         <th  >
           <strong>Est valide ?</strong> 
+        </th>
+        <th  >
+          <strong>Observation</strong> 
         </th>
         </tr>
       </thead>
@@ -615,7 +630,11 @@
               </td>
               <td  >
                 <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
-              </td>          
+              </td> 
+              
+              <td  >
+                {{ess.doc.data.observation}}
+              </td>
             </tr>
 
             <tr (click)="detail(ess.doc)">
@@ -699,7 +718,10 @@
               </td>
               <td  >
                 <span *ngIf="ess.doc.data.estValide">Oui</span><span *ngIf="!ess.doc.data.estValide">Non</span>
-              </td>          
+              </td> 
+              <td  >
+                {{ess.doc.data.observation_controle}}
+              </td>         
             </tr>
      
           <!--tr *ngFor="let ess of essais">
@@ -1435,7 +1457,7 @@
     <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
     <ion-fab-list side="top"> 
       <button ion-fab mini *ngIf="essais.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
-      <!--button ion-fab mini *ngIf="essais.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button-->
+      <button ion-fab mini *ngIf="essais.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
       <button ion-fab mini *ngIf="essais.length > 0" (click)="export()" color="my_primary"><ion-icon name="share-alt"></ion-icon></button>
     
       <button ion-fab mini *ngIf="statistiqueOk" (click)="openMap(allEssais)" color="my_primary"><ion-icon name="pin"></ion-icon></button>

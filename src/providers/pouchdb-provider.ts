@@ -1053,6 +1053,12 @@ getProgress(pending){
       this.database.remove(doc).catch((err) => console.log(err));
   }
 
+  deleteReturn(doc){
+    doc._deleted = true;
+    return this.database.put(doc);
+    //return this.database.remove(doc);
+}
+
   createDoc(doc){
     let dat = new Date();
     doc.data.created_at = dat.toJSON();
@@ -1494,13 +1500,14 @@ getProgress(pending){
  
       //this.data = null;
       let load = this.loadingCtrl.create({
-        content: 'Réinialisation en cours...'
+        content: 'Réinialisation de la BD en cours...'
       });
 
       load.present();
   
       this.database.destroy().then(() => {
         console.log("database removed");
+        this.logout('oui');
         this.isInstantiated = false;
         this.storage.remove('info_user').catch((err) => console.log(err));
         this.storage.remove('info_connexion').catch((err) => console.log(err));
@@ -1615,11 +1622,15 @@ getProgress(pending){
     });
   }
 
-  logout(){
-    this.showLoader('Déconnexion...');
+  logout(destroy: any = ''){
+    if(destroy == 'oui'){
+      this.showLoader('Déconnexion...');
+    }
     this.remoteSaved.logout((err, response) => {
       if (err) {
-        this.loading.dismissAll();
+        if(destroy == 'oui'){
+          this.loading.dismissAll();
+        }
         this.events.publish('user:login');
         //this.events.publish('user:login_com');
         return 'echec déconnexion';
@@ -1632,12 +1643,16 @@ getProgress(pending){
         this.storage.remove('info_connexion').catch((err) => console.log(err));
         global.info_connexion = null;
         global.info_user = null;
-        this.loading.dismissAll();
+        if(destroy == 'oui'){
+          this.loading.dismissAll();
+        }
         this.affichierMsg('Déconnexion terminée avec succès. \nVous êtes désormais hors ligne!')
         this.events.publish('user:login');
         return 'success';
       }else{
-        this.loading.dismiss();
+        if(destroy == 'oui'){
+          this.loading.dismiss();
+        }
         //this.storage.remove('info_user').catch((err) => console.log(err));
         //this.storage.remove('info_connexion').catch((err) => console.log(err));
         this.affichierMsg('Une erreur s\'est produite lors de la déconnexion. \n Veuillez réessayer plus tard!')

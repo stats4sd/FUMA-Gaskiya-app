@@ -1,0 +1,128 @@
+<!--
+  Generated template for the ConfigAppPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-buttons *ngIf="!ajoutForm && !modifierFrom" left>
+      <button ion-button icon-only color="royal" (click)="dismiss()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons> 
+    <ion-buttons *ngIf="ajoutForm || modifierFrom" left>
+      <button ion-button icon-only color="royal" (click)="annuler()"> <ion-icon name="arrow-back"></ion-icon></button>
+    </ion-buttons> 
+
+
+    <ion-title *ngIf="!ajoutForm && !modifierFrom">Config-app</ion-title>
+    <ion-title *ngIf="ajoutForm && !modifierFrom">ajouter-config-app</ion-title>
+    <ion-title *ngIf="ajoutForm && modifierFrom">modifier-config-app</ion-title>
+  </ion-navbar>
+</ion-header>
+
+ 
+<ion-content padding>
+
+
+  <div *ngIf="!ajoutForm && !modifierFrom && config">
+    <ion-card class="info-card" (dblclick)="editer(config, true)"> 
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Détail configuration app</strong></h2>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row> <ion-col class='meta-key'><strong>Nom structure:</strong></ion-col> <ion-col class='meta-value'> {{config.data.nom_structure}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Code structure:</strong></ion-col> <ion-col class='meta-value'> {{config.data.code_structure}} </ion-col> </ion-row>
+      </ion-grid>
+    </ion-card-content> 
+    </ion-card>
+
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(config, true)"> 
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Plus d'informations</strong></h2>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row><ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'>{{config._id}} </ion-col>   </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>No révision:</strong></ion-col> <ion-col class='meta-value'> {{config._rev }} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{config.data.created_at | date: 'dd-MM-yyyy'}} à {{config.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{config.data.created_by}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{config.data.deviceid}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{config.data.imei}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{config.data.phonenumber}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Date dernière mise à jour:</strong></ion-col> <ion-col class='meta-value'> {{config.data.updatet_at | date: 'dd-MM-yyyy'}}  à {{config.data.updatet_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Dernière mise à jour par:</strong></ion-col> <ion-col class='meta-value'> {{config.data.updated_by}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{config.data.update_deviceid}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{config.data.update_imei}} </ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{config.data.update_phonenumber}} </ion-col> </ion-row>
+        <ion-row *ngIf="config.data.deleted"> <ion-col class='meta-key'><strong>Date suppression:</strong></ion-col> <ion-col class='meta-value'> {{config.data.deleted_at | date: 'dd-MM-yyyy'}}  à {{config.data.deleted_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+        <ion-row *ngIf="config.data.deleted"> <ion-col class='meta-key'><strong>Supprimé par:</strong></ion-col> <ion-col class='meta-value'> {{config.data.deleted_by}} </ion-col> </ion-row>
+      </ion-grid>
+    </ion-card-content> 
+    </ion-card>
+
+  </div>
+
+  <div *ngIf="!ajoutForm && !modifierFrom && !config">
+      <div class="message">La configuration de la structure n'est pas définie!</div>
+    </div>
+
+
+  <div *ngIf="ajoutForm || modifierFrom">
+
+  <form [formGroup]="configForm" (ngSubmit) = "actionForm()">
+
+  
+  <ion-item>
+    <ion-label floating>Date d'ajout <span class="error-box">*</span></ion-label>
+    <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" cancelText="Annuler" doneText="Valider" disabled></ion-datetime>
+    <!--ion-datetime ion-datepicker  (ionChanged)="setDate($event);" [value]="dateAjout" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" okText="Valider" disabled></ion-datetime-->
+  </ion-item>
+
+  <ion-item>
+    <ion-label floating>Nom structure<span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_structure" placeholder="Ex: FUMA Gaskiya" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="configForm.controls['nom_structure'].hasError('required') && configForm.controls['nom_structure'].touched">* le nom structure est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Code structure <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="code_structure" placeholder="Ex: FM"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="configForm.controls['code_structure'].hasError('required') && configForm.controls['code_structure'].touched">* le code structure est obligatoir, composé de 2 ou 3 caractères (lettres majiscule et nombres) !</div>
+
+ 
+  <!--ion-item>
+    <ion-label floating>Pays <span class="error-box">*</span></ion-label>
+    <ion-select [(ngModel)]="selectedPays" formControlName="traitement" cancelText="Annuler" okText="Ok" (ionChange)="chargerRegions(selectedPays.id)">
+      <ion-option *ngFor="let p of pays" [value]="p.id">{{p.nom}}</ion-option>
+      
+    </ion-select>
+  </ion-item>
+  
+  <ion-item>
+    <ion-label floating>Région <span class="error-box">*</span></ion-label>
+    <ion-select formControlName="traitement" cancelText="Annuler" okText="Ok">
+      <ion-option *ngFor="let r of regions" [value]="r">{{r.nom}}</ion-option>
+    </ion-select>
+  </ion-item-->
+  
+
+    <br>
+    <button ion-button type="submit" color="my_secondary" [disabled]="!configForm.valid" block>Sauvegarder</button>
+  </form>
+  <button ion-button color="my_primary" block (click)="annuler()">Fermer</button>
+
+  </div>
+
+  <ion-fab bottom right *ngIf="!ajoutForm && !modifierFrom && !config && ((user && user.roles && global.estManager(user.roles)) || estManager)">
+    <button ion-fab mini (click)="ajouter()" *ngIf="!config" color="my_primary"><ion-icon name="add"></ion-icon></button>
+  </ion-fab>
+
+  <ion-fab bottom right *ngIf="!ajoutForm && !modifierFrom && config && ((user && user.roles && global.estManager(user.roles)) || estManager)">
+    <button ion-fab mini (click)="editer(config)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+  </ion-fab>
+
+
+</ion-content>

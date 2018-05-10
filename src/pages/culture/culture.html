@@ -238,6 +238,8 @@
                         <ion-list>
                             <ion-item class="message">
                                 <h2>Variable {{i + 1}}</h2>
+                              <button ion-button *ngIf="cultureForm.controls.variables.controls.length > 1 && i > 0" class="error-box" (click)="upVariable(i)" clear icon-only item-right><ion-icon name="arrow-up"></ion-icon></button>
+                              <button ion-button *ngIf="cultureForm.controls.variables.controls.length > 1 && i < (cultureForm.controls.variables.controls.length - 1)" class="error-box" (click)="downVariable(i)" clear icon-only item-right><ion-icon name="arrow-down"></ion-icon></button>
                               <button ion-button *ngIf="cultureForm.controls.variables.controls.length > 1" class="error-box" (click)="removeVariable(i)" clear icon-only item-right><ion-icon name="trash"></ion-icon></button>
                             </ion-item>
                           </ion-list>

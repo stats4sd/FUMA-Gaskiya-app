@@ -29,7 +29,11 @@
 
 
   <div *ngIf="liste">
+  	<ion-item>
+		<ion-searchbar placeholder="Rechercher departement..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+	  </ion-item>
     <ion-list *ngIf="allDepartement.length && liste">
+
       <ion-item-sliding *ngFor="let departement of allDepartement">
         <ion-item>
           <h6><strong>Région:</strong> {{departement.nom_region}} ({{departement.id_region}})</h6>

@@ -40,6 +40,14 @@ export class DetailTypeSolePage {
     let alert = this.alertCtl.create({
       title: 'Suppression type sole',
       message: 'Etes vous sûr de vouloir supprimer cet type de sole ?',
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Supprimer définitivement!',
+          value: 'oui',
+          checked: false
+          }
+      ],
       buttons:[
         {
           text: 'Non',
@@ -48,16 +56,29 @@ export class DetailTypeSolePage {
         },
         {
           text: 'Oui',
-          handler: () => {
-            this.servicePouchdb.deleteDoc(typeSole);
-            let toast = this.toastCtl.create({
-              message:'Type sole bien supprié',
-              position: 'top',
-              duration: 3000
-            });
+          handler: (data) => {
+            if(data.toString() === 'oui'){
+              this.servicePouchdb.deleteDoc(typeSole);
+              let toast = this.toastCtl.create({
+                message:'Type sole bien supprié',
+                position: 'top',
+                duration: 3000
+              });
 
-            toast.present();
-            this.navCtrl.pop();
+              toast.present();
+              this.navCtrl.pop();
+            }else{
+              this.servicePouchdb.deleteDoc(typeSole);
+              let toast = this.toastCtl.create({
+                message:'Type sole bien supprié',
+                position: 'top',
+                duration: 3000
+              });
+
+              toast.present();
+              this.navCtrl.pop();
+            }
+            
           }
         }
       ]

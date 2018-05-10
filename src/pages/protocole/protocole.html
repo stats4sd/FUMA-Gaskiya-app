@@ -322,20 +322,21 @@
         
         <ion-row><h5 class="sans-fond-gris"><strong>Paramètres des essais</strong></h5> </ion-row>
         <!--ion-row> <ion-col class='meta-key'><strong>Code association ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.avec_code_association}}</ion-col> </ion-row-->
-        <ion-row> <ion-col class='meta-key'><strong>Type de culture:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.type_culture}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Parcelle ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.avec_parcelle}}</ion-col> </ion-row>
-        <ion-row *ngIf="protocole.data.avec_parcelle == 'oui'"> <ion-col class='meta-key'><strong>Nombre de parcelle:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.nb_parcelle}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Système ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.avec_systeme}}</ion-col> </ion-row>
+        <ion-row *ngIf="protocole.data.avec_systeme == 'oui'"> <ion-col class='meta-key'><strong>Nombre de Système:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.nb_systeme}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Bloc ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.avec_bloc}}</ion-col> </ion-row>
         <ion-row *ngIf="protocole.data.avec_bloc == 'oui'"> <ion-col class='meta-key'><strong>Nombre de bloc:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.nb_bloc}}</ion-col> </ion-row>
-        
+        <ion-row> <ion-col class='meta-key'><strong>Parcelle ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.avec_parcelle}}</ion-col> </ion-row>
+        <ion-row *ngIf="protocole.data.avec_parcelle == 'oui'"> <ion-col class='meta-key'><strong>Nombre de parcelle:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.nb_parcelle}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Répétition ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.avec_repetition}}</ion-col> </ion-row>
         <ion-row *ngIf="protocole.data.avec_repetition == 'oui'"> <ion-col class='meta-key'><strong>Nombre de répétition:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.nb_repetition}}</ion-col> </ion-row>
-        <ion-row> <ion-col class='meta-key'><strong>Typologie ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.typologie}}</ion-col> </ion-row>
-        <ion-row *ngIf="protocole.data.typologie == 'oui'"> <ion-col class='meta-key'><strong>Année typologie:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.annee_typologie}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Type de culture:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.type_culture}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Traitement:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.traitement}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Type des essais:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.type_essais}}</ion-col> </ion-row>
         <ion-row *ngIf="protocole.data.traitement == 'non'"> <ion-col class='meta-key'><strong>Superfice des essais (m²):</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.superficie_essais}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>La superficie des essais est modifiable ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.superficie_essais_modifiable}}</ion-col> </ion-row>
+        <ion-row> <ion-col class='meta-key'><strong>Typologie ?:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.typologie}}</ion-col> </ion-row>
+        <ion-row *ngIf="protocole.data.typologie == 'oui'"> <ion-col class='meta-key'><strong>Année typologie:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.annee_typologie}}</ion-col> </ion-row>
         <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{protocole.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
         
       </ion-grid>
@@ -415,7 +416,9 @@
             <ion-card-header>
                 <ion-list>
                     <ion-item class="message">
-                        <h2>Titre {{i + 1}}</h2>
+                      <h2>Titre {{i + 1}}</h2>
+                      <button ion-button *ngIf="protocoleForm.controls.attributs.controls.length > 1 && i > 0" class="error-box" (click)="upVariable(i)" clear icon-only item-right><ion-icon name="arrow-up"></ion-icon></button>
+                      <button ion-button *ngIf="protocoleForm.controls.attributs.controls.length > 1 && i < (protocoleForm.controls.attributs.controls.length - 1)" class="error-box" (click)="downVariable(i)" clear icon-only item-right><ion-icon name="arrow-down"></ion-icon></button>
                       <button ion-button *ngIf="protocoleForm.controls.attributs.controls.length > 1" class="error-box" (click)="removeAttribut(i)" clear icon-only item-right><ion-icon name="trash"></ion-icon></button>
                     </ion-item>
                   </ion-list>
@@ -436,81 +439,9 @@
         </a>
       </div>
 
-    <!--ion-item>
-      <ion-label floating>Contexte</ion-label>
-      <ion-textarea formControlName="contexte" [(ngModel)]="contexte" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['contexte'].hasError('required') && protocoleForm.controls['contexte'].touched">* le contexte est obligatoir!</div>
-
-    <ion-item>
-      <ion-label floating>Objectifs</ion-label>
-      <ion-textarea formControlName="objectifs" [(ngModel)]="objectifs" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['objectifs'].hasError('required') && protocoleForm.controls['objectifs'].touched">* l'objectif est obligatoir!</div>
-     
-    <ion-item>
-      <ion-label floating>Méthodologie</ion-label>
-      <ion-textarea formControlName="methodologie" [(ngModel)]="methodologie" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['methodologie'].hasError('required') && protocoleForm.controls['methodologie'].touched">* la methodologie est obligatoir!</div>
-     
-    <ion-item>
-      <ion-label floating>Le choix des variétés</ion-label>
-      <ion-textarea formControlName="choix_varietes" [(ngModel)]="choix_varietes" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['choix_varietes'].hasError('required') && protocoleForm.controls['choix_varietes'].touched">* le choix des variétés est obligatoir!</div>
-     
-     <ion-item>
-      <ion-label floating>Nombre d’entrées et répétitions, et dispositif expérimental</ion-label>
-      <ion-textarea formControlName="nb_e_r_d_e" [(ngModel)]="nb_e_r_d_e" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['nb_e_r_d_e'].hasError('required') && protocoleForm.controls['nb_e_r_d_e'].touched">* le nombre d’entrées et répétitions, et dispositif expérimental est obligatoir!</div>
-     
-     <ion-item>
-      <ion-label floating>Taille de parcelle </ion-label>
-      <ion-textarea formControlName="taille_parcelle" [(ngModel)]="taille_parcelle" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['taille_parcelle'].hasError('required') && protocoleForm.controls['taille_parcelle'].touched">* la taille de parcelle est obligatoir!</div>
-        
-     <ion-item>
-      <ion-label floating>Distance entre poquets dans une ligne</ion-label>
-      <ion-textarea formControlName="d_e_p_d_u_l" [(ngModel)]="d_e_p_d_u_l" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['d_e_p_d_u_l'].hasError('required') && protocoleForm.controls['d_e_p_d_u_l'].touched">* la distance entre poquets dans une ligne est obligatoir!</div>
-        
-    <ion-item>
-      <ion-label floating>Distance entre les lignes</ion-label>
-      <ion-textarea formControlName="d_e_l_l" [(ngModel)]="d_e_l_l" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['d_e_l_l'].hasError('required') && protocoleForm.controls['d_e_l_l'].touched">* la distance entre les lignes est obligatoir!</div>
-     
-    <ion-item>
-      <ion-label floating>Démariage</ion-label>
-      <ion-textarea formControlName="demariage" [(ngModel)]="demariage" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['demariage'].hasError('required') && protocoleForm.controls['demariage'].touched">* le démariage est obligatoir!</div>
-     
-    <ion-item>
-      <ion-label floating>Fertilisation </ion-label>
-      <ion-textarea formControlName="fertilisation" [(ngModel)]="fertilisation" row="6"></ion-textarea>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['fertilisation'].hasError('required') && protocoleForm.controls['fertilisation'].touched">* la fertilisation est obligatoir!</div>
-     
-    <ion-item>
-      <ion-label floating>Autres spécifications</ion-label>
-      <ion-textarea formControlName="autres_specifications"  [(ngModel)]="autres_specifications" row="6"></ion-textarea>
-    </ion-item-->
     <br>
     <ion-row><h5 class="sans-fond-gris"><strong>Paramètre des essais</strong></h5> </ion-row>
-    <!--ion-item>
-      <ion-label floating>Avec code association ? <span class="error-box">*</span></ion-label>
-      <ion-select formControlName="avec_code_association" cancelText="Annuler" okText="Ok">
-        <ion-option value="oui">Oui</ion-option>
-        <ion-option value="non">Non</ion-option>
-      </ion-select>
-    </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['avec_code_association'].hasError('required') && protocoleForm.controls['avec_code_association'].touched">* le code association est obligatoir!</div-->
-    
+      
     <ion-item>
       <ion-label floating>Type culture <span class="error-box">*</span></ion-label>
       <ion-select formControlName="type_culture" cancelText="Annuler" okText="Ok">
@@ -539,23 +470,24 @@
     </ion-item>
     <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['type_essais'].hasError('required') && protocoleForm.controls['type_essais'].touched">* le type des essais est obligatoir!</div>
     
-
     <ion-item>
-      <ion-label floating>Avec parcelle ? <span class="error-box">*</span></ion-label>
-      <ion-select [(ngModel)]="avec_parcelle" formControlName="avec_parcelle" cancelText="Annuler" okText="Ok">
+      <ion-label floating>Avec système ? <span class="error-box">*</span></ion-label>
+      <ion-select [(ngModel)]="avec_systeme" formControlName="avec_systeme" cancelText="Annuler" okText="Ok">
         <ion-option value="oui">Oui</ion-option>
         <ion-option value="non">Non</ion-option>
       </ion-select>
     </ion-item>
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['avec_parcelle'].hasError('required') && protocoleForm.controls['avec_parcelle'].touched">* la parcelle est obligatoir!</div>
+    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['avec_systeme'].hasError('required') && protocoleForm.controls['avec_systeme'].touched">* le système est obligatoir!</div>
     
 
-    <ion-item [hidden]="avec_parcelle == 'non'">
-      <ion-label floating>Nombre parcelles <span class="error-box">*</span></ion-label>
-      <ion-input type="number" formControlName="nb_parcelle"></ion-input>
+    <ion-item [hidden]="avec_systeme == 'non'">
+      <ion-label floating>Nombre système <span class="error-box">*</span></ion-label>
+      <ion-input type="number" formControlName="nb_systeme"></ion-input>
     </ion-item> 
-    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['nb_parcelle'].hasError('required') && protocoleForm.controls['nb_parcelle'].touched">* le nombre de de parcelle est obligatoir!</div>
- 
+    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['nb_systeme'].hasError('required') && protocoleForm.controls['nb_systeme'].touched">* le nombre de système est obligatoir!</div> 
+
+
+
     <ion-item>
       <ion-label floating>Avec bloc ? <span class="error-box">*</span></ion-label>
       <ion-select [(ngModel)]="avec_bloc" formControlName="avec_bloc" cancelText="Annuler" okText="Ok">
@@ -572,6 +504,22 @@
     </ion-item> 
     <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['nb_bloc'].hasError('required') && protocoleForm.controls['nb_bloc'].touched">* le nombre de bloc est obligatoir!</div>
  
+    <ion-item>
+      <ion-label floating>Avec parcelle ? <span class="error-box">*</span></ion-label>
+      <ion-select [(ngModel)]="avec_parcelle" formControlName="avec_parcelle" cancelText="Annuler" okText="Ok">
+        <ion-option value="oui">Oui</ion-option>
+        <ion-option value="non">Non</ion-option>
+      </ion-select>
+    </ion-item>
+    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['avec_parcelle'].hasError('required') && protocoleForm.controls['avec_parcelle'].touched">* la parcelle est obligatoir!</div>
+    
+
+    <ion-item [hidden]="avec_parcelle == 'non'">
+      <ion-label floating>Nombre parcelles <span class="error-box">*</span></ion-label>
+      <ion-input type="number" formControlName="nb_parcelle"></ion-input>
+    </ion-item> 
+    <div style="padding-left: 15px;" class="error-box" *ngIf="protocoleForm.controls['nb_parcelle'].hasError('required') && protocoleForm.controls['nb_parcelle'].touched">* le nombre de parcelle est obligatoir!</div> 
+
     <ion-item>
       <ion-label floating>Avec répétition ? <span class="error-box">*</span></ion-label>
       <ion-select [(ngModel)]="avec_repetition" formControlName="avec_repetition" cancelText="Annuler" okText="Ok">
@@ -625,7 +573,7 @@
   <br>
    <fieldset>
       <legend>Info typologie des producteurs</legend>
-     <ion-row *ngIf="typologie != 'oui'">
+     <ion-row *ngIf="typologie == 'non'">
         <ion-item>
           <ion-label floating>Inclure la typologie ? <span class="error-box">*</span></ion-label>
           <ion-select [(ngModel)]="typologie" formControlName="typologie" cancelText="Annuler" okText="Ok">
@@ -639,7 +587,7 @@
       <ion-col>
           <ion-item>
             <ion-label floating>Inclure la typologie ? <span class="error-box">*</span></ion-label>
-            <ion-select formControlName="typologie" cancelText="Annuler" okText="Ok">
+            <ion-select [(ngModel)]="typologie" formControlName="typologie" cancelText="Annuler" okText="Ok">
               <ion-option value="oui">Oui</ion-option>
               <ion-option value="non">Non</ion-option>
             </ion-select>
@@ -662,7 +610,7 @@
       <br>
       <button ion-button type="submit" color="my_secondary" [disabled]="!protocoleForm.valid" block>Sauvegarder</button>
     </form>
-    <button ion-button color="my_primary" block (click)="annuler()">Fermer</button>
+    <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
   
   </div>
   

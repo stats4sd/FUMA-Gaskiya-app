@@ -1,0 +1,15 @@
+<!-- Generated template for the AttributProtocoleComponent component -->
+<div [formGroup]="attributForm">
+  <!--street-->
+  <ion-item>
+    <ion-label floating>Nom titre <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="attributForm.controls['nom'].hasError('required') && attributForm.controls['nom'].touched">* le titre est obligatoire!</div>    
+
+  <ion-item>
+    <ion-label floating>Détail titre<span class="error-box">*</span></ion-label>
+    <ion-textarea formControlName="detail" row="6"></ion-textarea>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="attributForm.controls['detail'].hasError('required') && attributForm.controls['detail'].touched">* le detail est obligatoire!</div>    
+</div>

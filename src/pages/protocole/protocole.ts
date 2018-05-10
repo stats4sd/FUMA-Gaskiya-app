@@ -61,7 +61,9 @@ export class ProtocolePage {
   avec_repetition: any = '';
   nb_repetition: any;
   avec_parcelle: any = '';
+  avec_systeme: any = '';
   nb_parcelle: any;
+  nb_systeme: any;
   avec_bloc: any = '';
   typologie:any = '';
   nb_bloc: any;
@@ -87,6 +89,7 @@ export class ProtocolePage {
   estInstancier: boolean = false;
   ajoutForm: boolean = false;
   annees_typologie: any = [];
+  sauvegarder: boolean = true;
 
   constructor(public navCtrl: NavController, public loadtingCtl: LoadingController, public toastCtl: ToastController, public ionicApp: IonicApp, public viewCtl: ViewController, public formBuilder: FormBuilder, public sim: Sim, public device: Device, public modelCtl: ModalController, public a: App, public events: Events, public navParams: NavParams, public menuCtl: MenuController, public printer: Printer, public file: File, public platform: Platform, public storage: Storage, public servicePouchdb: PouchdbProvider, public alertCtl: AlertController) {
   
@@ -172,14 +175,16 @@ export class ProtocolePage {
         type_culture:['', Validators.required],
         traitement:['oui', Validators.required],
         type_essais:['', Validators.required],
-        avec_repetition:['non', Validators.required],
-        nb_repetition:['', ],
-        avec_parcelle:['non', Validators.required],
-        nb_parcelle:['', ],
+        avec_systeme:['non', Validators.required],
+        nb_systeme:['' ],
         avec_bloc:['non', Validators.required],
+        nb_bloc:['' ],
+        avec_parcelle:['non', Validators.required],
+        nb_parcelle:['' ],
+        avec_repetition:['non', Validators.required],
+        nb_repetition:['' ],
         typologie:['non', Validators.required],
         annee_typologie:[''],
-        nb_bloc:['', ],
         //avec_code_association:['non', Validators.required],
         superficie_essais:[''],
         superficie_essais_modifiable:['non', Validators.required],
@@ -222,6 +227,62 @@ export class ProtocolePage {
       const control = <FormArray>this.protocoleForm.controls['attributs'];
       control.removeAt(i);
     }
+
+
+  downVariable(i: number) {
+    this.sauvegarder = false;
+    const control = <FormArray>this.protocoleForm.controls['attributs'];
+    let currentControl = this.clone(control.at(i+1).value);
+    control.at(i+1).setValue(this.clone(control.at(i).value));// = control[i].value;
+    control.at(i).setValue(currentControl);
+    setTimeout(() => this.sauvegarder = true, 10)
+    //control.removeAt(i);
+  }
+
+
+  upVariable(i: number) {
+    this.sauvegarder = false;
+    const control = <FormArray>this.protocoleForm.controls['attributs'];
+    let currentControl = this.clone(control.at(i-1).value);
+    control.at(i-1).setValue(this.clone(control.at(i).value));// = control[i].value;
+    control.at(i).setValue(currentControl);
+    setTimeout(() => this.sauvegarder = true, 10)
+    //control.removeAt(i);
+  }
+
+  clone(obj) {
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) {return obj};
+
+    // Handle Date
+    if (obj instanceof Date) {
+        var copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    // Handle Array
+    if (obj instanceof Array) {
+        let copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = this.clone(obj[i]);
+        }
+        return copy;
+    }
+
+    // Handle Object
+    if (obj instanceof Object) {
+        let copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+
   
   
   
@@ -270,6 +331,7 @@ export class ProtocolePage {
       this.initForm();
       this.avec_repetition = 'non';
       this.avec_parcelle = 'non';
+      this.avec_systeme = 'non';
       this.avec_bloc = 'non';
       this.typologie = 'non';
       this.traitement = 'oui';
@@ -352,143 +414,168 @@ export class ProtocolePage {
 
 
     actionForm(){
-      let protocole = this.protocoleForm.value;
+      if(this.sauvegarder){
+        let protocole = this.protocoleForm.value;
 
-      if(this.valider(protocole) === ''){
-        if(this.modifierFrom){
-          protocole.code = this.protocole1.code;
-        }
-        if(this.existe(protocole, this.modifierFrom) == 1){
-          alert('Erreur! Enregistrement impossible, ce protocole existe déjà');
-        }else{
-          if(this.ajoutForm && !this.modifierFrom){
-            let date = new Date();
-            protocole.annee = this.selectedAnnee;
-            protocole.deviceid = this.device.uuid;
-            protocole.phonenumber = this.phonenumber;
-            protocole.imei = this.imei; 
-            protocole.update_deviceid = this.device.uuid;
-            protocole.update_phonenumber = this.phonenumber;
-            protocole.update_imei = this.imei;
-            protocole.code = this.id;
-            if(protocole.traitement == 'oui'){
-              protocole.superficie_essais  = '';
+        if(this.valider(protocole) === ''){
+          if(this.modifierFrom){
+            protocole.code = this.protocole1.code;
+          }
+          if(this.existe(protocole, this.modifierFrom) == 1){
+            alert('Erreur! Enregistrement impossible, ce protocole existe déjà');
+          }else{
+            if(protocole.typologie == 'non'){
+              protocole.annee_typologie = '';
+            }
+    
+            if(protocole.avec_systeme == 'non'){
+              protocole.nb_systeme = '';
+            }
+    
+            if(protocole.avec_bloc == 'non'){
+              protocole.nb_bloc = '';
+            }
+    
+            if(protocole.avec_parcelle == 'non'){
+              protocole.nb_parcelle = '';
+            }
+    
+            if(protocole.avec_repetition == 'non'){
+              protocole.nb_repetition = '';
             }
             
-            //union._id = 'fuma'+ id;
-            protocole.end = date.toJSON();
-            //protocole.code_essai = id;
-            //champs.id_champs = id;
-          
-            let protocoleFinal: any = {};
-            protocoleFinal._id = 'fuma'+':protocole:'+ this.id;
-            protocoleFinal.data = protocole
-            let EF: any;
-            this.servicePouchdb.createDocReturn(protocoleFinal).then((res) => {
-              /* let toast = this.toastCtl.create({
-                  message: 'Essai bien enregistré!',
-                  position: 'top',
-                  duration: 1000
-                });*/
-                
-                
-                //alert(res.rev)
-                protocoleFinal._rev = res.rev;
-                let E: any = {};
-                E.doc = protocoleFinal;
-                this.code = null;
-                
-                //this.viewCtl.dismiss(essaiFinal);
-              // this.zone.run(() => {
-                this.protocoles.push(E);
-              });
-  
-              
-              this.ajoutForm = false;
-              this.reinitForm();
-              
-  
-              //this.navCtrl.pop();
-              //toast.present();
-              
-  
-        // }
-        }else if(this.modifierFrom){
-          let date = new Date();
-          //let protocole = this.protocoleForm.value;
-          this.protocole1.annee = protocole.annee;
-          this.protocole1.objectifs = protocole.objectifs;
-          this.protocole1.projet = protocole.projet; 
-          this.protocole1.nom = protocole.nom; 
-          //this.protocole1.titre_essais = protocole.titre_essais;
-          //today: [today],
-          //id_site:['', , Validators.required],
-  
-          this.protocole1.traitement = protocole.traitement;
-          this.protocole1.type_essais = protocole.type_essais;
-          this.protocole1.type_culture = protocole.type_culture;
-          this.protocole1.avec_repetition = protocole.avec_repetition;
-          this.protocole1.nb_repetition = protocole.nb_repetition;
-          this.protocole1.avec_parcelle = protocole.avec_parcelle;
-          this.protocole1.nb_parcelle = protocole.nb_parcelle;
-          this.protocole1.avec_bloc = protocole.avec_bloc;
-          this.protocole1.typologie = protocole.typologie;
-          this.protocole1.annee_typologie = protocole.annee_typologie;
-          this.protocole1.nb_bloc = protocole.nb_bloc;
-          //this.protocole1.avec_code_association = protocole.avec_code_association;
-          this.protocole1.superficie_essais = protocole.superficie_essais;
-          this.protocole1.superficie_essais_modifiable = protocole.superficie_essais_modifiable;
-          this.protocole1.attributs = protocole.attributs;
-          if(this.protocole1.traitement == 'oui'){
-            this.protocole1.superficie_essais  = '';
-          }
-          
-          /*this.protocole1.contexte = protocole.contexte;
-          this.protocole1.methodologie = protocole.methodologie;
-          this.protocole1.choix_varietes = protocole.choix_varietes;
-          this.protocole1.nb_e_r_d_e = protocole.nb_e_r_d_e;
-          this.protocole1.taille_parcelle = protocole.taille_parcelle;
-          this.protocole1.d_e_p_d_u_l = protocole.d_e_p_d_u_l;
-          this.protocole1.d_e_l_l = protocole.d_e_l_l;
-          //id_classe_producteur: [''],
-          this.protocole1.demariage = protocole.demariage;
-          this.protocole1.fertilisation = protocole.fertilisation;
-          //id_traitement: [''],
-          this.protocole1.autres_specifications = protocole.autres_specifications;
-          */
-          this.protocole1.update_deviceid = this.device.uuid;
-          this.protocole1.update_phonenumber = this.phonenumber;
-          this.protocole1.update_imei = this.imei;
-        
-          //let essaiFinal: any = {};
-          this.grandProtocole.data = this.protocole1
-          this.servicePouchdb.updateDocReturn(this.grandProtocole).then((res) => {
-            this.grandProtocole._rev = res.rev;
-            this.protocole = this.grandProtocole;
-            //this.essais[this.essais.indexOf(this.essaiAModifier)] = e;
-            
-            
-            this.reinitFormModifier();
-            this.modifierFrom = false;
-            this.detailProtocole = true
-            this.ajoutForm = false;
-            this.code = null;
-  
-          
-          let e: any = {};
-            e.doc = this.protocole;
-            this.protocoles.forEach((es, i) => {
-              if(es.doc._id === this.protocoleAModifier._id){
-                this.protocoles[i] = e ;
+            if(this.ajoutForm && !this.modifierFrom){
+              let date = new Date();
+              protocole.annee = this.selectedAnnee;
+              protocole.deviceid = this.device.uuid;
+              protocole.phonenumber = this.phonenumber;
+              protocole.imei = this.imei; 
+              protocole.update_deviceid = this.device.uuid;
+              protocole.update_phonenumber = this.phonenumber;
+              protocole.update_imei = this.imei;
+              protocole.code = this.id;
+              if(protocole.traitement == 'oui'){
+                protocole.superficie_essais  = '';
               }
               
+              //union._id = 'fuma'+ id;
+              protocole.end = date.toJSON();
+              //protocole.code_essai = id;
+              //champs.id_champs = id;
+            
+              let protocoleFinal: any = {};
+              protocoleFinal._id = 'fuma'+':protocole:'+ this.id;
+              protocoleFinal.data = protocole
+              let EF: any;
+              this.servicePouchdb.createDocReturn(protocoleFinal).then((res) => {
+                /* let toast = this.toastCtl.create({
+                    message: 'Essai bien enregistré!',
+                    position: 'top',
+                    duration: 1000
+                  });*/
+                  
+                  
+                  //alert(res.rev)
+                  protocoleFinal._rev = res.rev;
+                  let E: any = {};
+                  E.doc = protocoleFinal;
+                  this.code = null;
+                  
+                  //this.viewCtl.dismiss(essaiFinal);
+                // this.zone.run(() => {
+                  this.protocoles.push(E);
+                });
+    
+                
+                this.ajoutForm = false;
+                this.reinitForm();
+                
+    
+                //this.navCtrl.pop();
+                //toast.present();
+                
+    
+          // }
+          }else if(this.modifierFrom){
+            let date = new Date();
+            //let protocole = this.protocoleForm.value;
+            this.protocole1.annee = protocole.annee;
+            this.protocole1.objectifs = protocole.objectifs;
+            this.protocole1.projet = protocole.projet; 
+            this.protocole1.nom = protocole.nom; 
+            //this.protocole1.titre_essais = protocole.titre_essais;
+            //today: [today],
+            //id_site:['', , Validators.required],
+    
+            this.protocole1.traitement = protocole.traitement;
+            this.protocole1.type_essais = protocole.type_essais;
+            this.protocole1.type_culture = protocole.type_culture;
+            this.protocole1.avec_repetition = protocole.avec_repetition;
+            this.protocole1.nb_repetition = protocole.nb_repetition;
+            this.protocole1.avec_parcelle = protocole.avec_parcelle;
+            this.protocole1.nb_parcelle = protocole.nb_parcelle;
+            this.protocole1.avec_systeme = protocole.avec_systeme;
+            this.protocole1.nb_systeme = protocole.nb_systeme;
+            this.protocole1.avec_bloc = protocole.avec_bloc;
+            this.protocole1.typologie = protocole.typologie;
+            this.protocole1.annee_typologie = protocole.annee_typologie;
+            this.protocole1.nb_bloc = protocole.nb_bloc;
+            //this.protocole1.avec_code_association = protocole.avec_code_association;
+            this.protocole1.superficie_essais = protocole.superficie_essais;
+            this.protocole1.superficie_essais_modifiable = protocole.superficie_essais_modifiable;
+            this.protocole1.attributs = protocole.attributs;
+            if(this.protocole1.traitement == 'oui'){
+              this.protocole1.superficie_essais  = '';
+            }
+            
+            /*this.protocole1.contexte = protocole.contexte;
+            this.protocole1.methodologie = protocole.methodologie;
+            this.protocole1.choix_varietes = protocole.choix_varietes;
+            this.protocole1.nb_e_r_d_e = protocole.nb_e_r_d_e;
+            this.protocole1.taille_parcelle = protocole.taille_parcelle;
+            this.protocole1.d_e_p_d_u_l = protocole.d_e_p_d_u_l;
+            this.protocole1.d_e_l_l = protocole.d_e_l_l;
+            //id_classe_producteur: [''],
+            this.protocole1.demariage = protocole.demariage;
+            this.protocole1.fertilisation = protocole.fertilisation;
+            //id_traitement: [''],
+            this.protocole1.autres_specifications = protocole.autres_specifications;
+            */
+            this.protocole1.update_deviceid = this.device.uuid;
+            this.protocole1.update_phonenumber = this.phonenumber;
+            this.protocole1.update_imei = this.imei;
+          
+            //let essaiFinal: any = {};
+            this.grandProtocole.data = this.protocole1
+            this.servicePouchdb.updateDocReturn(this.grandProtocole).then((res) => {
+              this.grandProtocole._rev = res.rev;
+              this.protocole = this.grandProtocole;
+              //this.essais[this.essais.indexOf(this.essaiAModifier)] = e;
+              
+              
+              this.reinitFormModifier();
+              this.modifierFrom = false;
+              this.detailProtocole = true
+              this.ajoutForm = false;
+              this.code = null;
+    
+            
+            let e: any = {};
+              e.doc = this.protocole;
+              this.protocoles.forEach((es, i) => {
+                if(es.doc._id === this.protocoleAModifier._id){
+                  this.protocoles[i] = e ;
+                }
+                
+              });
             });
-          });
+          }
+        
+          }
+        }else{
+          alert(this.valider(protocole))
         }
-      
-        }
-      }else{
-        alert(this.valider(protocole))
+       
       }
      
   }
@@ -515,6 +602,14 @@ export class ProtocolePage {
     let alert = this.alertCtl.create({
       title: 'Suppression protocole',
       message: 'Etes vous sûr de vouloir supprimer ce protocole ?',
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Supprimer définitivement!',
+          value: 'oui',
+          checked: false
+          }
+      ],
       buttons:[
         {
           text: 'Non',
@@ -523,22 +618,37 @@ export class ProtocolePage {
         },
         {
           text: 'Oui',
-          handler: () => {
-            this.servicePouchdb.deleteDocReturn(protocole).then((res) => {
-              //let e: any = {};
-              //e.doc = essai;
-              this.protocoles.forEach((es, i) => {
-                if(es.doc._id === protocole._id){
-                  this.protocoles.splice(i, 1);
-                }
-                
-              });
-
-              this.detailProtocole = false;
-              //this.navCtrl.pop();
-            }, err => {
-              console.log(err)
-            }) ;
+          handler: (data) => {
+            if(data.toString() === 'oui'){
+              this.servicePouchdb.deleteReturn(protocole).then((res) => {
+                this.protocoles.forEach((es, i) => {
+                  if(es.doc._id === protocole._id){
+                    this.protocoles.splice(i, 1);
+                  }
+                  
+                });
+  
+                this.detailProtocole = false;
+                //this.navCtrl.pop();
+              }, err => {
+                console.log(err)
+              }) ;
+            }else{
+              this.servicePouchdb.deleteDocReturn(protocole).then((res) => {
+                this.protocoles.forEach((es, i) => {
+                  if(es.doc._id === protocole._id){
+                    this.protocoles.splice(i, 1);
+                  }
+                  
+                });
+  
+                this.detailProtocole = false;
+                //this.navCtrl.pop();
+              }, err => {
+                console.log(err)
+              }) ;
+            }
+            
             
           }
         }
@@ -791,6 +901,8 @@ export class ProtocolePage {
         nb_repetition: protocole.data.nb_repetition,
         avec_parcelle: protocole.data.avec_parcelle,
         nb_parcelle: protocole.data.nb_parcelle,
+        avec_systeme: protocole.data.avec_systeme,
+        nb_systeme: protocole.data.nb_systeme,
         avec_bloc: protocole.data.avec_bloc,
         typologie:protocole.data.typologie,
         annee_typologie: protocole.data.annee_typologie,
@@ -836,6 +948,8 @@ export class ProtocolePage {
       this.nb_repetition = this.protocole1.nb_repetition;
       this.avec_parcelle = this.protocole1.avec_parcelle;
       this.nb_parcelle = this.protocole1.nb_parcelle;
+      this.avec_systeme = this.protocole1.avec_systeme;
+      this.nb_systeme = this.protocole1.nb_systeme;
       this.avec_bloc = this.protocole1.avec_bloc;
       this.typologie = this.protocole1.typologie;
       this.nb_bloc = this.protocole1.nb_bloc;
@@ -865,6 +979,7 @@ export class ProtocolePage {
     this.initForm();
     this.avec_repetition = 'non';
     this.avec_parcelle = 'non';
+    this.avec_systeme = 'non';
     this.avec_bloc = 'non';
     this.typologie = 'non';
     this.traitement = 'oui';
@@ -896,6 +1011,10 @@ export class ProtocolePage {
     if(protocole.traitement == 'non' && (!protocole.superficie_essais || protocole.superficie_essais == '')){
       msg += '\nLa superficie des essais est vide!'
     }
+
+    if(protocole.avec_systeme == 'oui' && (!protocole.nb_systeme || protocole.nb_systeme < 1)){
+      msg += '\nLe nombre de système doit etre non vide et supperieur à 0!'
+    }
     if(protocole.avec_bloc == 'oui' && (!protocole.nb_bloc || protocole.nb_bloc < 1)){
       msg += '\nLe nombre de bloc doit etre non vide et supperieur à 0!'
     }
@@ -923,6 +1042,7 @@ export class ProtocolePage {
       this.avec_bloc = 'non';
       this.typologie = 'non';
       this.avec_parcelle = 'non';
+      this.avec_systeme = 'non';
       //this.nb_repetition = 0;
       this.ajoutForm = true;
       

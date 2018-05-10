@@ -51,7 +51,7 @@ export class TabsPage {
     this.translate.use(global.langue)
     //console.log('syncing database')
     //this.database.sync();
-    this.initFilter();
+    this.initData();
     this.getConfig();
     this.database.getChangeListener().subscribe(data => {
       this.zone.run(() => {
@@ -71,6 +71,50 @@ export class TabsPage {
   }
 
   initFilter(){
+    this.database.getDocById('_design/filtrerDoc').then((c) => {
+      if(!c){
+          this.ajouterLoalDesignDoc()
+        }
+    }).catch((err) => this.ajouterLoalDesignDoc());
+  }
+
+  initData(){
+    //ajouter pays
+    this.database.getDocById('pays').then((c) => {
+      if(!c){
+        this.database.createSimpleDocReturn(global.pays)
+        }
+    }).catch((err) => this.database.createSimpleDocReturn(global.pays));
+    
+    //ajouter region
+    this.database.getDocById('region').then((c) => {
+      if(!c){
+        this.database.createSimpleDocReturn(global.region)
+        }
+    }).catch((err) => this.database.createSimpleDocReturn(global.region));
+    
+    //ajouter departement
+    this.database.getDocById('departement').then((c) => {
+      if(!c){
+        this.database.createSimpleDocReturn(global.departement)
+        }
+    }).catch((err) => this.database.createSimpleDocReturn(global.departement));
+    
+    //ajouter commune
+    this.database.getDocById('commune').then((c) => {
+      if(!c){
+        this.database.createSimpleDocReturn(global.commune)
+        }
+    }).catch((err) => this.database.createSimpleDocReturn(global.commune));
+    
+    //ajouter village
+    this.database.getDocById('village').then((c) => {
+      if(!c){
+        this.database.createSimpleDocReturn(global.village)
+        }
+    }).catch((err) => this.database.createSimpleDocReturn(global.village));
+    
+    //ajouter filtre
     this.database.getDocById('_design/filtrerDoc').then((c) => {
       if(!c){
           this.ajouterLoalDesignDoc()
@@ -147,18 +191,22 @@ export class TabsPage {
           }
         }
 
+        filter_doc._id = '_design/filtrerDoc';
+        this.database.createSimpleDocReturn(filter_doc);//.then((res) => alert('Filter ajouté avec succes')).catch((err) => alert('erreur ajout du filter => '+err));
+
+        /*
         this.database.getDocById('_design/filtrerDoc').then((doc) => {
           if(doc && doc._id){
             //doc existe
             //this.database.remote(doc)
             filter_doc._id = '_design/filtrerDoc';
             filter_doc._rev = doc._rev;
-            this.database.createSimpleDocReturn(filter_doc).then((res) => alert('Filter mise à jour avec succes')).catch((err) => alert('erreur mise à jour du filter du filter => '+err));
+            this.database.createSimpleDocReturn(filter_doc);//.then((res) => alert('Filter mise à jour avec succes')).catch((err) => alert('erreur mise à jour du filter du filter => '+err));
           }else{
             //créer le filtre de base
             //this.ajouterDesignDoc();
             filter_doc._id = '_design/filtrerDoc';
-            this.database.createSimpleDocReturn(filter_doc).then((res) => alert('Filter ajouté avec succes')).catch((err) => alert('erreur ajout du filter => '+err));
+            this.database.createSimpleDocReturn(filter_doc);//.then((res) => alert('Filter ajouté avec succes')).catch((err) => alert('erreur ajout du filter => '+err));
           }
           
         }).catch((err) => {
@@ -166,7 +214,7 @@ export class TabsPage {
           //this.ajouterDesignDoc();
           filter_doc._id = '_design/filtrerDoc';
           this.database.createSimpleDocReturn(filter_doc).then((res) => alert('Filter ajouté avec succes')).catch((err) => alert('erreur ajout du filter '+err));
-        });
+        });*/
     
 
         //global.remoteSaved.put(filter_doc).catch((err) => alert('erreur vers server '+err));

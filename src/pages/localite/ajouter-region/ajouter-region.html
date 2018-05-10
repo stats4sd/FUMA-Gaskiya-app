@@ -28,7 +28,11 @@
 <ion-content padding>
 
   <div *ngIf="liste">
+  		<ion-item>
+			<ion-searchbar placeholder="Rechercher region..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+		  </ion-item>
     <ion-list *ngIf="allRegion.length && liste">
+
       <ion-item-sliding *ngFor="let region of allRegion">
         <ion-item>
           <h6><strong>Pays:</strong> {{region.nom_pays}} ({{region.id_pays}})</h6>

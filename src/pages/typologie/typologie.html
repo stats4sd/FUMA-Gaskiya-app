@@ -1,0 +1,811 @@
+<!--
+  Generated template for the TypologiePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-buttons *ngIf="!ajoutForm && !modifierFrom && !detailTypologie" left>
+      <button ion-button icon-only color="royal" (click)="dismiss()"> Fermer <!--ion-icon name="arrow-back"></ion-icon--></button>
+    </ion-buttons> 
+    <ion-buttons *ngIf="ajoutForm || modifierFrom" left>
+      <button ion-button icon-only color="royal" (click)="annuler()"> <ion-icon name="arrow-back"></ion-icon></button>
+    </ion-buttons> 
+    <ion-buttons *ngIf="detailTypologie" left>
+      <button ion-button icon-only color="royal" (click)="fermerDetail()"><ion-icon name="arrow-back"></ion-icon></button>
+    </ion-buttons> 
+    <ion-buttons *ngIf="!ajoutForm && !detailTypologie && !modifierFrom"  start>
+
+      <button ion-button *ngIf="rechercher" icon-only>
+          <ion-spinner></ion-spinner>
+      </button>
+
+      <button ion-button icon-only>
+        <ion-badge color="fuma-green" item-right>{{typologies.length}}</ion-badge>
+      </button>
+
+      <button ion-button icon-only color="royal" *ngIf="aProfile" (click) = "sync()" >
+         <ion-icon name="sync"></ion-icon>
+      </button>
+
+      <!--button ion-button icon-only color="royal" (click) = "copierDB()" >
+         <ion-icon name="arrow-dropup-circle"></ion-icon>
+      </button-->
+    </ion-buttons>
+
+    <ion-title *ngIf="!ajoutForm && !detailTypologie">typologies</ion-title>
+    <ion-title *ngIf="ajoutForm && !modifierFrom">ajouter-typologie</ion-title>
+    <ion-title *ngIf="ajoutForm && modifierFrom">modifier-typologie</ion-title>
+    <ion-title *ngIf="detailTypologie">detail-typologie</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <ion-refresher *ngIf="!ajoutForm && !detailTypologie" (ionRefresh)="getTypologies($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Tirer pour actualiser"
+      refreshingSpinner="circles"
+      refreshingText="Actualisation...">
+    </ion-refresher-content>
+  </ion-refresher>
+  
+
+  <div *ngIf="!ajoutForm && !detailTypologie">
+
+    <ion-list>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Choisir la limite</ion-label>
+            <ion-select [(ngModel)]="selectedLimit" (ionChange)="choixLimit()" cancelText="Annuler" okText="Ok" >
+              <ion-option value="" selected disabled>Selectionnez la limite</ion-option>
+              <ion-option *ngFor="let limit of limits" [value]=limit>{{limit}}</ion-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-label floating>Style affichage</ion-label>
+            <ion-select [(ngModel)]="selectedStyle" cancelText="Annuler" okText="Ok" >
+              <ion-option value="" selected disabled>Selectionnez le style de la liste</ion-option>
+              <ion-option value="liste" >Liste</ion-option>
+              <ion-option value="tableau" >Tableau</ion-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-item>
+      <ion-label floating>Type de recherche</ion-label>
+      <ion-select [(ngModel)]="typeRecherche" cancelText="Annuler" okText="Ok" >
+        <ion-option value="matricule" >Par matricule membre</ion-option>
+        <ion-option value="nom_membre" >Par nom membre</ion-option>
+        <ion-option value="surnom_membre" >Par surnom membre</ion-option>
+        <!--ion-option value="classe" >Par nom classes</ion-option-->
+      </ion-select>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'matricule'">
+      <ion-searchbar placeholder="Rechercher mat. producteur..." [(ngModel)]="recherche" [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'nom_membre'">
+      <ion-searchbar placeholder="Rechercher nom producteur..."  [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'surnom_membre'">
+      <ion-searchbar placeholder="Rechercher surnom producteur..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    <ion-item *ngIf="typeRecherche == 'classe'">
+      <ion-searchbar placeholder="Rechercher nom classe..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+    </ion-item>
+
+    </ion-list>
+    <br >
+      <ion-list class="info-card" *ngIf="typologies.length > 0 && selectedStyle === 'liste'">
+      <!--ion-list *ngIf="selectedStyle === 'liste'" [virtualScroll]="typologies" [headerFn]="myHeaderFn"-->
+      
+        <ion-list-header>
+          <h2  class="fond-gris"><strong>Les typologies <span *ngIf="producteur_connu && selectedStyle == 'liste'">
+    de {{nom_producteur}} - mat. {{matricule_producteur}}
+  </span></strong></h2>
+        </ion-list-header>
+
+        <!--ion-item-divider *virtualHeader="let header" class="message">
+          <strong style="width: 100%" >typologies {{selectedAnnee}}: {{header}}</strong>
+        </ion-item-divider-->
+
+    <ion-item-sliding *ngFor="let t of typologies; let i = index">
+      <ion-item  (click)="detail(t.doc)"> 
+      <!--ion-item *virtualItem="let ess" (click)="detail(ess.doc)" --> 
+        <!--h6><strong>Code typologie:</strong> {{ess.doc.data.code_typologie}}</h6-->
+        <h6><strong>Année:</strong> {{t.doc.data.annee}}</h6>
+        <h6><strong>Matricule producteur:</strong> {{t.doc.data.matricule_producteur}}</h6>
+        <h6><strong>Nom producteur:</strong> {{t.doc.data.nom_producteur}}</h6>
+        <!--h6><strong>Classes:</strong> {{t.doc.data.classes}}</h6-->
+      </ion-item>
+      <ion-item-options *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger)" side="right">
+          <button ion-button icon-only color="my_primary" (click)="partager(t.doc._id)">
+            <ion-icon name="share"></ion-icon>
+          </button>
+        </ion-item-options>
+    </ion-item-sliding>
+    </ion-list>
+
+  <ion-card class="info-card" *ngIf="typologies.length > 0 && selectedStyle === 'tableau'">
+    <ion-card-header>
+      <h2 class="fond-gris"><strong>Les typologies <span *ngIf="producteur_connu">
+    de {{nom_producteur}} - mat. {{matricule_producteur}}
+  </span></strong></h2>
+    </ion-card-header> 
+    <ion-scroll scrollX="true" scrollY="true" id="tableau" style="height: 80vh"> 
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+          <th>
+            <strong>Code</strong> 
+          </th>
+          <th style="min-width: 100px" >
+            <strong>Année</strong> 
+          </th>
+          <th >
+            <strong>Matricule producteur</strong> 
+          </th>
+          <th>
+            <strong>Nom producteur</strong>
+          </th>
+          <th  >
+            <strong>Surnom producteur</strong>
+          </th>
+          <th>
+            <strong>Classes</strong>
+          </th>
+          </tr>
+        </thead>
+        <!--hr style="width: 375%"-->
+        <tbody>
+            <tr *ngFor="let t of typologies" (click)="detail(t.doc)">
+              <td  >
+                {{t.doc.data.code}}
+              </td>
+              <td  >
+                {{t.doc.data.annee}}
+              </td>
+              <td  >
+                {{t.doc.data.matricule_producteur}}
+              </td>
+              <td  >
+                {{t.doc.data.nom_producteur}}
+              </td>
+              <td  >
+                {{t.doc.data.surnom_producteur}}
+              </td>
+              <td  >
+                <span *ngFor="let c of t.doc.data.classes; let i = index"> {{c}}<span *ngIf="i < t.doc.data.classes.length - 1">, </span> </span>
+              </td>        
+            </tr>
+        </tbody>
+      </table>
+    </ion-scroll>
+  </ion-card>
+
+  <div *ngIf="typologies.length > 0">
+    <br><br><br><br>
+  </div>
+    <ion-list *ngIf="!typologies.length > 0">
+      <ion-item>
+        <div class="message">La liste est vide!</div>
+      </ion-item>    
+    </ion-list>
+  </div>
+
+
+<div *ngIf="detailTypologie">
+    <ion-card class="info-card" (dblclick)="editer(typologie, true)"> 
+      <ion-card-header>
+        <h2 class="fond-gris"><strong>Détail typologie: {{typologie.data.code}}</strong></h2>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row><h5 class="sans-fond-gris"><strong>Informations généraux</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Année:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.annee}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Matricule producteur:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.matricule_producteur}} </ion-col> </ion-row>
+          
+          <ion-row> <ion-col class='meta-key'><strong>Nom producteur:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.nom_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Surnom producteur:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.surnom_producteur}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Age:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.age}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Code union:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.code_union}} </ion-col> </ion-row>
+          
+          <ion-row> <ion-col class='meta-key'><strong>Classes:</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let c of typologie.data.classes; let i = index"> {{c}}<span *ngIf="i < typologie.data.classes.length - 1">, </span> </span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.today | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
+          
+
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 1</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'><span style="font-style: italic">Quel âge avez-vous ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse1}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Age typologie:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.age_typologie}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe1}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 2</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Qui décide des activités dans vos champs ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse2}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe2}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 3</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quel est l’objectif de la production ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse3}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe3}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 4</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quelles sont les principales  cultures que vous avez pratiquées ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse4}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe4}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 5</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quelle superficie des champs avez-vous exploité ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse5}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe5}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 6</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Combien d’autres personnes de votre ménage ont travaillé dans vos champs ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse6}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe6}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 7</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Combien de manœuvre ont travaillé dans vos champs ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse7}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe7}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 8</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Avez-vous utilisé des matériels modernes de production ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse8}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let c of typologie.data.classe8; let i = index"> {{c}}<span *ngIf="i < typologie.data.classe8.length - 1">, </span> </span> </ion-col> </ion-row>
+          
+          <div *ngIf="typologie.data.reponse8 && typologie.data.reponse8 == 'oui'">
+            <ion-row><h5 class="sans-fond-gris"><strong>Question 8 - A</strong></h5> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Les quels ?</span> </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse8_1}} </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.getClasseReponse8_1}} </ion-col> </ion-row>
+          </div>
+
+          <div *ngIf="typologie.data.reponse8_1 && typologie.data.reponse8_1 == ''">
+            <ion-row><h5 class="sans-fond-gris"><strong>Question 8 - B</strong></h5> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quelle est la provenance ?</span> </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse8_2}} </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.getClasseReponse8_2}} </ion-col> </ion-row>
+          </div>
+
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 9</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Avez-vous utilisé de la fumure organique ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse9}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let c of typologie.data.classe9; let i = index"> {{c}}<span *ngIf="i < typologie.data.classe9.length - 1">, </span> </span> </ion-col> </ion-row>
+          
+          <div *ngIf="typologie.data.reponse9 && typologie.data.reponse9 == 'oui'">
+            <ion-row><h5 class="sans-fond-gris"><strong>Question 9 - A</strong></h5> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quelles superficies avez-vous couvertes ?</span> </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse9_1}} </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.getClasseReponse9_1}} </ion-col> </ion-row>
+          </div>
+
+          <div *ngIf="typologie.data.reponse9_1 && typologie.data.reponse9_1 == ''">
+            <ion-row><h5 class="sans-fond-gris"><strong>Question 9 - B</strong></h5> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quelle est la provenance ?</span> </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse9_2}} </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.getClasseReponse9_2}} </ion-col> </ion-row>
+          </div>
+
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 10</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Avez-vous utilisé de l’engrais chimique ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse10}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe10}} </ion-col> </ion-row>
+          
+          <div *ngIf="typologie.data.reponse10 && typologie.data.reponse10 == 'oui'">
+            <ion-row><h5 class="sans-fond-gris"><strong>Question 10 - A</strong></h5> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Quelle quantité avez-vous achetée ?</span> </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse10_1}} </ion-col> </ion-row>
+            <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.getClasseReponse10_1}} </ion-col> </ion-row>
+          </div>
+
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 11</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Recevez-vous des formations dans la production agricole ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse11}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe11}} </ion-col> </ion-row>
+          
+          <ion-row><h5 class="sans-fond-gris"><strong>Question 12</strong></h5> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Q:</strong></ion-col> <ion-col class='meta-value'> <span style="font-style: italic">Votre production peut couvrir votre besoin alimentaire pour combien de mois ?</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>R:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.reponse12}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.classe12}} </ion-col> </ion-row>
+          
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+
+    <ion-card class="info-card" *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (dblclick)="editer(typologie, true)"> 
+      <ion-card-header>
+        <h2 class="fond-gris"><strong>Plus d'informations</strong></h2>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row><ion-col class='meta-key'><strong>Id:</strong></ion-col> <ion-col class='meta-value'>{{typologie._id}} </ion-col>   </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>No révision:</strong></ion-col> <ion-col class='meta-value'> {{typologie._rev }} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date création:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.created_at | date: 'dd-MM-yyyy'}} à {{typologie.data.created_at | date: 'HH:mm:ss:ms'}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Créateur:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.created_by}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.deviceid}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.imei}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.phonenumber}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date dernière mise à jour:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.updatet_at | date: 'dd-MM-yyyy'}}  à {{typologie.data.updatet_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Dernière mise à jour par:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.updated_by}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>ID appareil:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.update_deviceid}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Imei:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.update_imei}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Numéro téléphone:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.update_phonenumber}} </ion-col> </ion-row>
+          <ion-row *ngIf="typologie.data.deleted"> <ion-col class='meta-key'><strong>Date suppression:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.deleted_at | date: 'dd-MM-yyyy'}}  à {{typologie.data.deleted_at | date: 'HH:mm:ss:ms'}}</ion-col> </ion-row>
+          <ion-row *ngIf="typologie.data.deleted"> <ion-col class='meta-key'><strong>Supprimé par:</strong></ion-col> <ion-col class='meta-value'> {{typologie.data.deleted_by}} </ion-col> </ion-row>
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+
+  </div>
+
+
+<div *ngIf="ajoutForm || modifierFrom">
+
+  
+<form [formGroup]="typologieForm" (ngSubmit) = "actionForm()">
+  <ion-slides (ionSlideDidChange)="slideChanged()" pager>
+    <ion-slide>
+      <h2 class="fond-gris">Informations généraux</h2>
+      
+      <ion-item>
+        <ion-label floating>Date d'ajout <span class="error-box">*</span></ion-label>
+        <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" doneText="Valider" disabled></ion-datetime>
+        <!--ion-datetime ion-datepicker  (ionChanged)="setDate($event);" [value]="dateAjout" full="true" calendar="true" locale="fr-FR" clear class="ScheduleDate" displayFormat="DD/MM/YYYY" formControlName="today" [(ngModel)]="today" cancelText="Annuler" okText="Valider" disabled></ion-datetime-->
+      </ion-item>
+
+      <ion-item> 
+        <ion-label floating>Année</ion-label>
+        <ion-select formControlName="annee" [(ngModel)]="annee" (ionChange)="anneeModifiee()"  cancelText="Annuler" okText="Ok">
+          <ion-option *ngFor="let annee of annees" [value]=anne>{{annee}}</ion-option>
+        </ion-select> 
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['annee'].hasError('required') && typologieForm.controls['annee'].touched">* L'année est obligatoir!</div>
+
+      <div *ngIf="!producteur_connu && !modifierFrom">
+        <ng-template  #withFlags let-attrs="attrs">
+          <span [innerHTML]="attrs.data.matricule_Membre | boldprefix:attrs.keyword"></span> -- <span [innerHTML]="attrs.data.nom_Membre"></span>
+        </ng-template>
+
+        <ion-row>
+          <ion-col>
+            <ion-auto-complete [dataProvider]="ServiceAutoCompletion" [template]="withFlags" [options]="{ placeholder : 'Matricule producteur' }" (itemSelected)="itemSelected($event)" ></ion-auto-complete>  
+          </ion-col>
+        </ion-row>
+      </div>
+
+      <div [hidden]="!producteur_connu">
+        <ion-item>
+          <ion-label floating>Matricule producteur <span class="error-box">*</span></ion-label>
+          <ion-input type="text" formControlName="matricule_producteur" [(ngModel)]="matricule_producteur" disabled></ion-input>
+        </ion-item> 
+        <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['matricule_producteur'].hasError('required') && typologieForm.controls['matricule_producteur'].touched">* Le matricule du producteur est obligatoir!</div>
+      </div>
+
+      <ion-item>
+        <ion-label floating>Nom producteur <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="nom_producteur" [(ngModel)]="nom_producteur" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['nom_producteur'].hasError('required') && typologieForm.controls['nom_producteur'].touched">* Le nom du producteur est obligatoir!</div>
+
+      
+      <ion-item>
+        <ion-label floating>Surnom producteur </ion-label>
+        <ion-input type="text" formControlName="surnom_producteur" [(ngModel)]="surnom_producteur" [disabled]="surnon_defini"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label floating>Departement producteur <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="departement_producteur" [(ngModel)]="departement_producteur" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['departement_producteur'].hasError('required') && typologieForm.controls['departement_producteur'].touched">* Le departement est obligatoir!</div>
+
+
+      <ion-item>
+        <ion-label floating>Code union <span class="error-box">*</span></ion-label>
+        <ion-input type="text" formControlName="code_union" [(ngModel)]="code_union" disabled></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['code_union'].hasError('required') && typologieForm.controls['code_union'].touched">* Le code union est obligatoir!</div>
+
+    
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 1/11</strong></h2>
+    
+      <p style="font-style: italic">Quel âge avez-vous ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <ion-input type="number" formControlName="reponse1" [(ngModel)]="reponse1" (keyup)="getClasseReponse1(reponse1)" [disabled]="age_defini"></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse1'].hasError('required') && typologieForm.controls['reponse1'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>Age typologie: {{age_typologie}} ==> {{classe1}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+      
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 2/12</strong></h2>
+      
+        <p style="font-style: italic">Qui décide des activités dans vos champs ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse2" [(ngModel)]="reponse2" ></ion-input-->
+        <ion-select formControlName="reponse2" multiple="true" [(ngModel)]="reponse2" (ionChange)="getClasseReponse2(reponse2)" cancelText="Annuler" okText="Ok">
+          <ion-option value="moi-même" >Moi-même</ion-option>
+          <ion-option *ngIf="sex == 'female'" value="mon mari" >Mon mari</ion-option>
+          <ion-option *ngIf="sex == 'male'" value="ma femme" >Ma femme</ion-option>
+          <ion-option value="mes fils" >Mes fils</ion-option>
+          <ion-option value="mes parents">Mes parents</ion-option>
+          <ion-option value="mes frères">Mes frères</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse2'].hasError('required') && typologieForm.controls['reponse2'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe2}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+    
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 3/12</strong></h2>
+    
+        <p style="font-style: italic">Quel est l’objectif de la production ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse3" [(ngModel)]="reponse3" ></ion-input-->
+        <ion-select formControlName="reponse3" multiple="true" [(ngModel)]="reponse3" (ionChange)="getClasseReponse3(reponse3)" cancelText="Annuler" okText="Ok">
+          <ion-option value="auto consommation" >Auto consommation</ion-option>
+          <ion-option value="vente" >Vente</ion-option>
+          <ion-option value="nourrir les animaux" >Nourrir les animaux</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse3'].hasError('required') && typologieForm.controls['reponse3'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe3}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 4/12</strong></h2>
+   
+        <p style="font-style: italic">Quelles sont les principales cultures que vous avez pratiquées ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse4" [(ngModel)]="reponse4" ></ion-input-->
+        <ion-select formControlName="reponse4" multiple="true" [(ngModel)]="reponse4" (ionChange)="getClasseReponse4(reponse4)" cancelText="Annuler" okText="Ok">
+          <ion-option value="mil" >Mil</ion-option>
+          <ion-option value="sorgho" >Sorgho</ion-option>
+          <ion-option value="niébé" >Niébé</ion-option>
+          <ion-option value="arachide" >Arachide</ion-option>
+          <ion-option value="souchet" >Souchet</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse4'].hasError('required') && typologieForm.controls['reponse4'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe4}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 5/12</strong></h2>
+        
+      <p style="font-style: italic">Quelle superficie des champs avez-vous exploité ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse (en ha) <span class="error-box">*</span></ion-label>
+        <ion-input type="number" formControlName="reponse5" [(ngModel)]="reponse5" (keyup)="getClasseReponse5(reponse5)" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse5'].hasError('required') && typologieForm.controls['reponse5'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe5}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 6/12</strong></h2>
+   
+        <p style="font-style: italic">Combien d’autres personnes de votre ménage ont travaillé dans vos champs ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <ion-input type="number" formControlName="reponse6" [(ngModel)]="reponse6" (keyup)="getClasseReponse6(reponse6)" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse6'].hasError('required') && typologieForm.controls['reponse6'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe6}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 7/12</strong></h2>
+        <p style="font-style: italic">Combien de manœuvre ont travaillé dans vos champs ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <ion-input type="number" formControlName="reponse7" [(ngModel)]="reponse7" (keyup)="getClasseReponse7(reponse7)" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse7'].hasError('required') && typologieForm.controls['reponse7'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe7}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 8/12</strong></h2>
+      
+        <p style="font-style: italic">Avez-vous utilisé des matériels modernes  de production ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse8" [(ngModel)]="reponse8" ></ion-input-->
+        <ion-select formControlName="reponse8" [(ngModel)]="reponse8" (ionChange)="getClasseReponse8(reponse8)" cancelText="Annuler" okText="Ok">
+          <ion-option value="oui" >Oui</ion-option>
+          <ion-option value="non" >Non</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse8'].hasError('required') && typologieForm.controls['reponse8'].touched">* la reponse est obligatoir!</div>
+      
+      <div *ngIf="reponse8 == 'oui'">
+        <br>
+        <h5 class="sans-fond-gris"><strong>Question 8/12 - A</strong> </h5>
+        <p style="font-style: italic">Les quels ?</p>
+
+        <ion-item>
+          <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+          <!--ion-input type="text" formControlName="reponse8_1" [(ngModel)]="reponse8_1" ></ion-input-->
+          <ion-select formControlName="reponse8_1" multiple="true" [(ngModel)]="reponse8_1" (ionChange)="getClasseReponse8_1(reponse8_1)" cancelText="Annuler" okText="Ok">
+            <ion-option value="charrettes" >Charrettes</ion-option>
+            <ion-option value="charrue" >Charrue</ion-option>
+            <ion-option value="semoirs" >Semoirs</ion-option>
+            <ion-option value="cribleurs" >Cribleurs</ion-option>
+            <ion-option value="batteuses" >Batteuses</ion-option>
+            <ion-option value="rayonneurs" >Rayonneurs</ion-option>
+            <ion-option value="tracteurs" >Tracteurs</ion-option>
+            <ion-option value="motoculteurs" >Motoculteurs</ion-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <div *ngIf="reponse8 == 'oui' && reponse8_1 && reponse8_1 != ''">
+        <br>
+        <h5 class="sans-fond-gris"><strong>Question 8/12 - B</strong> </h5>
+        <p style="font-style: italic">Quelle est la provenance ?</p>
+
+        <ion-item>
+          <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+          <!--ion-input type="text" formControlName="reponse8_2" [(ngModel)]="reponse8_2" ></ion-input-->
+          <ion-select formControlName="reponse8_2" multiple="true" [(ngModel)]="reponse8_2" (ionChange)="getClasseReponse8_2(reponse8_2)" cancelText="Annuler" okText="Ok">
+            <ion-option value="prêt" >Prêt</ion-option>
+            <ion-option value="location" >Location</ion-option>
+            <ion-option value="miennes" >Miennes</ion-option>
+          </ion-select>
+        </ion-item>
+      </div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'><span *ngFor="let c of classe8; let i = index"> {{c}}<span *ngIf="i < classe8.length - 1">, </span> </span> </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 9/12</strong></h2>
+      
+        <p style="font-style: italic">Avez-vous utilisé de la fumure organique ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse9" [(ngModel)]="reponse9" ></ion-input-->
+        <ion-select formControlName="reponse9" [(ngModel)]="reponse9" (ionChange)="getClasseReponse9(reponse9)" cancelText="Annuler" okText="Ok">
+          <ion-option value="oui" >Oui</ion-option>
+          <ion-option value="non" >Non</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse9'].hasError('required') && typologieForm.controls['reponse9'].touched">* la reponse est obligatoir!</div>
+      
+
+      <div *ngIf="reponse9 == 'oui'">
+        <br>
+        <h5 class="sans-fond-gris"><strong>Question 9/12 - A</strong> </h5>
+        <p style="font-style: italic">Quelles superficies avez-vous couvertes ?</p>
+
+        <ion-item>
+          <ion-label floating>Reponse (en %)<span class="error-box">*</span></ion-label>
+          <ion-input type="number" formControlName="reponse9_1" [(ngModel)]="reponse9_1" (keyup)="getClasseReponse9_1(reponse9_1)" ></ion-input>
+        </ion-item>
+      </div>
+
+      <div *ngIf="reponse9 == 'oui' && reponse9_1 && reponse9_1 != ''">
+        <br>
+        <h5 class="sans-fond-gris"><strong>Question 9/12 - B</strong> </h5>
+        <p style="font-style: italic">Quelle est la provenance ?</p>
+
+        <ion-item>
+          <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+          <!--ion-input type="text" formControlName="reponse9_2" [(ngModel)]="reponse9_2" ></ion-input-->
+          <ion-select formControlName="reponse9_2" multiple="true" [(ngModel)]="reponse9_2" (ionChange)="getClasseReponse9_2(reponse9_2)" cancelText="Annuler" okText="Ok">
+            <ion-option value="produite par mes animaux" >Produite par mes animaux</ion-option>
+            <ion-option value="achat" >Achat</ion-option>
+            <ion-option value="parcage" >Parcage</ion-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'><span *ngFor="let c of classe9; let i = index"> {{c}}<span *ngIf="i < classe9.length - 1">, </span> </span> </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 10/12</strong></h2>
+      
+        <p style="font-style: italic">Avez-vous utilisé de l’engrais chimique?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse10" [(ngModel)]="reponse10" ></ion-input-->
+        <ion-select formControlName="reponse10" [(ngModel)]="reponse10" (ionChange)="getClasseReponse10(reponse10)" cancelText="Annuler" okText="Ok">
+          <ion-option value="oui" >Oui</ion-option>
+          <ion-option value="non" >Non</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse10'].hasError('required') && typologieForm.controls['reponse10'].touched">* la reponse est obligatoir!</div>
+      
+      <div *ngIf="reponse10 == 'oui'">
+        <br>
+        <h5 class="sans-fond-gris"><strong>Question 10/12 - A</strong> </h5>
+        <p style="font-style: italic">Quelle quantité avez-vous achetée ?</p>
+
+        <ion-item>
+          <ion-label floating>Reponse (en nb sacs) <span class="error-box">*</span></ion-label>
+          <ion-input type="number" formControlName="reponse10_1" [(ngModel)]="reponse10_1" (keyup)="getClasseReponse10_1(reponse10_1)" ></ion-input>
+        </ion-item>
+      </div>
+
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe10}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 11/12</strong></h2>
+      
+        <p style="font-style: italic">Recevez-vous des formations dans la production agricole ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse <span class="error-box">*</span></ion-label>
+        <!--ion-input type="text" formControlName="reponse11" [(ngModel)]="reponse11" ></ion-input-->
+        <ion-select formControlName="reponse11" [(ngModel)]="reponse11" (ionChange)="getClasseReponse11(reponse11)" cancelText="Annuler" okText="Ok">
+          <ion-option value="non" >Non</ion-option>
+          <ion-option value="quelques fois" >Quelques fois</ion-option>
+          <ion-option value="régulièrement" >Régulièrement</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse11'].hasError('required') && typologieForm.controls['reponse11'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe11}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Question 12/12</strong></h2>
+      
+        <p style="font-style: italic">Votre production peut couvrir votre besoin alimentaire pour combien de mois ?</p>
+
+      
+      <ion-item>
+        <ion-label floating>Reponse (en nb mois)<span class="error-box">*</span></ion-label>
+        <ion-input type="number" formControlName="reponse12" [(ngModel)]="reponse12" (keyup)="getClasseReponse12(reponse12)" ></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="typologieForm.controls['reponse12'].hasError('required') && typologieForm.controls['reponse12'].touched">* la reponse est obligatoir!</div>
+      
+      <ion-card class="info-card">
+        <ion-grid>
+            <ion-row><ion-col class='meta-key'><strong>Classe:</strong></ion-col> <ion-col class='meta-value'>{{classe12}} </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-slide>
+
+    <ion-slide>
+      <h2 class="fond-gris"><strong>Fin</strong></h2>
+    
+      <ion-card class="info-card">
+        <ion-grid>
+          <ion-row><ion-col class='meta-key'><strong>Classes:</strong></ion-col> <ion-col class='meta-value'><span *ngFor="let c of classes; let i = index"> {{c}}<span *ngIf="i < classes.length - 1">, </span> </span> </ion-col>   </ion-row>
+        </ion-grid>
+      </ion-card>
+      <br>
+      <button ion-button type="submit" color="my_secondary" [disabled]="!typologieForm.valid" block>Sauvegarder</button>
+      <button ion-button color="my_primary" block (click)="annuler()">Fermer</button>
+
+    </ion-slide>
+  </ion-slides>
+  </form>
+</div>
+
+<ion-fab bottom right *ngIf="!ajoutForm &&!detailTypologie && selectedStyle != 'tableau' && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)" bottom>
+    <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+        <!--button ion-fab mini (click)="fusionnertypologies()" color="my_primary">FUS</button-->
+  </ion-fab>
+  
+
+
+  <ion-fab bottom right *ngIf="!ajoutForm &&!detailTypologie && selectedStyle == 'tableau' && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)">
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top"> 
+      <button ion-fab mini *ngIf="typologies.length > 0" (click)="onPrint()" color="my_primary"><ion-icon name="print"></ion-icon></button>
+      <button ion-fab mini *ngIf="typologies.length > 0" (click)="exportExcel()" color="my_primary"><ion-icon name="logo-windows"></ion-icon></button>
+      <button ion-fab mini (click)="ajouter()" color="my_primary"><ion-icon name="add"></ion-icon></button>
+      
+    </ion-fab-list>
+  </ion-fab>
+
+  <ion-fab bottom right *ngIf="detailTypologie && ((user && user.roles && global.estAnimataire(user.roles)) || estAnimataire)">
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini *ngIf="(user && user.roles && global.estManager(user.roles)) || estManager" (click)="supprimer(typologie)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini (click)="editer(typologie)" color="my_primary" ><ion-icon name="create"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>
+
+
+</ion-content>

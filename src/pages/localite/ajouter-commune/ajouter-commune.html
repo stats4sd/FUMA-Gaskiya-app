@@ -28,6 +28,9 @@
 <ion-content padding>
 
   <div *ngIf="liste">
+  		<ion-item>
+		<ion-searchbar placeholder="Rechercher commune..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+	  </ion-item>
     <ion-list *ngIf="allCommune.length && liste">
       <ion-item-sliding *ngFor="let commune of allCommune">
         <ion-item>

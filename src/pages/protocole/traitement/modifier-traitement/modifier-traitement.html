@@ -1,0 +1,113 @@
+<!--
+  Generated template for the ModifierTraitement page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+    <ion-title>modifier-traitement</ion-title>
+
+    <ion-buttons end>
+      <button ion-button icon-only color="royal" menuToggle><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <form [formGroup]="traitementForm" (ngSubmit) = "modifier()">
+
+  <ion-item>
+    <ion-label floating>Date d'ajout <span class="error-box">*</span></ion-label>
+    <ion-datetime displayFormat="DD/MM/YYYY" formControlName="today" disabled></ion-datetime>
+  </ion-item>
+
+  <ion-item>
+      <ion-label floating>Choisir l'année</ion-label>
+      <ion-select formControlName="annee" [(ngModel)]="selectedAnnee" (ionChange)="setAnnee(selectedAnnee)" cancelText="Annuler" okText="Ok" [disabled]="protocole">
+        <ion-option value="" selected disabled>Modifier l'année'</ion-option>
+        <ion-option *ngFor="let annee of annees" [value]=annee>{{annee}}</ion-option>
+      </ion-select>
+    </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['annee'].hasError('required') && traitementForm.controls['annee'].touched">* l'année du traitement est obligatoir!</div>
+
+  <ion-item> 
+    <ion-label floating>Modifier protocole <span class="error-box">*</span></ion-label>
+    <ion-select [(ngModel)]="code_protocole" formControlName="code_protocole" (ionChange)="chargerSelectedProtocole(code_protocole)" cancelText="Annuler" okText="Ok">
+      <ion-option *ngFor="let pr of protocoles" [value]=pr.doc.data.code>{{pr.doc.data.nom}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['code_protocole'].hasError('required') && traitementForm.controls['code_protocole'].touched">* le protocole est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Type des essais <span class="error-box">*</span></ion-label>
+    <ion-input type="text" [(ngModel)]="type_essais" formControlName="type_essais" disabled></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['type_essais'].hasError('required') && traitementForm.controls['type_essais'].touched">* le type des essais est obligatoir!</div>
+   
+
+  <ion-item>
+    <ion-label floating>Code traitement <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="code_traitement"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['code_traitement'].hasError('required') && traitementForm.controls['code_traitement'].touched">* le code du traitement est obligatoir!</div>
+   
+  <!--ion-item>
+    <ion-label floating>Nom traitement</ion-label>
+    <ion-input type="text" formControlName="nom_traitement" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_traitement'].hasError('required') && traitementForm.controls['nom_traitement'].touched">* le nom du traitement est obligatoir!</div-->
+  
+  <ion-item>
+    <ion-label floating>Nom d'entrée <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_entree" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_entree'].hasError('required') && traitementForm.controls['nom_entree'].touched">* le nom de l'entrée est obligatoir!</div>
+ 
+  <ion-item [hidden]="selectedProtocole && selectedProtocole.type_essais == 'sans controle'">
+    <ion-label floating>Nom controle <span class="error-box">*</span></ion-label>
+    <ion-input type="text" formControlName="nom_controle" ></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['nom_controle'].hasError('required') && traitementForm.controls['nom_controle'].touched">* le nom du controle  est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Superficie (m²) <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="superficie"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['superficie'].hasError('required') && traitementForm.controls['superficie'].touched">* la superficie est obligatoir!</div>
+
+  <!--ion-item>
+    <ion-label floating>Max NPL <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="max_NPL"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['max_NPL'].hasError('required') && traitementForm.controls['max_NPL'].touched">* le max NPL est obligatoir!</div>
+
+  <ion-item>
+    <ion-label floating>Max NPR <span class="error-box">*</span></ion-label>
+    <ion-input type="number" formControlName="max_NPR"></ion-input>
+  </ion-item>
+  <div style="padding-left: 15px;" class="error-box" *ngIf="traitementForm.controls['max_NPR'].hasError('required') && traitementForm.controls['max_NPR'].touched">* le max NPR est obligatoir!</div-->
+    
+
+  <ion-item>
+    <ion-label floating>Description de l'entrée</ion-label>
+    <ion-textarea formControlName="description_entree" row="6"></ion-textarea>
+  </ion-item>
+
+  <ion-item>
+    <ion-label floating>Objectif traitement</ion-label>
+    <ion-textarea formControlName="objectif_traitement" row="6"></ion-textarea>
+  </ion-item>
+
+    <br>
+    <button ion-button type="submit" color="my_secondary" [disabled]="!traitementForm.valid" block>Sauvegarder</button>
+  </form>
+  <button ion-button color="my_primary" block (click)="annuler()">Annuler</button>
+
+
+</ion-content>
+ 

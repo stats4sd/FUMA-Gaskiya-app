@@ -29,7 +29,11 @@
 <ion-content padding>
 
   <div *ngIf="liste">
+  	<ion-item>
+			<ion-searchbar placeholder="Rechercher pays..." [showCancelButton]="shouldShowCancel" (ionInput)="getItems($event)"></ion-searchbar>
+		  </ion-item>
     <ion-list *ngIf="allPays.length && liste">
+
       <ion-item-sliding *ngFor="let pays of allPays">
         <ion-item>
           <h6><strong>ID:</strong> {{pays.id}}</h6>

@@ -93,7 +93,7 @@
       <h6><strong>Nom producteur:</strong> {{champ.doc.data.nom_producteur}} <span *ngIf="champ.doc.data.surnom_producteur">({{champ.doc.data.surnom_producteur}})</span> </h6>
       <!--p><strong>Date:</strong> {{champ.doc.data.today | date: 'dd-MM-yyyy'}}</p-->
     </ion-item> 
-    <ion-item-options *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger)" side="right">
+    <ion-item-options *ngIf="(user && user.roles && global.estManager(user.roles)) || estManger" side="right">
         <button ion-button icon-only color="my_primary" (click)="partager(champ.doc._id)">
           <ion-icon name="share"></ion-icon>
         </button>

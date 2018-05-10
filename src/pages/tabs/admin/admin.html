@@ -31,21 +31,26 @@
     <ion-item style="text-align: center">Changer info DB
     </ion-item>
   </ion-card>
+  
+	<ion-card *ngIf="user && user.roles && global.estAnimataire(user.roles)" (click)="infoStructure()">
+	  <ion-item style="text-align: center">Info structure / organisation
+	  </ion-item>
+  </ion-card>
+  
+  <ion-card (click)="updateEssaiToNewForm()">
+    <ion-item style="text-align: center">Update essai
+    </ion-item>
+  </ion-card>
 
    <ion-card *ngIf="user && user.roles && global.estAdmin(user.roles)" (click)="ajouterDesignDoc()">
     <ion-item style="text-align: center">Ajouter Serveur Design Doc
     </ion-item>
   </ion-card>
 
-  <ion-card (click)="infoStructure()">
-      <ion-item style="text-align: center">Info structure / organisation
-      </ion-item>
-    </ion-card>
-
-  <!--ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="ajouterLoalDesignDoc()">
-    <ion-item style="text-align: center">Ajouter Local Design Doc
+  <ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="ajouterLoalDesignDoc()">
+    <ion-item style="text-align: center">Ajouter/Mise à jour local Design Doc
     </ion-item>
-  </ion-card-->
+  </ion-card>
 
   <!--ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="removeNouveauFilter()">
     <ion-item style="text-align: center">Supprimer nouveau filter
@@ -158,6 +163,11 @@
 
   <ion-card *ngIf="user && user.roles && global.estAdmin(user.roles)" (click)="compacteRemoteDB()">
     <ion-item style="text-align: center">Compresseer la base donnnées serveur
+    </ion-item>
+  </ion-card>
+
+  <ion-card *ngIf="user && user.roles && global.estManager(user.roles)" (click)="viderCorbeille()">
+    <ion-item style="text-align: center"  color="delete">Vider corbeille
     </ion-item>
   </ion-card>
 

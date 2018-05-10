@@ -730,6 +730,14 @@ export class DetailUnionPage {
     let alert = this.alertCtl.create({
       title: 'Suppression union',
       message: 'Etes vous sûr de vouloir supprimer cette union ?',
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Supprimer définitivement!',
+          value: 'oui',
+          checked: false
+          }
+      ],
       buttons:[
         {
           text: 'Annuler',
@@ -738,16 +746,29 @@ export class DetailUnionPage {
         },
         {
           text: 'Confirmer',
-          handler: () => {
-            this.servicePouchdb.deleteDoc(union);
-            let toast = this.toastCtl.create({
-              message:'Union bien suppriée',
-              position: 'top',
-              duration: 1000
-            });
+          handler: (data) => {
+            if(data.toString() === 'oui'){
+              this.servicePouchdb.deleteReturn(union);
+              let toast = this.toastCtl.create({
+                message:'Union bien suppriée',
+                position: 'top',
+                duration: 1000
+              });
 
-            toast.present();
-            this.navCtrl.pop();
+              toast.present();
+              this.navCtrl.pop();
+            }else{
+              this.servicePouchdb.deleteDoc(union);
+              let toast = this.toastCtl.create({
+                message:'Union bien suppriée',
+                position: 'top',
+                duration: 1000
+              });
+
+              toast.present();
+              this.navCtrl.pop();
+            }
+            
           }
         }
       ]

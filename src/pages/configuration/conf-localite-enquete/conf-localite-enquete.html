@@ -31,17 +31,18 @@
             <p><strong>Departement: </strong> <span *ngIf="confLocaliteEnquete.departement.id != 'AUTRE'">{{confLocaliteEnquete.departement.nom}}</span><span *ngIf="confLocaliteEnquete.departement.id == 'AUTRE'">{{confLocaliteEnquete.departement_autre}}</span> </p>
             <p><strong>Commune: </strong> <span *ngIf="confLocaliteEnquete.commune.id != 'AUTRE'">{{confLocaliteEnquete.commune.nom}}</span><span *ngIf="confLocaliteEnquete.commune.id == 'AUTRE'">{{confLocaliteEnquete.commune_autre}}</span> </p>
           </ion-item>
+          
           <ion-item-options side="left">
-            <button ion-button color="my_primary" (click)="modifierConfigurer(confLocaliteEnquete)">
-              <ion-icon name="create"></ion-icon>
-              Editer
+            <button ion-button color="danger" (click)="supprimer(confLocaliteEnquete)">
+              <ion-icon name="trash"></ion-icon>
+              Supprimer
             </button>
           </ion-item-options>
 
           <ion-item-options side="right">
-            <button ion-button color="danger" (click)="supprimer(confLocaliteEnquete)">
-              <ion-icon name="trash"></ion-icon>
-              Supprimer
+            <button ion-button color="my_primary" (click)="modifierConfigurer(confLocaliteEnquete)">
+              <ion-icon name="create"></ion-icon>
+              Editer
             </button>
           </ion-item-options>
         </ion-item-sliding>

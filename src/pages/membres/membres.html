@@ -596,9 +596,9 @@
 
     <ion-item *ngIf="ajoutForm">
       <ion-label floating>Selectionnez le village <span class="error-box">*</span></ion-label>
-      <ion-select formControlName="village" [(ngModel)]="selectedVillage" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(selectedVillage.id)" >
+      <ion-select formControlName="village" [(ngModel)]="indexSelectedVillage" cancelText="Annuler" okText="Ok" (ionChange)="chargerAutreNomVillage(indexSelectedVillage)" >
         <ion-option value="" selected disabled>Selectionnez le village</ion-option>
-        <ion-option *ngFor="let villag of villages" [value]=villag >{{villag.nom}}</ion-option>
+        <ion-option *ngFor="let villag of villages; let i = index" [value]=i >{{villag.nom}}</ion-option>
       </ion-select>
     </ion-item>
     <div style="padding-left: 15px;" class="error-box" *ngIf="membreForm.controls['village'].hasError('required') && membreForm.controls['village'].touched">* le village est obligatoir!</div>

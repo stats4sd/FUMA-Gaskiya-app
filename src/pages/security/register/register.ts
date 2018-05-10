@@ -35,12 +35,12 @@ export class RegisterPage {
     let s = this.createDate(d.getDate(), d.getMonth(), d.getFullYear());
     this.registerForm = this.formBuilder.group({
         nom: ['', Validators.required],
-        prenom: ['', Validators.required],
+        prenom: [''],
         email: ['', Validators.required],
         mdpass: ['', Validators.required],
         confmdpass: ['', Validators.required],
         date: [s, Validators.required],
-        sex: ['', Validators.required], 
+        sex: [''], 
         created_at: [d.toJSON()],
         updatet_at: [d.toJSON()],
         created_by: [''],

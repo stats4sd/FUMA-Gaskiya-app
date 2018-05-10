@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController, ModalController, ToastController, ViewController, IonicPage } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, ModalController, ToastController, ViewController, IonicPage, Loading } from 'ionic-angular';
 import { PouchdbProvider } from '../../../providers/pouchdb-provider';
 //import { OpPage } from '../../op/op';
 import { TranslateService } from '@ngx-translate/core';
 import { global } from '../../../global-variables/variable';
-import { Storage } from '@ionic/storage'
+import { Storage } from '@ionic/storage';
+import { EssaiType } from '../../../app/essai.class';
+import { CultureType } from '../../../app/culture-essai.class';
+
 
 /*
   Generated class for the Admin page.
@@ -106,6 +109,232 @@ export class AdminPage {
       }
      }
   }
+
+  updateEssaiToNewForm(){
+    let protocole: any;
+    let cultureProtocole: any;
+    let selectedAnnee = '2017';
+    let matricule_producteur = 'FM-BA 072-V'
+    let Essai: EssaiType;
+    let Culture_1: CultureType;
+    let model = this.loadtingCtl.create({
+      content: 'Application des changements en cours...'
+    });
+    model.present();
+
+    this.database.getPlageDocsRapide('fuma:protocole', 'fuma:protocole:\uffff').then((p) => {
+      if(p){
+        let ps: any = [];
+        for(let i = 0; i < p.length; i++){
+          if(p[i].doc.data.annee == selectedAnnee){
+            protocole = p[i].doc.data;
+            //alert(protocole.code)
+            break;
+          }
+        }        
+        this.database.getPlageDocsRapide('fuma:culture-protocole', 'fuma:culture-protocole:\uffff').then((cp) => {
+          if(cp){
+           for(let i = 0; i < cp.length; i++){
+            if(cp[i].doc.data.code_protocole == protocole.code){
+              cultureProtocole = cp[i].doc.data;
+              //alert(cultureProtocole.nom_culture)
+              break;
+            }
+           }
+
+           //ici faire les manipulations sur les essais
+           this.database.getPlageDocsRapide('fuma:essai:'+matricule_producteur, 'fuma:essai:'+matricule_producteur+' \uffff').then((ess) => {
+            if(ess){
+              ess.forEach((e) => {
+                //alert(e.doc._id)
+                Essai = new EssaiType();
+                Culture_1 = new CultureType();
+                
+                Essai.today = e.doc.data.today;
+                Essai.annee_essai=  e.doc.data.annee_essai;
+                Essai.type = e.doc.data.type;
+                Essai.code_essai = e.doc.data.code_essai;
+  
+                //protocole
+                Essai.code_protocole = protocole.code;
+                Essai.nom_protocole = protocole.nom;
+                Essai.type_essais = protocole.type_essais;
+                Essai.type_culture = protocole.type_culture;
+                Essai.typologie = protocole.typologie;
+                Essai.annee_typologie = protocole.annee_typologie;
+                Essai.traitement = protocole.traitement;
+            
+                //info producteur
+                Essai.matricule_producteur = e.doc.data.matricule_producteur;
+                Essai.nom_producteur = e.doc.data.nom_producteur;
+                Essai.surnom_producteur = e.doc.data.surnom_producteur;
+                Essai.sex_producteur = e.doc.data.sex_producteur;
+                Essai.code_union = e.doc.data.code_union;
+                Essai.site_producteur = e.doc.data.site_producteur;
+                Essai.id_site_producteur = e.doc.data.id_site_producteur;
+                Essai.id_village_producteur = e.doc.data.id_village_producteur; 
+                Essai.village_producteur = e.doc.data.village_producteur; 
+            
+                //info traitement
+                Essai.id_traitement = e.doc.data.id_traitement;
+                Essai.code_traitement = e.doc.data.code_traitement;
+                Essai.nom_entree = e.doc.data.nom_entree;
+                Essai.nom_controle = e.doc.data.nom_controle;
+                //superficie_tr: any = null;
+                if(e.doc.data.nom_entree == 'OGA'){
+                  Essai.superficie_standard = 400;
+                }else{
+                  Essai.superficie_standard = 100;
+                }
+                
+                //superficie_essai: any = null;
+            
+                //info champ
+                Essai.id_champs = e.doc.data.id_champs;
+                Essai.nom_champs = e.doc.data.nom_champs;
+                Essai.type_sole = e.doc.data.type_sole;
+                Essai.superficie = e.doc.data.superficie;
+                Essai.longitude = e.doc.data.latitude;
+                Essai.latitude = e.doc.data.longitude;
+            
+                //info cultures
+                //cultures: Array<CultureType> = [];
+                /********************* debu a commenter apres */
+                //culture: any = null;// ---> migré dans culture essai
+                //superficie_essai: any = null;// ---> migré dans culture essai
+                //variete: any = null;// ---> migré dans culture essai
+                //variables:any = [];// ---> migré dans culture essai
+                /********************* fin a commenter apres */
+            
+                //info généraux
+                Essai.systeme = null;
+                Essai.bloc = null;
+                Essai.parcelle = null;
+                Essai.repetition = null;
+                Essai.gerants = e.doc.data.gerants;
+                Essai.precedante_cultures = e.doc.data.precedante_cultures;
+                Essai.objectif_essai = e.doc.data.objectif_essai;
+                Essai.effort_personnel = e.doc.data.effort_personnel;
+                Essai.classes_producteur = e.doc.data.classes_producteur;
+                Essai.estValide = e.doc.data.estValide;
+            
+                //info appareil et users
+                Essai.deviceid = e.doc.data.deviceid;
+                Essai.imei = e.doc.data.imei;
+                Essai.phonenumber = e.doc.data.phonenumber;
+                Essai.update_deviceid = e.doc.data.update_deviceid;
+                Essai.update_phonenumber = e.doc.data.update_phonenumber;
+                Essai.update_imei = e.doc.data.update_imei;
+                Essai.start = e.doc.data.start;
+                Essai.end = e.doc.data.end;
+  
+                //Essai.superficie_standard = t.data.superficie;
+                Culture_1.variete = cultureProtocole.varietes[0];
+                Culture_1.superficie_essai = e.doc.data.superficie_essai;
+                Culture_1.superficie_controle = e.doc.data.superficie_essai;
+                Culture_1.culture = cultureProtocole.nom_culture;
+                Culture_1.variables_essai = this.clone(cultureProtocole.variables);
+                Culture_1.variables_essai[0].valeur_variable = e.doc.data.date_semis;
+                Culture_1.variables_essai[1].valeur_variable = e.doc.data.mode_semis;
+                Culture_1.variables_essai[2].valeur_variable = e.doc.data.NPL;
+                Culture_1.variables_essai[3].valeur_variable = e.doc.data.gestion;
+                Culture_1.variables_essai[4].valeur_variable = e.doc.data.date_recolte;
+                Culture_1.variables_essai[5].valeur_variable = e.doc.data.NPR;
+                Culture_1.variables_essai[6].valeur_variable = e.doc.data.PDE;
+                Culture_1.variables_essai[7].valeur_variable = e.doc.data.observation;
+                Culture_1.variables_controle = this.clone(cultureProtocole.variables);
+                Culture_1.variables_controle[0].valeur_variable = e.doc.data.date_semis_controle;
+                Culture_1.variables_controle[1].valeur_variable = e.doc.data.mode_semis_controle;
+                Culture_1.variables_controle[2].valeur_variable = e.doc.data.NPL_controle;
+                Culture_1.variables_controle[3].valeur_variable = e.doc.data.gestion_controle;
+                Culture_1.variables_controle[4].valeur_variable = e.doc.data.date_recolte;
+                Culture_1.variables_controle[5].valeur_variable = e.doc.data.NPR_controle;
+                Culture_1.variables_controle[6].valeur_variable = e.doc.data.PDE_controle;
+                Culture_1.variables_controle[7].valeur_variable = e.doc.data.observation_controle;
+  
+                Essai.cultures.push(Culture_1);
+                let essaiFinal: any = {};
+                essaiFinal._id = e.doc._id;
+                essaiFinal._rev = e.doc._rev;
+                essaiFinal.data = Essai;
+                essaiFinal.data.created_at = e.doc.data.created_at;
+                essaiFinal.data.updatet_at = e.doc.data.updatet_at;
+                essaiFinal.data.created_by = e.doc.data.created_by
+                essaiFinal.data.updated_by = e.doc.data.updated_by;
+                essaiFinal.data.deleted = e.doc.data.deleted;
+  
+                //alert(essaiFinal._id)
+                this.database.updateDoc(essaiFinal);
+                                
+              })
+              model.dismiss();
+            }
+            });
+
+          }else{
+            model.dismiss();
+          }
+        });
+      }else{
+        model.dismiss();
+      }
+    });
+
+  }
+
+  viderCorbeille(){
+    let loding = this.loadtingCtl.create({
+      content: 'Suppresion en cours...'
+    });
+
+    loding.present();
+    this.database.getAllDoc().then((docs) => {
+      if(docs){
+        docs.forEach((doc) => {
+          if(doc.data && doc.data.deleted == true ){
+            this.database.deleteReturn(doc);
+          }
+        });
+
+        loding.dismiss();
+      }else{
+        loding.dismiss();
+      }
+    });
+  }
+
+  clone(obj) {
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) {return obj};
+
+    // Handle Date
+    if (obj instanceof Date) {
+        var copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    // Handle Array
+    if (obj instanceof Array) {
+        let copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = this.clone(obj[i]);
+        }
+        return copy;
+    }
+
+    // Handle Object
+    if (obj instanceof Object) {
+        let copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
 
   ajouterDesignDoc(){
     let filter_doc: any = {
@@ -407,7 +636,7 @@ export class AdminPage {
 
     model.dismiss();
   }
-
+ 
 
   ajouterCodeUnionPourMembres(ops, membres){
     let model = this.loadtingCtl.create({

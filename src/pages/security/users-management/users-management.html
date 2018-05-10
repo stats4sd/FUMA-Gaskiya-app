@@ -1,0 +1,122 @@
+<!--
+  Generated template for the UsersManagementPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="fuma_primary">
+
+    <ion-buttons left>
+      <button ion-button icon-only color="royal" (click)="annuler()"><ion-icon name="arrow-back"></ion-icon></button>
+    </ion-buttons>
+
+    <ion-title>users-management - {{page}}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <div *ngIf="page === 'liste'">
+    <ion-list class="info-card" *ngIf="users.length > 0 && selectedStyle === 'liste'">
+      <ion-list-header>
+          <h2  class="fond-gris"><strong>Liste des utilisateurs </strong></h2>
+        </ion-list-header>
+      <ion-item *ngFor="let user of users" (click)="detail(user)">
+        <h6><strong>Nom utilisateur:</strong> {{user.name}}</h6>
+        <h6><strong>Nom et prénom:</strong> {{user.nom}} {{user.prenom}}</h6>
+        <h6><strong>Email:</strong> {{user.email}}</h6>
+        <!--h6><strong>Roles:</strong> <span *ngFor="let role of user.roles; let i = index">{{role}}<span *ngIf="i < user.roles.length - 1">, </span></span> </h6>
+        <h6><strong>Date création:</strong> {{user.date | date: 'dd-MM-yyyy'}}</h6-->
+      </ion-item>
+    </ion-list>
+
+    <ion-list *ngIf="!users.length > 0">
+      <ion-item>
+        <div class="message">Liste vide ou privilège insuffisant!</div>
+      </ion-item>    
+    </ion-list>
+  </div>
+
+  <div *ngIf="page === 'detail'">
+    <ion-card class="info-card" (dblclick)="editer(user)"> 
+      <ion-card-header>
+        <strong>Information utilisateur</strong>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row> <ion-col class='meta-key'><strong>Nom utilisateur:</strong></ion-col> <ion-col class='meta-value'> {{user.name}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Nom:</strong></ion-col> <ion-col class='meta-value'> {{user.nom}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Prénom:</strong></ion-col> <ion-col class='meta-value'> {{user.prenom}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Email:</strong></ion-col> <ion-col class='meta-value'> {{user.email}} </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Sex:</strong></ion-col> <ion-col class='meta-value'>  <span *ngIf="user.sex == 'H'">Homme</span> <span *ngIf="user.sex == 'F'">Femme</span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Roles/Droits:</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let role of user.roles; let i = index"><span *ngIf="role == 'admin'">Admin</span><span *ngIf="role == 'user'">Utilisateur</span><span *ngIf="role == 'animataire'">Animataire</span><span *ngIf="role == 'personnel'">Personnel</span><span *ngIf="role == 'moderateur'">Modérateur</span><span *ngIf="i < user.roles.length - 1">, </span></span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Codes unions autorisée:</strong></ion-col> <ion-col class='meta-value'> <span *ngFor="let cu of user.codes_unions; let i = index">{{cu}}<span *ngIf="i < user.codes_unions.length - 1">, </span></span> </ion-col> </ion-row>
+          <ion-row> <ion-col class='meta-key'><strong>Date enregistrement:</strong></ion-col> <ion-col class='meta-value'> {{user.date | date: 'dd-MM-yyyy'}}</ion-col> </ion-row>
+        </ion-grid>
+      </ion-card-content> 
+    </ion-card>
+  </div>
+
+  <div *ngIf="page === 'edite'">
+    <form [formGroup]="userForm" (ngSubmit) = "sauvegarder()">
+    
+
+      <ion-item>
+        <ion-label floating>Nom</ion-label>
+        <ion-input type="text" formControlName="nom" [(ngModel)]="nom" placeholder="Nom"></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="userForm.controls['nom'].hasError('required') && userForm.controls['nom'].touched">* Le nom est obligatoir</div>
+
+      <ion-item>
+        <ion-label floating>Prénom</ion-label>
+        <ion-input type="text" formControlName="prenom" [(ngModel)]="prenom" placeholder="Prénom"></ion-input>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="userForm.controls['prenom'].hasError('required') && userForm.controls['prenom'].touched">* le prénom est obligatoir!</div>
+ 
+      <ion-item>
+        <ion-label floating>Sex<span class="error-box">*</span></ion-label>
+        <ion-select formControlName="sex" [(ngModel)]="sex" cancelText="Annuler" okText="Ok">
+          <ion-option value="" selected disabled>Modifier le sex</ion-option>
+          <ion-option value="H" >Homme</ion-option>
+          <ion-option value="F" >Femme</ion-option>
+        </ion-select>
+      </ion-item>
+      <div style="padding-left: 15px;" class="error-box" *ngIf="userForm.controls['sex'].hasError('required') && userForm.controls['sex'].touched">* le sex est obligatoir!</div>
+
+      <ion-item>
+        <ion-label floating>Roles/Droits</ion-label>
+        <ion-select formControlName="roles" [(ngModel)]="roles" multiple="true" cancelText="Annuler" okText="Ok">
+          <ion-option value="admin" >Admin</ion-option>
+          <ion-option value="animataire">Animataire</ion-option>
+          <ion-option value="moderateur">Modérateur</ion-option>
+          <ion-option value="personnel">Personnel</ion-option>
+          <ion-option value="user">Utilisateur</ion-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label floating>Codes unions</ion-label>
+        <ion-select formControlName="codes_unions" [(ngModel)]="codes_unions" multiple="true" cancelText="Annuler" okText="Ok">
+          <ion-option *ngFor="let cu of unions" [value]=cu.doc.data.code_union >{{cu.doc.data.code_union}} - {{cu.doc.data.nom_union}}</ion-option>
+        </ion-select>
+      </ion-item>
+             
+      <br>
+      <button ion-button type="submit" color="my_secondary" [disabled]="!userForm.valid" block>Sauvegarder</button>
+    </form>
+    <button ion-button color="my_primary" block (click)="annuler()">Fermer</button>
+
+  </div>
+
+  <ion-fab bottom right *ngIf="page === 'detail'" >
+    <button ion-fab color="fuma-green"><ion-icon name="arrow-dropup"></ion-icon></button>
+    <ion-fab-list side="top">
+      <button ion-fab mini (click)="supprimer(user)" color="delete" ><ion-icon name="trash"></ion-icon></button>
+      <button ion-fab mini (click)="editer(user)" ><ion-icon name="create"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>
+</ion-content>

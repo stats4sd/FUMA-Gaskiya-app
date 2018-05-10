@@ -28,12 +28,11 @@ export class DetailChampsPage {
   ancien_superficie: any;
   ancien_type_sole: any;
   ancien_longitude: any;
-  ancien_latitude: any;
+  ancien_latitude: any; 
   membre: any;
   champID: any;
   appartenance: any = '';
-  appartenances: any = ['Mien', 'Prêt', 'Location']
-
+  appartenances: any = ['Achât', 'Donnation', 'Gage', 'Héritage', 'Location', 'Prêt'];
 
   champsForm: any;
   grandChamps: any;
@@ -281,6 +280,14 @@ export class DetailChampsPage {
     let alert = this.alertCtl.create({
       title: 'Suppression champs',
       message: 'Etes vous sûr de vouloir supprimer cet champs ?',
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Supprimer définitivement!',
+          value: 'oui',
+          checked: false
+          }
+      ],
       buttons:[
         {
           text: 'Non',
@@ -289,16 +296,28 @@ export class DetailChampsPage {
         },
         {
           text: 'Oui',
-          handler: () => {
-            this.servicePouchdb.deleteDoc(champ);
-            let toast = this.toastCtl.create({
-              message:'Champs bien supprié',
-              position: 'top',
-              duration: 3000
-            });
+          handler: (data) => {
+            if(data.toString() === 'oui'){
+              this.servicePouchdb.deleteReturn(champ);
+              let toast = this.toastCtl.create({
+                message:'Champs bien supprié',
+                position: 'top',
+                duration: 3000
+              });
 
-            toast.present();
-            this.navCtrl.pop();
+              toast.present();
+              this.navCtrl.pop();
+            }else{
+              this.servicePouchdb.deleteDoc(champ);
+              let toast = this.toastCtl.create({
+                message:'Champs bien supprié',
+                position: 'top',
+                duration: 3000
+              });
+
+              toast.present();
+              this.navCtrl.pop();
+              }
           }
         }
       ]

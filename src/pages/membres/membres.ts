@@ -55,7 +55,7 @@ export class MembresPage {
   typeRecherche: any = 'matricule';
   selectedLimit: any = 10;
   limits: any = [10, 25, 50, 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 'Tous'];
-  recherche: any = global.config_app.code_structure+'-';
+  recherche: any;
 
   membreForm: any;
   villages: any = [];
@@ -147,6 +147,7 @@ export class MembresPage {
   refresher: any = '';
   getPhotoOk: boolean = false;
   copie_db: any;
+  indexSelectedVillage: number;
 
   @ViewChild('barcode') barcode: ElementRef;
 
@@ -157,6 +158,12 @@ export class MembresPage {
     this.menuCtl.enable(false, 'options');
     this.menuCtl.enable(false, 'connexion');
     this.menuCtl.enable(false, 'profile');
+
+    if(global.config_app.code_structure){
+      this.recherche = global.config_app.code_structure+'-';
+    }else{
+      this.recherche = '';
+    }
 
     events.subscribe('user:login', (user) => {
        if(user){
@@ -667,9 +674,9 @@ export class MembresPage {
       //destinationType: this.camera.DestinationType.NATIVE_URI,
       destinationType: this.camera.DestinationType.DATA_URL,
       quality: 50,
-      //targetWidth: 500,
-      targetWidth: 100,
-      targetHeight: 100,
+      targetWidth: 500,
+      //targetWidth: 100,
+      targetHeight: 500,
       correctOrientation: true,
       saveToPhotoAlbum: true
     };
@@ -759,17 +766,22 @@ export class MembresPage {
   }
 
 
-  chargerAutreNomVillage(v){
-    if(v !== 'AUTRE'){
-      this.nom_autre_village = 'NA';
-    }else{
-       let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.confLocaliteEnquete.commune.id, 'nom_commune': this.confLocaliteEnquete.commune.nom});
-        model.present();
-        model.onDidDismiss(() => {
-          this.chargerVillages(this.confLocaliteEnquete.commune.id);
-          this.selectedVillage = '';
-      })
-      this.nom_autre_village = '';
+  chargerAutreNomVillage(index){
+    if(index > -1){
+      this.selectedVillage = this.villages[index];
+      let v = this.selectedVillage.id;
+      if(v !== 'AUTRE'){
+        this.nom_autre_village = 'NA';
+      }else{
+        let model = this.modelCtl.create('AjouterVillagePage', {'id_commune':this.confLocaliteEnquete.commune.id, 'nom_commune': this.confLocaliteEnquete.commune.nom});
+          model.present();
+          model.onDidDismiss(() => {
+            this.chargerVillages(this.confLocaliteEnquete.commune.id);
+            this.selectedVillage = '';
+            this.indexSelectedVillage = -1;
+        })
+        this.nom_autre_village = '';
+      }
     }
   }
 
@@ -1512,8 +1524,8 @@ export class MembresPage {
     let option = {
       maximumImagesCount: 1,
       quality: 50,
-      width: 100,
-      height: 100,
+      width: 500,
+      height: 500,
       outputType: 1
     };
 
@@ -1850,7 +1862,19 @@ chargerOp(){
     this.imageData = '';
     this.imageBlob = '';
     if(!global.config_app.code_structure){
-      alert('Impossible d\'éffectuer cette opération, le code de la strucutre n\'est pas encore défini!\nVeuillez le définir dans options => Admin');
+      let alt = this.alertCtl.create({
+        title: 'Erreur code organisation',
+        message: 'Impossible d\'éffectuer cette opération, le code de la strucutre n\'est pas encore défini!\nVeuillez le définir dans options => Admin',
+        buttons: [
+          {
+            text: 'Ok',
+            handler: () => console.log('ok')
+          }
+        ]
+      });
+
+      alt.present();
+      //alert('Impossible d\'éffectuer cette opération, le code de la strucutre n\'est pas encore défini!\nVeuillez le définir dans options => Admin');
     }else
     if(this.confLocaliteEnquete){
 
@@ -2603,10 +2627,16 @@ chargerOp(){
       inputs: [
           {
             type: 'checkbox',
+            label: 'Supprimer définitivement',
+            value: 'definitive',
+            checked: false
+          },
+          {
+            type: 'checkbox',
             label: 'Supprimer la photo du membre',
             value: 'oui',
             checked: true
-          }
+          },
       ],
       buttons:[
         {
@@ -2617,47 +2647,70 @@ chargerOp(){
         {
           text: 'Confirmer',
           handler: (data) => {
+            if(data[0] && data[0].toString() == 'definitive'){
+              this.servicePouchdb.deleteReturn(membre).then((res) => {
+
+                //Supprimer la photo si la case est cochée
+                 if(membre.data.photoID && data[1] && data[1].toString() === 'oui'){
+                  this.servicePouchdb.getDocById(membre.data.photoID).then((doc) => {
+                    if(doc){
+                      this.servicePouchdb.deleteReturn(doc).then(res => console.log('ok'), err => console.log('err'));
+                    }
+                  }, err => console.log(err))
+                  
+                }
   
-            this.servicePouchdb.deleteDocReturn(membre).then((res) => {
-
-              //Supprimer la photo si la case est cochée
-               if(membre.data.photoID && data.toString() === 'oui'){
-                this.servicePouchdb.getDocById(membre.data.photoID).then((doc) => {
-                  if(doc){
-                    this.servicePouchdb.deleteDocReturn(doc).then(res => console.log('ok'), err => console.log('err'));
+                this.membres.forEach((m, i) => {
+                  if(m.doc._id === membre._id){
+                    this.membres.splice(i, 1);
+                    //this.allMembres1.splice(i, 1);
+                    //this.allMembres = this.membres;
                   }
-                }, err => console.log(err))
-                
-              }
-
-              this.membres.forEach((m, i) => {
-                if(m.doc._id === membre._id){
-                  this.membres.splice(i, 1);
-                  //this.allMembres1.splice(i, 1);
-                  //this.allMembres = this.membres;
-                }
-              })
-
-              this.allMembres1.forEach((m, i) => {
-                if(m.doc._id === membre._id){
-                  this.allMembres1.splice(i, 1);
-                  /*this.detailMembre = false;
-                  this.membre = {};*/
-                }
+                })
+  
+                this.allMembres1.forEach((m, i) => {
+                  if(m.doc._id === membre._id){
+                    this.allMembres1.splice(i, 1);
+                  }
+                });
+  
+                this.detailMembre = false;
+                this.membre = {};
               });
+             
+            }else{
+              this.servicePouchdb.deleteDocReturn(membre).then((res) => {
 
-              this.detailMembre = false;
-              this.membre = {};
-            });
-           
-            /*let toast = this.toastCtl.create({
-              message:'Membre OP bien suppriée',
-              position: 'top',
-              duration: 3000
-            });
-
-            toast.present();
-            this.navCtrl.pop();*/
+                //Supprimer la photo si la case est cochée
+                 if(membre.data.photoID && data[1] && data[1].toString() === 'oui'){
+                  this.servicePouchdb.getDocById(membre.data.photoID).then((doc) => {
+                    if(doc){
+                      this.servicePouchdb.deleteDocReturn(doc).then(res => console.log('ok'), err => console.log('err'));
+                    }
+                  }, err => console.log(err))
+                  
+                }
+  
+                this.membres.forEach((m, i) => {
+                  if(m.doc._id === membre._id){
+                    this.membres.splice(i, 1);
+                    //this.allMembres1.splice(i, 1);
+                    //this.allMembres = this.membres;
+                  }
+                })
+  
+                this.allMembres1.forEach((m, i) => {
+                  if(m.doc._id === membre._id){
+                    this.allMembres1.splice(i, 1);
+                  }
+                });
+  
+                this.detailMembre = false;
+                this.membre = {};
+              });
+             
+            }
+  
           }
         }
       ]

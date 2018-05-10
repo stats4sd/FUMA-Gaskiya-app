@@ -970,6 +970,14 @@ export class DetailOpPage {
     let alert = this.alertCtl.create({
       title: 'Suppression OP',
       message: 'Etes vous sûr de vouloir supprimer cette OP ?',
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Supprimer définitivement!',
+          value: 'oui',
+          checked: false
+          }
+      ],
       buttons:[
         {
           text: 'Annuler',
@@ -978,16 +986,29 @@ export class DetailOpPage {
         },
         {
           text: 'Confirmer',
-          handler: () => {
-            this.servicePouchdb.deleteDoc(op);
-            let toast = this.toastCtl.create({
-              message:'OP bien suppriée',
-              position: 'top',
-              duration: 3000
-            });
+          handler: (data) => {
+            if(data.toString() === 'oui'){
+              this.servicePouchdb.deleteReturn(op);
+              let toast = this.toastCtl.create({
+                message:'OP bien suppriée',
+                position: 'top',
+                duration: 3000
+              });
 
-            toast.present();
-            this.navCtrl.pop();
+              toast.present();
+              this.navCtrl.pop();
+            }else{
+              this.servicePouchdb.deleteDoc(op);
+              let toast = this.toastCtl.create({
+                message:'OP bien suppriée',
+                position: 'top',
+                duration: 3000
+              });
+
+              toast.present();
+              this.navCtrl.pop();
+              }
+            
           }
         }
       ]
