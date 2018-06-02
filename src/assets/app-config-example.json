@@ -1,8 +1,0 @@
-{
-    "remote-couch-url":"https://mysite.com",
-   "username": "TestUser",
-    "password": "Pass1234",
-    "kobo-api-key":"myApiToken"
-}
-
-// get api token from https://kc.kobotoolbox.org/[yourusername]/api-token.
